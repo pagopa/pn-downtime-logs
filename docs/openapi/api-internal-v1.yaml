@@ -7,7 +7,8 @@ info:
     e dello storico dei disservizi; per ogni disservizio è possibile scaricare il corrispondente
     atto opponibile a terzi che lo "certifica". <br/>
     Inoltre l'operazione _addStatusChangeEvent_ permette di inserire eventi di inizio o fine di 
-    un disservizio utile in quei casi in cui il sistema automatico non rivela il problema.
+    un disservizio utile in quei casi in cui il sistema automatico non rivela il problema. <br/>
+    __N.B.:__ gli atti opponibili a terzi vengono generati solo per i disservizi conclusi.
   contact:
     email: pn@pagopa.it
   license:
@@ -50,6 +51,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PnStatusResponse"
+              example: 
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                openIncidents:
+                  - functionality: NOTIFICATION_CREATE
+                    status: KO
+                    startDate: "2019-08-24T14:15:22Z"
         '400':
           description: Bad request
           content:
@@ -59,7 +66,7 @@ paths:
 
   "/downtime/history":
     get:
-      summary: Ricerca problemi passati
+      summary: Ricerca storico disservizi
       description: >-
         Elenco dei disservizi di Piattafoma Notifiche riscontrate nel lasso di tempo specificato 
         dai parametri _fromTime_ e _toTime_. <br/>
@@ -72,6 +79,7 @@ paths:
         - $ref: '#/components/parameters/queryFromTime'
         - $ref: '#/components/parameters/queryToTime'
         - $ref: '#/components/parameters/queryFunctionality'
+        - $ref: '#/components/parameters/queryPage'
       responses:
         '200':
           description: OK
@@ -95,10 +103,11 @@ paths:
 
   '/downtime/legal-facts/{legalFactId}':
     get:
-      summary: Scarica atto opponibile a terzi
+      summary: Ottieni atto opponibile a terzi
       description: >-
-        Permette di scaricare un atto opponibile a terzi che permetta di dimostrare un 
-        disservizio di piattaforma notifiche e della sua durata.
+        Fornisce le informazioni per scaricare un atto opponibile a terzi o, se tale atto va 
+        recuperato dagli archivi, fornisce una stima per eccesso di quanti secondi bisogna 
+        attendere.
       tags:
         - Read
       operationId: getLegalFact
@@ -115,7 +124,20 @@ paths:
           content:  
             application/json:
               schema:
-                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"          
+                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"
+              examples:
+                hot:
+                  summary: File disponibile
+                  value:
+                    filename: downtime_NEW_NOTIFICATION_20221204.pdf
+                    contentLength: 32423
+                    url: "https://s3............com/presigned-url"
+                cold:
+                  summary: File archiviato
+                  value:
+                    filename: downtime_NEW_NOTIFICATION_20221204.pdf
+                    contentLength: 32423
+                    retryAfter: 7200    
         '400':
           description: Bad request
           content:
@@ -129,10 +151,11 @@ paths:
     ###########################################################################################
   "/downtime/events":
     post:
-      summary: Modifica lo stato
+      summary: Modifica stato di servizio
       description: >-
-        XYZ THROTTLING una al millisencondo 
-        fare in modo che i cambi di stato per una stessa funzionalità abbiano timestamp diverso.
+        Permette di aggiungere un evento di inizio o fine di un disservizio, può essere 
+        richiamato sia dagli allarmi automatici che da GUI. Tali casi vanno discriminati 
+        con l'attributo di richiesta _sourceType_.
       tags:
         - Write
       operationId: addStatusChangeEvent
@@ -185,11 +208,19 @@ components:
       name: functionality
       in: query
       required: false
-      description: funzionalità di Piattaforma Notifiche di cui elencare i downtime
+      description: funzionalità di Piattaforma Notifiche di cui elencare i disservizi
       schema:
         type: array
         items:
           $ref: '#/components/schemas/PnFunctionality'
+    
+    queryPage:
+      name: page
+      in: query
+      required: false
+      description: Pagina di risultati a cui il client è interessato
+      schema:
+        type: string
 
 
   schemas:
@@ -198,31 +229,53 @@ components:
     ###                DTO VISUALIZZAZIONE STATO DELLA PIATTAFORMA NOTIFICHE                ###
     ###########################################################################################
     PnStatusResponse:
+      title: Stato attuale di PN
+      description: >-
+        Elenco delle funzionalità della piattaforma ed elenco dei disservizi noti e attivi 
+        al momento della richiesta. I disservizi (_openIncidents_) segnalati sono al più uno 
+        per funzionalità; gli attributi _endDate_ e _legalFactId_ non saranno valorizzati.
       type: object
       required:
         - functionalities
         - openIncidents
       properties:
         functionalities:
+          title: elenco funzionalità di PN
+          description: Un array che comprende tutti i possibili valori dell'enum _PnFunctionality_
           type: array
           items: 
             $ref: '#/components/schemas/PnFunctionality'
         openIncidents:
-          $ref: '#/components/schemas/PnDowntimeHistoryEntry'
+          title: elenco disservizi correnti
+          description: Al più uno per funzionalità
+          type: array
+          items: 
+            $ref: '#/components/schemas/PnDowntimeHistoryEntry'
     
     PnDowntimeHistoryResponse:
+      title: Elenco disservizi con paginazione
+      description: Risposta a una query dello storico dei disservizi
       type: object
       required:
         - result
       properties:
         result:
+          title: Elenco di disservizi
           type: array
           items: 
             $ref: '#/components/schemas/PnDowntimeHistoryEntry'
         nextPage:
+          title: prossima pagina di risultati
+          description: >-
+            Se questo attributo non è presente o valorizzato _null_ indica che la query
+            eseguita non presenta ulteriori risultati. <br/>
+            Se questo attributo è valorizzato indica che la query può contenere ulteriori 
+            risultati. La richiesta va rieseguita inserendo nel parametro _page_ il valore 
+            di questo campo.
           type: string
 
     PnDowntimeHistoryEntry:
+      title: Dati relativi ad un disservizio di PN.
       type: object
       required:
         - functionality
@@ -230,30 +283,49 @@ components:
         - startDate
       properties:
         functionality:
+          title: Funzionalità impattata dal disservizio
           $ref: '#/components/schemas/PnFunctionality'
         status:
+          title: tipicamente KO
           $ref: '#/components/schemas/PnFunctionalityStatus'
         startDate:
+          title: data inizio disservizio
           type: string
           format: date-time
         endDate:
+          title: data fine disservizio
+          description: >-
+            se il disservizio è ancora attivo questo campo sarà assente o con valore _null_
           type: string
           format: date-time
         legalFactId:
+          title: id dell'atto opponibile a terzi
+          description: >-
+            Se assente o valorizzato _null_ indica che l'atto opponibile a terzi non è ancora
+            disponibile. Questo avviene per i disservizi ancora aperti e per i disservizi 
+            terminati da pochi minuti. <br/>
+            Questo valore è da utilizzare con l'API _getLegalFact_ di questo stesso servizio.
           type: string
         
     PnFunctionality:
+      title: Funzionalità di PN
+      description: >-
+        - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
+
+        - __NOTIFICATION_VISUALIZZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
+
+        - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
       type: string
       enum:
-        - NEW_NOTIFICATION
+        - NOTIFICATION_CREATE
         - NOTIFICATION_VISUALIZZATION
-        - NOTIFICATION_PROCESS  
+        - NOTIFICATION_WORKFLOW  
 
     PnFunctionalityStatus:
       type: string
       enum:
-        - OK 
-        - KO
+        - KO 
+        - OK
     
     ############################################################################################
     ###                         DTO DOWNLOAD ATTI OPPONIBILI A TERZI                         ###
@@ -263,7 +335,7 @@ components:
       title: Url e metadati per il download di un allegato di una notifica
       description: >-
         I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET. <br/>
           - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
             secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
       type: object
@@ -293,6 +365,8 @@ components:
     ###########################################################################################
     
     PnStatusUpdateEvent:
+      title: Evento di inzio o terminazione di un disservizio
+      description: Ogni disservizio è relativo ad almeno una funzionalità
       type: object
       required:
         - status
@@ -302,20 +376,34 @@ components:
         - source
       properties:
         status:
+          title: Nuovo stato della funzionalità
           $ref: '#/components/schemas/PnFunctionalityStatus'
         timestamp:
+          title: quando è avvenuto il cambio di stato
+          description: richiesta precisione al millisecondo.
           type: string
-          description: richiesto al millisecondo
           format: date-time
         functionality:
+          title: Elenco funzionalità il cui stato di disponibilità e cambiato
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/PnFunctionality'
         sourceType:
+          title: tipo fonte dell'evento
+          description: >-
+            Tipologia della fonte dell'evento
+              - __ALARM__ per i disservizi rilevati automaticamente tramite CloudWatch. <br/>
+              - __OPERATOR__ per i disservizi gestiti manualmente. <br/>
           type: string
           enum:
             - ALARM
             - OPERATOR
         source:
+          title: identificativo della sorgente dell'evento
+          description: >-
+            - "AlarmDescription" dell'allarme CLoudWatch se _SourceType = ALARM_
+
+            - "uid" dell'operatore che ha effettuato il login se _SourceType = OPERATOR_
           type: string
 
