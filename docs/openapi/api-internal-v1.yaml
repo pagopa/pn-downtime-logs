@@ -3,11 +3,12 @@ info:
   title: 'Stato della piattaforma PN'
   version: v1.0
   description: >- 
-    Queste API permettono la visualizzazione dello stato dei servizi di Piattaforma Notifiche 
+    Queste API permettono:<br/>
+    - la visualizzazione dello stato dei servizi di Piattaforma Notifiche 
     e dello storico dei disservizi; per ogni disservizio è possibile scaricare il corrispondente
-    atto opponibile a terzi che lo "certifica". <br/>
-    Inoltre l'operazione _addStatusChangeEvent_ permette di inserire eventi di inizio o fine di 
-    un disservizio utile in quei casi in cui il sistema automatico non rivela il problema. <br/>
+    atto opponibile a terzi corrispondente. <br/>
+    - l'inserimento di eventi di inizio o fine di un disservizio utile in quei casi in cui il 
+    sistema automatico non rivela il problema. <br/>
     __N.B.:__ gli atti opponibili a terzi vengono generati solo per i disservizi conclusi.
   contact:
     email: pn@pagopa.it
