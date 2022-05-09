@@ -366,7 +366,7 @@ components:
     ###########################################################################################
     
     PnStatusUpdateEvent:
-      title: Evento di inzio o terminazione di un disservizio
+      title: Evento di inzio o di termine disservizio
       description: Ogni disservizio è relativo ad almeno una funzionalità
       type: object
       required:
