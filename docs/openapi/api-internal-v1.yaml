@@ -250,7 +250,7 @@ components:
           description: Al più uno per funzionalità
           type: array
           items: 
-            $ref: '#/components/schemas/PnDowntimeHistoryEntry'
+            $ref: '#/components/schemas/PnDowntimeEntry'
     
     PnDowntimeHistoryResponse:
       title: Elenco disservizi con paginazione
@@ -263,7 +263,7 @@ components:
           title: Elenco di disservizi
           type: array
           items: 
-            $ref: '#/components/schemas/PnDowntimeHistoryEntry'
+            $ref: '#/components/schemas/PnDowntimeEntry'
         nextPage:
           title: prossima pagina di risultati
           description: >-
@@ -274,7 +274,7 @@ components:
             di questo campo.
           type: string
 
-    PnDowntimeHistoryEntry:
+    PnDowntimeEntry:
       title: Dati relativi ad un disservizio di PN.
       type: object
       required:
