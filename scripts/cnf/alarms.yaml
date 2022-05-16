@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'This template deploys the queues needed for comuication between microservices and 
+              API gateway custom domains'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: 'Usually pn can be pnXYZ where XYZ are the feature number, useful to create
+      experimental environments without crash official development environment'
+
+
+Resources:
+  
+  ReceiveNotificationNotWorkingAlarm:
+    Type: AWS::CloudWatch::CompositeAlarm
+    Properties:
+      AlarmName: !Sub '${ProjectName}-DowntimeLogs-ReceiveNotification'
+      AlarmRule: !Sub 'ALARM(${ProjectName}-delivery_push_inputs-DLQ-HasMessage)'
