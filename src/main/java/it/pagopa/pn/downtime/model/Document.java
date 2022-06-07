@@ -14,12 +14,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 
-public class Documento implements Serializable {
+public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private int idDocumento;
+    private int idDocument;
 
-    private String nomeDocumento;
+    private String nameDocument;
 
 
 
