@@ -20,6 +20,17 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 		<openapi-generator-maven-plugin-version>5.1.0</openapi-generator-maven-plugin-version>
 		<swagger-annotations-version>1.5.8</swagger-annotations-version>	
 	</properties>
+	<dependencyManagement>
+    <dependencies>
+    <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-releasetrain</artifactId>
+        <version>Lovelace-SR16</version>
+        <type>pom</type>
+        <scope>import</scope>
+        </dependency>
+    </dependencies>
+	</dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -37,6 +48,16 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>dynamodb-enhanced</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-dynamodb</artifactId>
+        <version>1.11.64</version>
+    </dependency>
+    <dependency>
+        <groupId>com.github.derjust</groupId>
+        <artifactId>spring-data-dynamodb</artifactId>
+        <version>5.1.0</version>
     </dependency>
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
@@ -93,7 +114,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-annotations</artifactId>
 			<version>${swagger-annotations-version}</version>
-		</dependency>
+	</dependency>
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger2</artifactId>
