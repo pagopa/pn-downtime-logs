@@ -1,5 +1,7 @@
 package it.pagopa.pn.downtime.service;
 
+import java.util.List;
+
 import it.pagopa.pn.downtime.model.Event;
 
 /**
@@ -7,6 +9,6 @@ import it.pagopa.pn.downtime.model.Event;
  */
 public interface EventService {
 
-	Iterable<Event> getEvents();
+	List<Event> getEvents();
 
 }
