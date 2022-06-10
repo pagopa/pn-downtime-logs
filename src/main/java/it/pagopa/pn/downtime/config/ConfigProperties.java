@@ -12,7 +12,7 @@ public class ConfigProperties {
     private String activeProfile;
 
     @Value("${spring_cors_origin}")
-    private String CORSOrigin;
+    private String corsOrigin;
 
     public boolean isActiveProfileDev() {
         return "dev".equals(getActiveProfile());

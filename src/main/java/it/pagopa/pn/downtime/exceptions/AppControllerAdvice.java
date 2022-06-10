@@ -2,6 +2,7 @@ package it.pagopa.pn.downtime.exceptions;
 
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.servlet.ServletException;
@@ -66,7 +67,7 @@ public class AppControllerAdvice {
      * @param request
      * @return String with the details of the exception
      */
-    public HashMap<String, String> getBody(HttpStatus status, Exception ex, String message,
+    public Map<String, String> getBody(HttpStatus status, Exception ex, String message,
             HttpServletRequest request) {
         printLog(status, ex, message, request);
         HashMap<String, String> ce = new HashMap<>();
