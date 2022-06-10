@@ -81,6 +81,7 @@ paths:
         - $ref: '#/components/parameters/queryToTime'
         - $ref: '#/components/parameters/queryFunctionality'
         - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/querySize'
       responses:
         '200':
           description: OK
@@ -222,7 +223,14 @@ components:
       description: Pagina di risultati a cui il client è interessato
       schema:
         type: string
-
+        
+    querySize:
+      name: size
+      in: query
+      required: false
+      description: Size della pagina di risultati a cui il client è interessato
+      schema:
+        type: String
 
   schemas:
     

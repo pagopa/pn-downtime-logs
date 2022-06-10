@@ -48,7 +48,7 @@ public class EventController  implements DowntimeApi{
 
     }
     @Override
-    public ResponseEntity<List<PnDowntimeHistoryResponse>> statusHistory(OffsetDateTime fromTime,OffsetDateTime toTime, List<PnFunctionality> functionality, String page) {
+    public ResponseEntity<List<PnDowntimeHistoryResponse>> statusHistory(OffsetDateTime fromTime,OffsetDateTime toTime, List<PnFunctionality> functionality, String page, String size) {
     	  return ResponseEntity.ok(null);
     }
  
