@@ -10,5 +10,4 @@ import it.pagopa.pn.downtime.model.Event;
 public interface EventService {
 
 	List<Event> getEvents();
-
 }

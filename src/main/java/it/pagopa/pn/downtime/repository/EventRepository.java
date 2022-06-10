@@ -12,8 +12,7 @@ import it.pagopa.pn.downtime.model.Event;
 
 @EnableScanCount
 @EnableScan
-public interface EventRepository extends 
-PagingAndSortingRepository<Event, String> {
+public interface EventRepository extends PagingAndSortingRepository<Event, String> {
     
     Optional<Event> findByUuid(String uuid);
     

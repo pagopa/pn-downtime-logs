@@ -21,6 +21,7 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
 
 @Validated
@@ -30,6 +31,8 @@ public class EventController  implements DowntimeApi{
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     @Autowired
     private EventService eventService;
+    @Autowired
+    private DowntimeLogsService downtimeLogsService;
     
     @Override
     public ResponseEntity<List<PnStatusResponse>> currentStatus() {
@@ -49,7 +52,7 @@ public class EventController  implements DowntimeApi{
     }
     @Override
     public ResponseEntity<List<PnDowntimeHistoryResponse>> statusHistory(OffsetDateTime fromTime,OffsetDateTime toTime, List<PnFunctionality> functionality, String page, String size) {
-    	  return ResponseEntity.ok(null);
+    	  return ResponseEntity.ok(downtimeLogsService.getStatusHistory(fromTime, toTime,functionality, page, size));
     }
  
     
