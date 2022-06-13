@@ -230,7 +230,7 @@ components:
       required: false
       description: Size della pagina di risultati a cui il client è interessato
       schema:
-        type: String
+        type: string
 
   schemas:
     
