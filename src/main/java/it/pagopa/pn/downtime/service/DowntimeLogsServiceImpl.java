@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,8 +47,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		List<DowntimeLogs> listHistory = pageHistory.getContent();
 		List<PnDowntimeEntry> listResponse = new ArrayList<>();
 
-		for (DowntimeLogs downtimeLogs : listHistory) {	
-			
+		for (DowntimeLogs downtimeLogs : listHistory) {			
 			PnDowntimeEntry entry = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtimeLogs);
 			listResponse.add(entry);
 		}
