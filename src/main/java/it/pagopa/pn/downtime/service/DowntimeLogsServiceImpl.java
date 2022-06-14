@@ -30,7 +30,10 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
 	@Autowired
 	DowntimeLogsRepository downtimeLogsRepository;
-
+	@Autowired
+	DowntimeLogsMapper downtimeLogsMapper;
+	
+	
 	@Override
 	public List<PnDowntimeHistoryResponse> getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
@@ -47,7 +50,6 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
 		for (DowntimeLogs downtimeLogs : listHistory) {	
 			
-			DowntimeLogsMapper downtimeLogsMapper = Mappers.getMapper(DowntimeLogsMapper.class);
 			PnDowntimeEntry entry = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtimeLogs);
 			listResponse.add(entry);
 		}
@@ -72,7 +74,6 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		for (PnFunctionality pn : PnFunctionality.values()) {
 			DowntimeLogs downtimeLogsDateNull = downtimeLogsRepository.findByFunctionalityAndEndDateIsNull(pn);
 			if (downtimeLogsDateNull != null && downtimeLogsDateNull.getStatus().equals(PnFunctionalityStatus.KO)) {
-				DowntimeLogsMapper downtimeLogsMapper = Mappers.getMapper(DowntimeLogsMapper.class);
 				PnDowntimeEntry incident = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtimeLogsDateNull);
 				openIncidents.add(incident);
 			}
