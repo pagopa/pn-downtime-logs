@@ -19,4 +19,5 @@ public interface DowntimeLogsRepository extends PagingAndSortingRepository<Downt
 	Page<DowntimeLogs> findByFunctionalityInAndStartDateBetween(List<PnFunctionality> functionality,
 			OffsetDateTime fromTime, OffsetDateTime toTime, Pageable pageRequest);
 
+	DowntimeLogs findByFunctionalityAndEndDateIsNull(PnFunctionality functionality);
 }
