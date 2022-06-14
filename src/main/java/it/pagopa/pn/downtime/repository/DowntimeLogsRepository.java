@@ -16,7 +16,8 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 @EnableScan
 public interface DowntimeLogsRepository extends PagingAndSortingRepository<DowntimeLogs, String> {
 
-	Page<DowntimeLogs> findByFunctionalityInAndStartDateLessThanEqualAndEndDateGreaterThanEqual(List<PnFunctionality> functionality,
+	Page<DowntimeLogs> findAllByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual(List<PnFunctionality> functionality,
 			OffsetDateTime fromTime, OffsetDateTime toTime, Pageable pageRequest);
 
+	DowntimeLogs findByFunctionalityAndEndDateIsNull(PnFunctionality functionality);
 }

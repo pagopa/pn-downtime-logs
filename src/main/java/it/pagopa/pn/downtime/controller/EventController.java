@@ -19,34 +19,36 @@ import it.pagopa.pn.downtime.service.EventService;
 
 @Validated
 @RestController
-public class EventController  implements DowntimeApi{
+public class EventController implements DowntimeApi {
 
-    @Autowired
-    private EventService eventService;
-    @Autowired
-    private DowntimeLogsService downtimeLogsService;
-    
-    @Override
-    public ResponseEntity<List<PnStatusResponse>> currentStatus() {
+	@Autowired
+	private EventService eventService;
+	@Autowired
+	private DowntimeLogsService downtimeLogsService;
+
+	@Override
+	public ResponseEntity<List<PnStatusResponse>> currentStatus() {
+		return ResponseEntity.ok(downtimeLogsService.currentStatus());
+
+	}
+
+	@Override
+	public ResponseEntity<Void> addStatusChangeEvent(String xPagopaPnUid,
+			List<PnStatusUpdateEvent> pnStatusUpdateEvent) {
+		return ResponseEntity.ok(eventService.addStatusChangeEvent(xPagopaPnUid, pnStatusUpdateEvent));
+
+	}
+
+	@Override
+	public ResponseEntity<LegalFactDownloadMetadataResponse> getLegalFact(String legalFactId) {
 		return ResponseEntity.ok(null);
-    	
-    }
-    
-    @Override
-    public ResponseEntity<Void> addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent){
-        return ResponseEntity.ok(eventService.addStatusChangeEvent(xPagopaPnUid, pnStatusUpdateEvent));
 
-    }
-    @Override
-    public ResponseEntity<LegalFactDownloadMetadataResponse> getLegalFact( String legalFactId) {
-    	  return ResponseEntity.ok(null);
+	}
 
-    }
-    @Override
-    public ResponseEntity<List<PnDowntimeHistoryResponse>> statusHistory(OffsetDateTime fromTime,OffsetDateTime toTime, List<PnFunctionality> functionality, String page, String size) {
-    	  return ResponseEntity.ok(downtimeLogsService.getStatusHistory(fromTime, toTime,functionality, page, size));
-    }
- 
-
+	@Override
+	public ResponseEntity<List<PnDowntimeHistoryResponse>> statusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
+			List<PnFunctionality> functionality, String page, String size) {
+		return ResponseEntity.ok(downtimeLogsService.getStatusHistory(fromTime, toTime, functionality, page, size));
+	}
 
 }
