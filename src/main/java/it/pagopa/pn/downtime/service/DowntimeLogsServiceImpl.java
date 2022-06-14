@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import it.pagopa.pn.downtime.model.DowntimeLogs;
@@ -34,9 +33,8 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		Pageable pageRequest = PageRequest.of(Integer.valueOf(page), Integer.valueOf(size));
 		
 		Page<DowntimeLogs> pageHistory = downtimeLogsRepository
-				.findByFunctionalityInAndStartDateBetween(functionality, fromTime, toTime, pageRequest);
-		
-		
+				.findByFunctionalityInAndStartDateLessThanEqualAndEndDateGreaterThanEqual(functionality, fromTime, toTime, pageRequest);
+			
 		List<DowntimeLogs> listHistory = pageHistory.getContent();
 		
 		PnDowntimeHistoryResponse pn = new PnDowntimeHistoryResponse();
