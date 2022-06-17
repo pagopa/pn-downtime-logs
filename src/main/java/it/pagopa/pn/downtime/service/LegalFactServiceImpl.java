@@ -1,5 +1,6 @@
 package it.pagopa.pn.downtime.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,12 +52,14 @@ public class LegalFactServiceImpl implements LegalFactService {
     requestHeaders.add(PAGOPA_SAFESTORAGE_HEADER, PAGOPA_SAFESTORAGE_HEADER_VALUE);
     requestHeaders.add(PAGOPA_API_KEY_HEADER, PAGOPA_API_KEY_HEADER_VALUE);
     HttpEntity<String> safeStorageRequest = new HttpEntity<>(null, requestHeaders);
-	ResponseEntity<Object> safeStorageResponse = restTemplate
-			  .exchange(urlSafeStore.concat(urlReserveStore+":fileKey?metadataOnly=true"), HttpMethod.GET, safeStorageRequest, Object.class,legalFactId);
-	if (safeStorageResponse.getBody() instanceof GetLegalFactDto) {
+	ResponseEntity<GetLegalFactDto> safeStorageResponse = restTemplate
+			  .exchange(urlSafeStore.concat(urlReserveStore+":fileKey?metadataOnly=true"), HttpMethod.GET, safeStorageRequest, GetLegalFactDto.class,legalFactId);
+	if (safeStorageResponse.getBody()!= null && safeStorageResponse.getBody().getContentLength() != null) {
 		log.info("request for the legalFact made successfully");
-		//MAPPARE L''OUTPUT
-		
+		GetLegalFactDto safeStorageResponseBody = safeStorageResponse.getBody();
+		response.setContentLength(safeStorageResponseBody.getContentLength());
+		response.setUrl(safeStorageResponseBody.getDownload().getUrl());
+		response.setRetryAfter(new BigDecimal(120));
 	}
 		return response;
 	}
