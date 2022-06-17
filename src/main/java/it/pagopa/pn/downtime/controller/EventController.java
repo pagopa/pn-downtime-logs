@@ -26,8 +26,9 @@ public class EventController implements DowntimeApi {
 	@Autowired
 	private DowntimeLogsService downtimeLogsService;
 
+	
 	@Override
-	public ResponseEntity<List<PnStatusResponse>> currentStatus() {
+	public ResponseEntity<PnStatusResponse> currentStatus() {
 		return ResponseEntity.ok(downtimeLogsService.currentStatus());
 
 	}
@@ -46,7 +47,7 @@ public class EventController implements DowntimeApi {
 	}
 
 	@Override
-	public ResponseEntity<List<PnDowntimeHistoryResponse>> statusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
+	public ResponseEntity<PnDowntimeHistoryResponse> statusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
 		return ResponseEntity.ok(downtimeLogsService.getStatusHistory(fromTime, toTime, functionality, page, size));
 	}

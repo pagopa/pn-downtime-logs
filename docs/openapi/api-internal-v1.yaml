@@ -49,8 +49,6 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
                   $ref: "#/components/schemas/PnStatusResponse"
               example: 
                 functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
@@ -88,8 +86,6 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
                   $ref: "#/components/schemas/PnDowntimeHistoryResponse"
         '400':
           description: Bad request

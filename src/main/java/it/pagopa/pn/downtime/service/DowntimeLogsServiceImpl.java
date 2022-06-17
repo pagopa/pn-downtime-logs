@@ -33,7 +33,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	DowntimeLogsMapper downtimeLogsMapper;
 
 	@Override
-	public List<PnDowntimeHistoryResponse> getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
+	public PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
 
 		log.info("getStatusHistory");
@@ -57,17 +57,13 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		pn.setNextPage(pageHistory.hasNext() ? Integer.valueOf(page) + 1 + "" : page);
 		pn.setResult(listResponse);
 
-		List<PnDowntimeHistoryResponse> listPn = new ArrayList<>();
-		listPn.add(pn);
 
-		return listPn;
+		return pn;
 	}
 
 	@Override
-	public List<PnStatusResponse> currentStatus() {
-		List<PnStatusResponse> pnStatusResponse = new ArrayList<>();
+	public PnStatusResponse currentStatus() {
 		List<PnDowntimeEntry> openIncidents = new ArrayList<>();
-
 		PnStatusResponse pnStatusResponseEntry = new PnStatusResponse();
 		for (PnFunctionality pn : PnFunctionality.values()) {
 			DowntimeLogs downtimeLogsDateNull = downtimeLogsRepository.findByFunctionalityAndEndDateIsNull(pn);
@@ -78,8 +74,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		}
 		pnStatusResponseEntry.setFunctionalities(Arrays.asList(PnFunctionality.values()));
 		pnStatusResponseEntry.setOpenIncidents(openIncidents);
-		pnStatusResponse.add(pnStatusResponseEntry);
-		return pnStatusResponse;
+		return pnStatusResponseEntry;
 	}
 	
 	@Override

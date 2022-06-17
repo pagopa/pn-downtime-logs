@@ -13,10 +13,10 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnStatusResponse;
  */
 public interface DowntimeLogsService {
 
-	List<PnDowntimeHistoryResponse> getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
+	PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size);
 
-	List<PnStatusResponse> currentStatus();
+	PnStatusResponse currentStatus();
 
 	void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate, PnFunctionality functionality,
 			PnFunctionalityStatus status, String startEventUuid, String uuid);
