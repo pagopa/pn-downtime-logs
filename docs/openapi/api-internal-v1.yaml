@@ -324,12 +324,16 @@ components:
         - __NOTIFICATION_VISUALIZZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
 
         - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
-      type: string
+      type: string       
       enum:
         - NOTIFICATION_CREATE
         - NOTIFICATION_VISUALIZZATION
         - NOTIFICATION_WORKFLOW  
-
+      x-enum-varnames:
+        - NOTIFICATION_CREATE
+        - NOTIFICATION_VISUALIZZATION
+        - NOTIFICATION_WORKFLOW 
+        
     PnFunctionalityStatus:
       type: string
       enum:

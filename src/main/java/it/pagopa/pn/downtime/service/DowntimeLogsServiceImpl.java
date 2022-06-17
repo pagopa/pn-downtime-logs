@@ -31,8 +31,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	DowntimeLogsRepository downtimeLogsRepository;
 	@Autowired
 	DowntimeLogsMapper downtimeLogsMapper;
-	
-	
+
 	@Override
 	public List<PnDowntimeHistoryResponse> getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
@@ -40,23 +39,24 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		log.info("getStatusHistory");
 
 		Pageable pageRequest = PageRequest.of(Integer.valueOf(page), Integer.valueOf(size));
-		
+
 		Page<DowntimeLogs> pageHistory = downtimeLogsRepository
-				.findAllByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual(functionality, fromTime, toTime, pageRequest);
-		
+				.findAllByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual(functionality, fromTime,
+						toTime, pageRequest);
+
 		List<DowntimeLogs> listHistory = pageHistory.getContent();
 		List<PnDowntimeEntry> listResponse = new ArrayList<>();
 
-		for (DowntimeLogs downtimeLogs : listHistory) {			
+		for (DowntimeLogs downtimeLogs : listHistory) {
 			PnDowntimeEntry entry = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtimeLogs);
 			listResponse.add(entry);
 		}
 
 		PnDowntimeHistoryResponse pn = new PnDowntimeHistoryResponse();
-		
-		pn.setNextPage(pageHistory.hasNext() ? Integer.valueOf(page)+1+"" : page);
+
+		pn.setNextPage(pageHistory.hasNext() ? Integer.valueOf(page) + 1 + "" : page);
 		pn.setResult(listResponse);
-		
+
 		List<PnDowntimeHistoryResponse> listPn = new ArrayList<>();
 		listPn.add(pn);
 
@@ -80,5 +80,18 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		pnStatusResponseEntry.setOpenIncidents(openIncidents);
 		pnStatusResponse.add(pnStatusResponseEntry);
 		return pnStatusResponse;
+	}
+	
+	@Override
+	public void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate,
+			PnFunctionality functionality, PnFunctionalityStatus status, String startEventUuid, String uuid) {
+		DowntimeLogs downtimeLogs = new DowntimeLogs();
+		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
+		downtimeLogs.setStartDate(startDate);
+		downtimeLogs.setStatus(status);
+		downtimeLogs.setStartEventUuid(startEventUuid);
+		downtimeLogs.setFunctionality(functionality);
+		downtimeLogs.setUuid(uuid);
+		downtimeLogsRepository.save(downtimeLogs);
 	}
 }
