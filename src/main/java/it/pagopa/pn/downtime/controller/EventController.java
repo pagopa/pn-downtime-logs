@@ -14,8 +14,10 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
+import it.pagopa.pn.downtime.service.LegalFactService;
 
 @Validated
 @RestController
@@ -24,7 +26,10 @@ public class EventController implements DowntimeApi {
 	@Autowired
 	private EventService eventService;
 	@Autowired
+	private LegalFactService legalFactService;
+	@Autowired
 	private DowntimeLogsService downtimeLogsService;
+
 
 	@Override
 	public ResponseEntity<List<PnStatusResponse>> currentStatus() {
@@ -41,8 +46,7 @@ public class EventController implements DowntimeApi {
 
 	@Override
 	public ResponseEntity<LegalFactDownloadMetadataResponse> getLegalFact(String legalFactId) {
-		return ResponseEntity.ok(null);
-
+	    return ResponseEntity.ok(legalFactService.getLegalFact(legalFactId));
 	}
 
 	@Override
