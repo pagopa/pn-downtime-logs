@@ -1,5 +1,8 @@
 package it.pagopa.pn.downtime.service;
 
+import java.io.IOException;
+
+import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.pn_downtime.model.LegalFactDownloadMetadataResponse;
 
 /**
@@ -7,9 +10,10 @@ import it.pagopa.pn.downtime.pn_downtime.model.LegalFactDownloadMetadataResponse
  */
 public interface LegalFactService {
 
-  Integer reserveUploadFile();
+	DowntimeLogs generateLegalFact(DowntimeLogs downtime) throws IOException;
 
+	LegalFactDownloadMetadataResponse getLegalFact(String legalFactId);
 
-  LegalFactDownloadMetadataResponse getLegalFact(String legalFactId);
-	
+	DowntimeLogs reserveUploadFile(byte[] file, DowntimeLogs downtime);
+
 }

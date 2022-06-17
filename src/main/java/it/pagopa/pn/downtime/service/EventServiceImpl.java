@@ -1,5 +1,6 @@
 package it.pagopa.pn.downtime.service;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,8 @@ public class EventServiceImpl implements EventService {
 	EventRepository eventRepository;
 	@Autowired
 	DowntimeLogsService downtimeLogsService;
+	@Autowired
+	LegalFactService legalFactService;
 	@Autowired
 	DowntimeLogsRepository downtimeLogsRepository;
 
@@ -78,7 +81,7 @@ public class EventServiceImpl implements EventService {
 				xPagopaPnUid);
 	}
 
-	public void checkCreateUpdateDowntime(PnFunctionality functionality, String eventId, PnStatusUpdateEvent event,
+	public void checkCreateDowntime(PnFunctionality functionality, String eventId, PnStatusUpdateEvent event,
 			String xPagopaPnUid, DowntimeLogs dt) {
 		if ((dt != null && ((event.getStatus().equals(PnFunctionalityStatus.KO)
 				&& (!dt.getStatus().equals(PnFunctionalityStatus.KO) || (dt.getStatus().equals(PnFunctionalityStatus.KO)
@@ -88,20 +91,41 @@ public class EventServiceImpl implements EventService {
 				|| dt == null) {
 			saveDowntime(functionality, eventId, event, xPagopaPnUid);
 		}
+		
+
+		
+
+	}
+	
+	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event,DowntimeLogs dt) {
 
 		if (dt != null && ((event.getStatus().equals(PnFunctionalityStatus.KO)
 				&& !dt.getStatus().equals(PnFunctionalityStatus.KO))
 				|| (!event.getStatus().equals(PnFunctionalityStatus.KO)
 						&& dt.getStatus().equals(PnFunctionalityStatus.KO)))
 				&& dt.getEndDate() == null) {
-			dt.setEndDate(event.getTimestamp());
+			if (!event.getStatus().equals(PnFunctionalityStatus.KO)
+					&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
+				try {
+					dt.setEndDate(event.getTimestamp());
+					legalFactService.generateLegalFact(dt);
+				} catch (IOException e) {
+				    log.error("errore nella generazione del file");
+				}
+			}
+			if(dt.getEndDate()==null) {
+				dt.setEndDate(event.getTimestamp());
+			}
 			dt.setEndEventUuid(eventId);
 			downtimeLogsRepository.save(dt);
 		}
+		
+
 	}
 
+
 	public void createEvent(String xPagopaPnUid, DowntimeLogs dt, PnFunctionality functionality,
-			PnStatusUpdateEvent event) {
+			PnStatusUpdateEvent event)  {
 		String saveUid = "";
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK)
 				&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null) {
@@ -110,13 +134,11 @@ public class EventServiceImpl implements EventService {
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,
 					event.getStatus(), event.getSourceType(), event.getSource());
 		}
+		
 
-		if (dt != null && !event.getStatus().equals(PnFunctionalityStatus.KO)
-				&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
-			// Generare atto opponibile a terzi
-		}
 
-		checkCreateUpdateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
+		checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
+		checkUpdateDowntime(saveUid, event, dt);
 
 	}
 

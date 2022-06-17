@@ -1,9 +1,11 @@
 package it.pagopa.pn.downtime.service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,10 +17,16 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 
+import freemarker.template.Configuration;
+import freemarker.template.Version;
 import it.pagopa.pn.downtime.dto.request.ReserveSafeStorageDto;
 import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
 import it.pagopa.pn.downtime.dto.response.UploadSafeStorageDto;
+import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.pn_downtime.model.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
+import it.pagopa.pn.downtime.util.DocumentComposition;
+import it.pagopa.pn.downtime.util.LegalFactGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +40,10 @@ public class LegalFactServiceImpl implements LegalFactService {
     private String urlSafeStore;
     @Value("${amazon.safestore.reservefile}")
     private String urlReserveStore;
+	@Autowired
+	DowntimeLogsRepository downtimeLogsRepository;
+    
+   
     
     private static final  String PAGOPA_SAFESTORAGE_HEADER = "x-pagopa-safestorage-cx-id";
     private static final  String PAGOPA_SAFESTORAGE_HEADER_VALUE = "pn-delivery-push";
@@ -66,7 +78,7 @@ public class LegalFactServiceImpl implements LegalFactService {
     
     
 	@Override
-	public Integer reserveUploadFile() {
+	public DowntimeLogs reserveUploadFile(byte[] file,DowntimeLogs downtime) {
 	log.info("reserveUploadFile");
 	RestTemplate restTemplate = new RestTemplate();
 	HttpHeaders requestHeaders = new HttpHeaders();
@@ -76,21 +88,22 @@ public class LegalFactServiceImpl implements LegalFactService {
     requestHeaders.setAccept(acceptedTypes);
     requestHeaders.add(PAGOPA_SAFESTORAGE_HEADER, PAGOPA_SAFESTORAGE_HEADER_VALUE);
     requestHeaders.add(PAGOPA_API_KEY_HEADER, PAGOPA_API_KEY_HEADER_VALUE);
-    ReserveSafeStorageDto requestDto = new ReserveSafeStorageDto("application/pdf","PN_NOTIFICATION_ATTACHMENTS","PRELOADED");
+    ReserveSafeStorageDto requestDto = new ReserveSafeStorageDto("application/pdf","PN_LEGAL_FACT_DOWNTIME","PRELOADED");
     String jsonInString = new Gson().toJson(requestDto);
     HttpEntity<String> safeStorageRequest = new HttpEntity<>(jsonInString, requestHeaders);
-	ResponseEntity<Object> safeStorageResponse = restTemplate
-			  .exchange(urlSafeStore.concat(urlReserveStore), HttpMethod.POST, safeStorageRequest, Object.class);
-	if (safeStorageResponse.getBody() instanceof UploadSafeStorageDto) {
+	ResponseEntity<UploadSafeStorageDto> safeStorageResponse = restTemplate
+			  .exchange(urlSafeStore.concat(urlReserveStore), HttpMethod.POST, safeStorageRequest, UploadSafeStorageDto.class);
+	if (safeStorageResponse.getBody().getKey()!=null) {
 		log.info("Reservation made successfully");
-		uploadFile((UploadSafeStorageDto) safeStorageResponse.getBody());
-		
+		uploadFile(safeStorageResponse.getBody(),file);
+		downtime.setLegalFactId(safeStorageResponse.getBody().getKey());	
 	}
-		return null;
+		return downtime;
 	}
 		
-	public void uploadFile(UploadSafeStorageDto uploadDto) {
+	public void uploadFile(UploadSafeStorageDto uploadDto,byte[] file) {
 		log.info("uploadFile");
+		//DA IMPLEMENTARE IN CASO DI SPECIFICHE
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders requestHeaders = new HttpHeaders();
 	    requestHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -99,7 +112,8 @@ public class LegalFactServiceImpl implements LegalFactService {
 	    requestHeaders.setAccept(acceptedTypes);
 	    requestHeaders.add(PAGOPA_SAFESTORAGE_HEADER, PAGOPA_SAFESTORAGE_HEADER_VALUE);
 	    requestHeaders.add(PAGOPA_API_KEY_HEADER, PAGOPA_API_KEY_HEADER_VALUE);
-	    HttpEntity<String> safeStorageRequest = new HttpEntity<>(null, requestHeaders);
+	    String jsonInString = new Gson().toJson(file);
+	    HttpEntity<String> safeStorageRequest = new HttpEntity<>(jsonInString, requestHeaders);
 		ResponseEntity<Object> safeStorageResponse = restTemplate
 				  .exchange(uploadDto.getUploadUrl().concat(uploadDto.getSecret()).concat(uploadDto.getKey()), HttpMethod.valueOf(uploadDto.getUploadMethod()), safeStorageRequest, Object.class);
 		if (safeStorageResponse.getBody()!=null) {
@@ -107,6 +121,18 @@ public class LegalFactServiceImpl implements LegalFactService {
 			
 			
 		}
+	}
+
+
+	@Override
+	public DowntimeLogs generateLegalFact(DowntimeLogs downtime) throws IOException {
+		Configuration freemarker = new Configuration(new Version(2,3,0)); //Version is a final class
+		DocumentComposition documentComposition = new DocumentComposition(freemarker);
+		 LegalFactGenerator legalFactGenerator= new LegalFactGenerator(documentComposition);
+		 byte[] file = legalFactGenerator.generateLegalFact(downtime);
+		 reserveUploadFile(file,downtime);
+		return downtime;
+		
 	}
 	
 }
