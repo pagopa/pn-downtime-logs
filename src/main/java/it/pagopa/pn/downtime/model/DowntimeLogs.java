@@ -3,8 +3,11 @@ package it.pagopa.pn.downtime.model;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 
+import org.springframework.data.annotation.Id;
+
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 
@@ -16,11 +19,7 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
-
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,8 +27,8 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 public class DowntimeLogs implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String functionalityStartYear;
-	private OffsetDateTime startDate;
+	@Id
+	private DowntimeLogsId downtimeLogsId;
 	private OffsetDateTime endDate;
 	private PnFunctionality functionality;
 	private PnFunctionalityStatus status;
@@ -37,17 +36,30 @@ public class DowntimeLogs implements Serializable {
 	private String endEventUuid;
 	private String legalFactId;
 	private String uuid;
-
-
+	
 	@DynamoDBHashKey
 	public String getFunctionalityStartYear() {
-		return functionalityStartYear;
+		return downtimeLogsId != null ? downtimeLogsId.getFunctionalityStartYear() : null;
 	}
-
-	@DynamoDbSortKey
+	
+	public void setFunctionalityStartYear(String functionalityStartYear) {
+	 if (downtimeLogsId == null) {
+		 downtimeLogsId = new DowntimeLogsId();
+     }
+	 downtimeLogsId.setFunctionalityStartYear(functionalityStartYear);
+     }
+	
+	public void setStartDate(OffsetDateTime startDate) {
+		 if (downtimeLogsId == null) {
+			 downtimeLogsId = new DowntimeLogsId();
+	     }
+		 downtimeLogsId.setStartDate(startDate);
+	     }
+	
+	@DynamoDBRangeKey
 	@DynamoDBTypeConverted(converter=OffsetDateTimeConverter.Converter.class)
 	public OffsetDateTime getStartDate() {
-		return startDate;
+		return downtimeLogsId != null ? downtimeLogsId.getStartDate() : null;
 	}
 
 	@DynamoDBAttribute
@@ -88,7 +100,34 @@ public class DowntimeLogs implements Serializable {
 		return uuid;
 	}
 
+	public void setEndDate(OffsetDateTime endDate) {
+		this.endDate = endDate;
+	}
 
+	public void setFunctionality(PnFunctionality functionality) {
+		this.functionality = functionality;
+	}
+
+	public void setStatus(PnFunctionalityStatus status) {
+		this.status = status;
+	}
+
+	public void setStartEventUuid(String startEventUuid) {
+		this.startEventUuid = startEventUuid;
+	}
+
+	public void setEndEventUuid(String endEventUuid) {
+		this.endEventUuid = endEventUuid;
+	}
+
+	public void setLegalFactId(String legalFactId) {
+		this.legalFactId = legalFactId;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	
 
 
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
+import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusResponse;
 
 /**
@@ -16,5 +17,7 @@ public interface DowntimeLogsService {
 			List<PnFunctionality> functionality, String page, String size);
 
 	List<PnStatusResponse> currentStatus();
-	
+
+	void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate, PnFunctionality functionality,
+			PnFunctionalityStatus status, String startEventUuid, String uuid);
 }

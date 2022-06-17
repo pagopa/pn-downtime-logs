@@ -10,14 +10,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import it.pagopa.pn.downtime.model.DowntimeLogs;
+import it.pagopa.pn.downtime.model.DowntimeLogsId;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
+
 
 @EnableScanCount
 @EnableScan
-public interface DowntimeLogsRepository extends PagingAndSortingRepository<DowntimeLogs, String> {
+public interface DowntimeLogsRepository extends PagingAndSortingRepository<DowntimeLogs, DowntimeLogsId> {
 
 	Page<DowntimeLogs> findAllByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual(List<PnFunctionality> functionality,
 			OffsetDateTime fromTime, OffsetDateTime toTime, Pageable pageRequest);
 
 	DowntimeLogs findByFunctionalityAndEndDateIsNull(PnFunctionality functionality);
+	
+	List<DowntimeLogs> findByFunctionalityAndStartDateLessThanEqual(PnFunctionality functionality, OffsetDateTime timestamp);
+	
+
 }
