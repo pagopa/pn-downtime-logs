@@ -23,6 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.google.gson.Gson;
 
 import freemarker.template.Configuration;
+import freemarker.template.TemplateException;
 import freemarker.template.Version;
 import it.pagopa.pn.downtime.dto.request.ReserveSafeStorageDto;
 import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
@@ -93,7 +94,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 	}
 
 	@Override
-	public DowntimeLogs reserveUploadFile(byte[] file, DowntimeLogs downtime) {
+	public DowntimeLogs reserveUploadFile(byte[] file, DowntimeLogs downtime) throws NoSuchAlgorithmException {
 		log.info("reserveUploadFile");
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders requestHeaders = new HttpHeaders();
@@ -107,11 +108,9 @@ public class LegalFactServiceImpl implements LegalFactService {
 		}
 
 		MessageDigest digest = null;
-		try {
+
 			digest = MessageDigest.getInstance(SHA256);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+
 		byte[] hash = digest != null ? digest.digest(file) : null;
 		String checkSum = Base64.getEncoder().encodeToString(hash);
 		requestHeaders.add(RESERVE_SAFESTORAGE_HEADER_CHECKSUM_VALUE, checkSum);
@@ -154,7 +153,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 	}
 
 	@Override
-	public DowntimeLogs generateLegalFact(DowntimeLogs downtime) throws IOException {
+	public DowntimeLogs generateLegalFact(DowntimeLogs downtime) throws IOException, NoSuchAlgorithmException, TemplateException {
 		Configuration freemarker = new Configuration(new Version(2, 3, 0)); // Version is a final class
 		DocumentComposition documentComposition = new DocumentComposition(freemarker);
 		LegalFactGenerator legalFactGenerator = new LegalFactGenerator(documentComposition);

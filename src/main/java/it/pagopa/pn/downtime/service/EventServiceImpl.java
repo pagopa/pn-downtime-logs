@@ -1,6 +1,7 @@
 package it.pagopa.pn.downtime.service;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
+import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
@@ -45,7 +47,8 @@ public class EventServiceImpl implements EventService {
 	private AmazonDynamoDB amazonDynamoDB;
 
 	@Override
-	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent) {
+	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
+			throws NoSuchAlgorithmException, IOException, TemplateException {
 		log.info("addStatusChangeEvent");
 		for (PnStatusUpdateEvent event : pnStatusUpdateEvent) {
 			for (PnFunctionality functionality : event.getFunctionality()) {
@@ -91,41 +94,34 @@ public class EventServiceImpl implements EventService {
 				|| dt == null) {
 			saveDowntime(functionality, eventId, event, xPagopaPnUid);
 		}
-		
-
-		
 
 	}
-	
-	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event,DowntimeLogs dt) {
+
+	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt)
+			throws NoSuchAlgorithmException, IOException, TemplateException {
 
 		if (dt != null && ((event.getStatus().equals(PnFunctionalityStatus.KO)
 				&& !dt.getStatus().equals(PnFunctionalityStatus.KO))
 				|| (!event.getStatus().equals(PnFunctionalityStatus.KO)
 						&& dt.getStatus().equals(PnFunctionalityStatus.KO)))
 				&& dt.getEndDate() == null) {
-			if (!event.getStatus().equals(PnFunctionalityStatus.KO)
-					&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
-				try {
-					dt.setEndDate(event.getTimestamp());
-					legalFactService.generateLegalFact(dt);
-				} catch (IOException e) {
-				    log.error("errore nella generazione del file");
-				}
+			if (!event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getStatus().equals(PnFunctionalityStatus.KO)
+					&& dt.getEndDate() == null) {
+
+				dt.setEndDate(event.getTimestamp());
+				legalFactService.generateLegalFact(dt);
+
 			}
-			if(dt.getEndDate()==null) {
+			if (dt.getEndDate() == null) {
 				dt.setEndDate(event.getTimestamp());
 			}
 			dt.setEndEventUuid(eventId);
 			downtimeLogsRepository.save(dt);
 		}
-		
-
 	}
 
-
 	public void createEvent(String xPagopaPnUid, DowntimeLogs dt, PnFunctionality functionality,
-			PnStatusUpdateEvent event)  {
+			PnStatusUpdateEvent event) throws NoSuchAlgorithmException, IOException, TemplateException {
 		String saveUid = "";
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK)
 				&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null) {
@@ -134,8 +130,6 @@ public class EventServiceImpl implements EventService {
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,
 					event.getStatus(), event.getSourceType(), event.getSource());
 		}
-		
-
 
 		checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
 		checkUpdateDowntime(saveUid, event, dt);

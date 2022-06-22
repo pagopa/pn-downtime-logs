@@ -1,5 +1,7 @@
 package it.pagopa.pn.downtime.controller;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
+import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
 import it.pagopa.pn.downtime.pn_downtime.model.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeHistoryResponse;
@@ -37,7 +40,7 @@ public class EventController implements DowntimeApi {
 
 	@Override
 	public ResponseEntity<Void> addStatusChangeEvent(String xPagopaPnUid,
-			List<PnStatusUpdateEvent> pnStatusUpdateEvent) {
+			List<PnStatusUpdateEvent> pnStatusUpdateEvent) throws NoSuchAlgorithmException, IOException, TemplateException {
 		return ResponseEntity.ok(eventService.addStatusChangeEvent(xPagopaPnUid, pnStatusUpdateEvent));
 
 	}

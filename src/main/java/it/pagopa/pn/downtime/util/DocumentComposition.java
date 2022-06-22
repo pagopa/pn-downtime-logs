@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
 
-
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
@@ -26,123 +25,116 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DocumentComposition {
 
-    public enum TemplateType {
-        LEGAL_FACT("documents_composition_templates/PdfLegalFact.html");
+	public enum TemplateType {
+		LEGAL_FACT("documents_composition_templates/PdfLegalFact.html");
 
-        private final String htmlTemplate;
+		private final String htmlTemplate;
 
-        TemplateType(String htmlTemplate) {
-            this.htmlTemplate = htmlTemplate;
-        }
+		TemplateType(String htmlTemplate) {
+			this.htmlTemplate = htmlTemplate;
+		}
 
-        public String getHtmlTemplate() {
-            return htmlTemplate;
-        }
-    }
+		public String getHtmlTemplate() {
+			return htmlTemplate;
+		}
+	}
 
-    private final Map<TemplateType, String> baseUris;
-    private final Configuration freemarker;
+	private final Map<TemplateType, String> baseUris;
+	private final Configuration freemarker;
 
-    public DocumentComposition(Configuration freemarker) throws IOException {
-        this.freemarker = freemarker;
+	public DocumentComposition(Configuration freemarker) throws IOException {
+		this.freemarker = freemarker;
 
-        log.info("Preload templates START");
-        baseUris = new EnumMap<>(TemplateType.class);
-        StringTemplateLoader stringLoader = new StringTemplateLoader();
+		log.info("Preload templates START");
+		baseUris = new EnumMap<>(TemplateType.class);
+		StringTemplateLoader stringLoader = new StringTemplateLoader();
 
-        for( TemplateType templateType : TemplateType.values() ) {
-            log.info(" - begin to preload template with templateType={}", templateType );
-            BaseUriAndTemplateBody info = preloadTemplate( templateType );
+		for (TemplateType templateType : TemplateType.values()) {
+			log.info(" - begin to preload template with templateType={}", templateType);
+			BaseUriAndTemplateBody info = preloadTemplate(templateType);
 
-            this.baseUris.put( templateType, info.getBaseUri() );
-            stringLoader.putTemplate( templateType.name(), info.templateBody);
-        }
-        log.debug("Configure freemarker ... ");
-        this.freemarker.setTemplateLoader( stringLoader );
-        log.debug(" ... freemarker configured.");
-        log.info("Preload templates END");
-    }
+			this.baseUris.put(templateType, info.getBaseUri());
+			stringLoader.putTemplate(templateType.name(), info.templateBody);
+		}
+		log.debug("Configure freemarker ... ");
+		this.freemarker.setTemplateLoader(stringLoader);
+		log.debug(" ... freemarker configured.");
+		log.info("Preload templates END");
+	}
 
+	@Value
+	private static class BaseUriAndTemplateBody {
+		private String baseUri;
+		private String templateBody;
+	}
 
-    @Value
-    private static class BaseUriAndTemplateBody {
-        private String baseUri;
-        private String templateBody;
-    }
+	private static BaseUriAndTemplateBody preloadTemplate(TemplateType templateType) throws IOException {
+		log.debug("Start pre-loading template with templateType={}", templateType);
 
-    private static BaseUriAndTemplateBody preloadTemplate( TemplateType templateType ) throws IOException {
-        log.debug("Start pre-loading template with templateType={}", templateType);
+		String templateResourceName = templateType.getHtmlTemplate();
+		URL templateUrl = getClasspathResourceURL(templateResourceName);
+		log.debug("Template with templateResourceName={} located at URL={}", templateResourceName, templateUrl);
 
-        String templateResourceName = templateType.getHtmlTemplate();
-        URL templateUrl = getClasspathResourceURL( templateResourceName );
-        log.debug("Template with templateResourceName={} located at URL={}", templateResourceName, templateUrl );
+		String baseUri = templateUrl.toString().replaceFirst("/[^/]*$", "/");
+		String templateBody = loadTemplateBody(templateUrl);
 
-        String baseUri = templateUrl.toString().replaceFirst("/[^/]*$", "/");
-        String templateBody = loadTemplateBody( templateUrl );
+		log.debug("Template resources baseUri={}", baseUri);
+		return new BaseUriAndTemplateBody(baseUri, templateBody);
+	}
 
-        log.debug("Template resources baseUri={}", baseUri);
-        return new BaseUriAndTemplateBody( baseUri, templateBody );
-    }
+	private static String loadTemplateBody(URL templateUrl) throws IOException {
 
-    private static String loadTemplateBody( URL templateUrl ) throws IOException {
+		String templateContent;
+		try (InputStream templateIn = templateUrl.openStream()) {
+			templateContent = StreamUtils.copyToString(templateIn, StandardCharsets.UTF_8);
+		} catch (IOException exc) {
+			log.error("Loading Document Composition Template " + templateUrl, exc);
+			throw exc;
+		}
+		return templateContent;
+	}
 
-        String templateContent;
-        try( InputStream templateIn = templateUrl.openStream()) {
-            templateContent = StreamUtils.copyToString( templateIn, StandardCharsets.UTF_8 );
-        } catch (IOException exc) {
-            log.error("Loading Document Composition Template " + templateUrl, exc );
-            throw exc;
-        }
-        return templateContent;
-    }
+	private static URL getClasspathResourceURL(String resourceName) {
+		return Thread.currentThread().getContextClassLoader().getResource(resourceName);
+	}
 
+	public String executeTextTemplate(TemplateType templateType, Object model) throws 
+			  IOException, TemplateException {
+		log.info("Execute templateType={} START", templateType);
+		StringWriter stringWriter = new StringWriter();
 
-    private static URL getClasspathResourceURL( String resourceName ) {
-        return Thread.currentThread().getContextClassLoader().getResource( resourceName );
-    }
+		Template template = freemarker.getTemplate(templateType.name());
+		log.debug("For templateType={} use template={}", templateType, template);
+		template.process(model, stringWriter);
 
-    public String executeTextTemplate( TemplateType templateType, Object model) {
-        log.info("Execute templateType={} START", templateType );
-        StringWriter stringWriter = new StringWriter();
+		log.info("Execute templateType={} END", templateType);
+		return stringWriter.getBuffer().toString();
+	}
 
-        try {
-            Template template = freemarker.getTemplate( templateType.name() );
-            log.debug("For templateType={} use template={}", templateType, template );
-            template.process( model, stringWriter );
+	public byte[] executePdfTemplate(TemplateType templateType, Object model) throws IOException, TemplateException {
+		String html = executeTextTemplate(templateType, model);
 
-        } catch (IOException | TemplateException exc) {
-            //ECCEZIONE
-        	log.error("errore nella generazione del file");
-        }
+		String baseUri = baseUris.get(templateType);
+		log.info("Pdf conversion start for templateType={} with baseUri={}", templateType, baseUri);
 
-        log.info("Execute templateType={} END", templateType );
-        return stringWriter.getBuffer().toString();
-    }
+		byte[] pdf = html2Pdf(baseUri, html);
 
-    public byte[] executePdfTemplate( TemplateType templateType, Object model ) throws IOException {
-        String html = executeTextTemplate( templateType, model );
+		log.info("Pdf conversion done");
+		return pdf;
+	}
 
-        String baseUri = baseUris.get( templateType );
-        log.info("Pdf conversion start for templateType={} with baseUri={}", templateType, baseUri);
+	private byte[] html2Pdf(String baseUri, String html) throws IOException {
 
-        byte[] pdf = html2Pdf( baseUri, html );
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        log.info("Pdf conversion done");
-        return pdf;
-    }
+		PdfRendererBuilder builder = new PdfRendererBuilder();
 
-    private byte[] html2Pdf( String baseUri, String html ) throws IOException {
+		builder.withHtmlContent(html, baseUri);
+		builder.toStream(baos);
+		builder.run();
+		baos.close();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        PdfRendererBuilder builder = new PdfRendererBuilder();
-
-        builder.withHtmlContent( html, baseUri);
-        builder.toStream(baos);
-        builder.run();
-        baos.close();
-
-        return baos.toByteArray();
-    }
+		return baos.toByteArray();
+	}
 
 }
