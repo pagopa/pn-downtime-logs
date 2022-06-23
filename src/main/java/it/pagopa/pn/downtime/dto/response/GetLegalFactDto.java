@@ -22,7 +22,9 @@ public class GetLegalFactDto {
       private String checksum;
       private String retentionUntil;
       private String documentType;
-      private String documentStatus;
+      private String lifecycleRule;
+      private String status;
+      private String resultCode;
       private DownloadLegalFactDto download;
 
 }

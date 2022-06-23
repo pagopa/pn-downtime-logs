@@ -188,6 +188,7 @@
 							<configOptions>
 								<serializableModel>true</serializableModel>
 								<interfaceOnly>true</interfaceOnly>
+								<unhandledException>true</unhandledException>
 							</configOptions>
 						</configuration>
 					</execution>

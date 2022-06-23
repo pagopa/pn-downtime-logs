@@ -18,4 +18,6 @@ public class UploadSafeStorageDto {
 	private String uploadUrl;
 	private String secret;
 	private String key;
+	private String resultCode;
+	
 }

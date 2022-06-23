@@ -4,6 +4,9 @@ package it.pagopa.pn.downtime.exceptions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -18,9 +21,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import freemarker.template.TemplateException;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -30,12 +35,35 @@ public class AppControllerAdvice {
     @Autowired
     ObjectMapper mapper;
 
-    @ExceptionHandler(value = { NoSuchElementException.class })
+    @ExceptionHandler(value = { NoSuchElementException.class , RestClientException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<Object> noSuchElementException(HttpServletRequest request, RuntimeException ex) {
+    public ResponseEntity<Object> generalException(HttpServletRequest request, RuntimeException ex) {
         return new ResponseEntity<>(getBody(HttpStatus.INTERNAL_SERVER_ERROR, ex, ex.getMessage(), request),
                 new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+   
+    @ExceptionHandler(value = { NoSuchAlgorithmException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Object> noSuchAlgorithmException(HttpServletRequest request, GeneralSecurityException ex) {
+        return new ResponseEntity<>(getBody(HttpStatus.INTERNAL_SERVER_ERROR, ex, ex.getMessage(), request),
+                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    
+    @ExceptionHandler(value = { IOException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Object> iOException(HttpServletRequest request, IOException ex) {
+        return new ResponseEntity<>(getBody(HttpStatus.INTERNAL_SERVER_ERROR, ex, ex.getMessage(), request),
+                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    @ExceptionHandler(value = { TemplateException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Object> templateException(HttpServletRequest request, TemplateException ex) {
+        return new ResponseEntity<>(getBody(HttpStatus.INTERNAL_SERVER_ERROR, ex, ex.getMessage(), request),
+                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
 
     @ExceptionHandler(value = { RuntimeException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)

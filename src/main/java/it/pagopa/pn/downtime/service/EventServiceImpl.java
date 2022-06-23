@@ -1,5 +1,7 @@
 package it.pagopa.pn.downtime.service;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +16,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
+import freemarker.template.TemplateException;
 import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
@@ -54,10 +56,10 @@ public class EventServiceImpl implements EventService {
 
 	@Autowired
 	private QueueMessagingTemplate queueMessagingTemplate;
-	
 
 	@Override
-	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent) {
+	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
+			throws NoSuchAlgorithmException, IOException, TemplateException {
 		log.info("addStatusChangeEvent");
 		for (PnStatusUpdateEvent event : pnStatusUpdateEvent) {
 			for (PnFunctionality functionality : event.getFunctionality()) {
@@ -106,7 +108,8 @@ public class EventServiceImpl implements EventService {
 
 	}
 
-	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt) {
+	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt)
+			throws NoSuchAlgorithmException, IOException, TemplateException {
 
 		if (dt != null && ((event.getStatus().equals(PnFunctionalityStatus.KO)
 				&& !dt.getStatus().equals(PnFunctionalityStatus.KO))
@@ -115,14 +118,14 @@ public class EventServiceImpl implements EventService {
 				&& dt.getEndDate() == null) {
 			if (!event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getStatus().equals(PnFunctionalityStatus.KO)
 					&& dt.getEndDate() == null) {
+
 				dt.setEndDate(event.getTimestamp());
-				try {
-					producer.sendMessage(dt, queueMessagingTemplate, url);
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
-				}
+
+				legalFactService.generateLegalFact(dt);
+				producer.sendMessage(dt, queueMessagingTemplate, url);
+
 			}
-			// legalFactService.generateLegalFact(dt);
+
 			if (dt.getEndDate() == null) {
 				dt.setEndDate(event.getTimestamp());
 			}
@@ -132,7 +135,9 @@ public class EventServiceImpl implements EventService {
 	}
 
 	public void createEvent(String xPagopaPnUid, DowntimeLogs dt, PnFunctionality functionality,
-			PnStatusUpdateEvent event) {
+
+			PnStatusUpdateEvent event) throws NoSuchAlgorithmException, IOException, TemplateException {
+
 		String saveUid = "";
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK)
 				&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null) {

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +29,7 @@ public class LegalFactGenerator {
     }
 
 
-    public byte[] generateLegalFact(DowntimeLogs downtime) throws IOException {
+    public byte[] generateLegalFact(DowntimeLogs downtime) throws IOException, TemplateException {
     	DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     	DateTimeFormatter fmtTime = DateTimeFormatter.ofPattern("HH:mm");
     	log.info("generateLegalFact");
