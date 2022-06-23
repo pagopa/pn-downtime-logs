@@ -1,12 +1,12 @@
 package it.pagopa.pn.downtime.service;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -14,13 +14,16 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
+import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +42,19 @@ public class EventServiceImpl implements EventService {
 	LegalFactService legalFactService;
 	@Autowired
 	DowntimeLogsRepository downtimeLogsRepository;
+	@Autowired
+	DowntimeLogsSend producer;
+
+	@Value("${cloud.aws.fila.atti_opponibili_da_generare}")
+	private String url;
 
 	private DynamoDBMapper dynamoDBMapper;
 	@Autowired
 	private AmazonDynamoDB amazonDynamoDB;
+
+	@Autowired
+	private QueueMessagingTemplate queueMessagingTemplate;
+	
 
 	@Override
 	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent) {
@@ -91,41 +103,36 @@ public class EventServiceImpl implements EventService {
 				|| dt == null) {
 			saveDowntime(functionality, eventId, event, xPagopaPnUid);
 		}
-		
-
-		
 
 	}
-	
-	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event,DowntimeLogs dt) {
+
+	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt) {
 
 		if (dt != null && ((event.getStatus().equals(PnFunctionalityStatus.KO)
 				&& !dt.getStatus().equals(PnFunctionalityStatus.KO))
 				|| (!event.getStatus().equals(PnFunctionalityStatus.KO)
 						&& dt.getStatus().equals(PnFunctionalityStatus.KO)))
 				&& dt.getEndDate() == null) {
-			if (!event.getStatus().equals(PnFunctionalityStatus.KO)
-					&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
+			if (!event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getStatus().equals(PnFunctionalityStatus.KO)
+					&& dt.getEndDate() == null) {
+				dt.setEndDate(event.getTimestamp());
 				try {
-					dt.setEndDate(event.getTimestamp());
-					legalFactService.generateLegalFact(dt);
-				} catch (IOException e) {
-				    log.error("errore nella generazione del file");
+					producer.sendMessage(dt, queueMessagingTemplate, url);
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
 				}
 			}
-			if(dt.getEndDate()==null) {
+			// legalFactService.generateLegalFact(dt);
+			if (dt.getEndDate() == null) {
 				dt.setEndDate(event.getTimestamp());
 			}
 			dt.setEndEventUuid(eventId);
 			downtimeLogsRepository.save(dt);
 		}
-		
-
 	}
 
-
 	public void createEvent(String xPagopaPnUid, DowntimeLogs dt, PnFunctionality functionality,
-			PnStatusUpdateEvent event)  {
+			PnStatusUpdateEvent event) {
 		String saveUid = "";
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK)
 				&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null) {
@@ -134,8 +141,6 @@ public class EventServiceImpl implements EventService {
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,
 					event.getStatus(), event.getSourceType(), event.getSource());
 		}
-		
-
 
 		checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
 		checkUpdateDowntime(saveUid, event, dt);
