@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
@@ -24,7 +25,7 @@ public @interface OffsetDateTimeConverter {
 
 		@Override
 		public OffsetDateTime unconvert(final String o) {
-			return o != null && !o.isEmpty() ? OffsetDateTime.parse(o) : null;
+			return o != null && !o.isEmpty() ? OffsetDateTime.parse(o,DateTimeFormatter.ISO_OFFSET_DATE_TIME) : null;
 		}
 
 	}

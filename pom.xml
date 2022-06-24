@@ -18,7 +18,6 @@
 	<properties>
 		<springfox-version>2.8.0</springfox-version>
 		<openapi-generator-maven-plugin-version>5.1.0</openapi-generator-maven-plugin-version>
-		<swagger-annotations-version>1.5.8</swagger-annotations-version>
 		<testcontainer-version>1.15.3</testcontainer-version>
 	</properties>
 	<dependencyManagement>
@@ -136,11 +135,6 @@
 			<groupId>org.openapitools</groupId>
 			<artifactId>jackson-databind-nullable</artifactId>
 			<version>0.2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>${swagger-annotations-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.springfox</groupId>
