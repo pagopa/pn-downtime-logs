@@ -19,6 +19,7 @@
 		<springfox-version>2.8.0</springfox-version>
 		<openapi-generator-maven-plugin-version>5.1.0</openapi-generator-maven-plugin-version>
 		<swagger-annotations-version>1.5.8</swagger-annotations-version>
+		<testcontainer-version>1.15.3</testcontainer-version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -164,6 +165,17 @@
 		<dependency>
 			<groupId>io.awspring.cloud</groupId>
 			<artifactId>spring-cloud-starter-aws-messaging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${testcontainer-version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

@@ -135,7 +135,6 @@ public class EventServiceImpl implements EventService {
 	}
 
 	public void createEvent(String xPagopaPnUid, DowntimeLogs dt, PnFunctionality functionality,
-
 			PnStatusUpdateEvent event) throws NoSuchAlgorithmException, IOException, TemplateException {
 
 		String saveUid = "";
