@@ -17,16 +17,10 @@ import it.pagopa.pn.downtime.model.converter.PnFunctionalityConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityStatusConverter;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @DynamoDBTable(tableName = "DowntimeLogs")
-@ToString
 @JsonIgnoreProperties
 public class DowntimeLogs implements Serializable {
 	private static final long serialVersionUID = 1L;

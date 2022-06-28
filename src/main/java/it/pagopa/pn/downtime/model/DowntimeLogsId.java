@@ -15,12 +15,12 @@ public class DowntimeLogsId implements Serializable{
 	private String functionalityStartYear;
 	private OffsetDateTime startDate;
 	
-	public DowntimeLogsId() {}
-	public DowntimeLogsId(String functionalityStartYear, OffsetDateTime startDate) {
-		super();
-		this.functionalityStartYear = functionalityStartYear;
-		this.startDate = startDate;
-	}
+	
+//	public DowntimeLogsId(String functionalityStartYear, OffsetDateTime startDate) {
+//		super();
+//		this.functionalityStartYear = functionalityStartYear;
+//		this.startDate = startDate;
+//	}
 	
 	@DynamoDBHashKey
 	public String getFunctionalityStartYear() {

@@ -36,7 +36,8 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	public PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
 
-		log.info("getStatusHistory");
+		log.info("getStatusHistory - Input - fromTime: " + fromTime.toString() + " toTime: " +toTime.toString()+ 
+				" functionality: " + functionality.toString() + " page: " +page + " size: " +size);
 
 		Pageable pageRequest = PageRequest.of(Integer.valueOf(page), Integer.valueOf(size));
 
@@ -57,7 +58,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		pn.setNextPage(pageHistory.hasNext() ? Integer.valueOf(page) + 1 + "" : page);
 		pn.setResult(listResponse);
 
-
+		log.info("Response: " + pn.toString());
 		return pn;
 	}
 
@@ -74,6 +75,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		}
 		pnStatusResponseEntry.setFunctionalities(Arrays.asList(PnFunctionality.values()));
 		pnStatusResponseEntry.setOpenIncidents(openIncidents);
+		log.info("Response: " + pnStatusResponseEntry.toString());
 		return pnStatusResponseEntry;
 	}
 	

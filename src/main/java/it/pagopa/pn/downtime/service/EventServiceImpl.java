@@ -18,7 +18,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 import freemarker.template.TemplateException;
-import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
@@ -54,14 +53,13 @@ public class EventServiceImpl implements EventService {
 	@Autowired
 	private AmazonDynamoDB amazonDynamoDB;
 
-	@Autowired
-	private QueueMessagingTemplate queueMessagingTemplate;
 
 	@Override
 	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
 			throws NoSuchAlgorithmException, IOException, TemplateException {
 		log.info("addStatusChangeEvent");
 		for (PnStatusUpdateEvent event : pnStatusUpdateEvent) {
+			log.info("Input: " + event.toString());
 			for (PnFunctionality functionality : event.getFunctionality()) {
 				Map<String, AttributeValue> eav = new HashMap<>();
 				eav.put(":startYear1", new AttributeValue()
@@ -122,7 +120,7 @@ public class EventServiceImpl implements EventService {
 				dt.setEndDate(event.getTimestamp());
 
 				legalFactService.generateLegalFact(dt);
-				producer.sendMessage(dt, queueMessagingTemplate, url);
+				producer.sendMessage(dt, url);
 
 			}
 

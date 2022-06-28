@@ -16,16 +16,12 @@ import it.pagopa.pn.downtime.model.converter.PnSourceTypeConverter;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnum;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @DynamoDBTable(tableName = "Event")
 public class Event implements Serializable {
 		private static final long serialVersionUID = 1L;

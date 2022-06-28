@@ -66,7 +66,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 
 	@Override
 	public LegalFactDownloadMetadataResponse getLegalFact(String legalFactId) {
-		log.info("getLegalFact");
+		log.info("getLegalFact - Input: " + legalFactId);
 		RestTemplate restTemplate = new RestTemplate();
 		LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
 		HttpHeaders requestHeaders = new HttpHeaders();
@@ -84,12 +84,13 @@ public class LegalFactServiceImpl implements LegalFactService {
 		ResponseEntity<GetLegalFactDto> safeStorageResponse = restTemplate.exchange(uriComponents.toUri(),
 				HttpMethod.GET, safeStorageRequest, GetLegalFactDto.class);
 		if (safeStorageResponse.getBody() != null && safeStorageResponse.getBody().getContentLength() != null) {
-			log.info("request for the legalFact made successfully");
 			GetLegalFactDto safeStorageResponseBody = safeStorageResponse.getBody();
+			log.info("request for the legalFact made successfully: "+ safeStorageResponseBody.toString());
 			response.setContentLength(safeStorageResponseBody.getContentLength());
 			response.setUrl(safeStorageResponseBody.getDownload().getUrl());
 			response.setRetryAfter(new BigDecimal(120));
 		}
+		log.info("Response: " + response.toString());
 		return response;
 	}
 
@@ -116,13 +117,14 @@ public class LegalFactServiceImpl implements LegalFactService {
 		requestHeaders.add(RESERVE_SAFESTORAGE_HEADER_CHECKSUM_VALUE, checkSum);
 		requestHeaders.add(RESERVE_SAFESTORAGE_HEADER_CHECKSUM, SHA256);
 		ReserveSafeStorageDto requestDto = new ReserveSafeStorageDto("application/pdf", pagoPaDocumentType, "PRELOADED");
+		log.info(requestDto.toString());
 		String jsonInString = new Gson().toJson(requestDto);
 		HttpEntity<String> safeStorageRequest = new HttpEntity<>(jsonInString, requestHeaders);
 		ResponseEntity<UploadSafeStorageDto> safeStorageResponse = restTemplate.exchange(
 				urlSafeStore.concat(urlReserveStore), HttpMethod.POST, safeStorageRequest, UploadSafeStorageDto.class);
 		if (safeStorageResponse.getBody().getResultCode() != null
 				&& safeStorageResponse.getBody().getResultCode().equals("200.00")) {
-			log.info("Reservation made successfully");
+			log.info("Reservation made successfully" + safeStorageResponse.getBody());
 			uploadFile(safeStorageResponse.getBody(), checkSum, file);
 			downtime.setLegalFactId(safeStorageResponse.getBody().getKey());
 		} else {
