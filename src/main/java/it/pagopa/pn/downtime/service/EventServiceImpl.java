@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
@@ -48,11 +47,10 @@ public class EventServiceImpl implements EventService {
 
 	@Value("${cloud.aws.fila.atti_opponibili_da_generare}")
 	private String url;
-
-	private DynamoDBMapper dynamoDBMapper;
+	
 	@Autowired
-	private AmazonDynamoDB amazonDynamoDB;
-
+	private DynamoDBMapper dynamoDBMapper;
+	
 
 	@Override
 	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
@@ -67,7 +65,6 @@ public class EventServiceImpl implements EventService {
 				eav.put(":functionality1", new AttributeValue().withS(functionality.getValue()));
 				eav.put(":startDate1", new AttributeValue().withS(event.getTimestamp().toString()));
 
-				dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
 				DynamoDBQueryExpression<DowntimeLogs> queryExpression = new DynamoDBQueryExpression<DowntimeLogs>()
 						.withKeyConditionExpression("functionalityStartYear =:startYear1 and startDate <=:startDate1")
 						.withFilterExpression("functionality = :functionality1").withScanIndexForward(false)

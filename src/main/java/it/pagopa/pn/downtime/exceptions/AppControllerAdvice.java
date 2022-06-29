@@ -92,13 +92,15 @@ public class AppControllerAdvice {
 	public Problem createProblem(HttpStatus status, Exception ex, String message, HttpServletRequest request) {
 		Problem problem = new Problem();
 		printLog(status, ex, message, request);
-		String[] errorMessages = message.split(",");
-		problem.setErrors(new ArrayList<>());
-		for (String s : errorMessages) {
-			ProblemError error = new ProblemError();
-			error.setCode(status.toString());
-			error.setDetail(s);
-			problem.getErrors().add(error);
+		if (message != null) {
+			String[] errorMessages = message.split(",");
+			problem.setErrors(new ArrayList<>());
+			for (String s : errorMessages) {
+				ProblemError error = new ProblemError();
+				error.setCode(status.toString());
+				error.setDetail(s);
+				problem.getErrors().add(error);
+			}
 		}
 		Throwable cause = ex.getCause();
 		if (cause != null) {
@@ -108,6 +110,7 @@ public class AppControllerAdvice {
 		problem.setStatus(status.value());
 		problem.setType(request.getRequestURI());
 		problem.setTitle(ex.getClass().getName());
+		log.info(problem.toString());
 		return problem;
 	}
 
@@ -115,6 +118,7 @@ public class AppControllerAdvice {
 		Problem problem = new Problem();
 		printLog(status, ex, message, request);
 		problem.setErrors(new ArrayList<>());
+		if(message!=null) {
 		String awsMessage = message.substring(message.indexOf("["));
 		try {
 			Type awsErrorsTypeList = new TypeToken<List<AwsSafeStorageErrorDto>>() {
@@ -132,7 +136,7 @@ public class AppControllerAdvice {
 		} catch (Exception e) {
 			return createProblem(HttpStatus.BAD_REQUEST, ex, ex.getMessage(), request);
 		}
-
+		}
 		Throwable cause = ex.getCause();
 		if (cause != null) {
 			problem.setDetail(ExceptionUtils.getRootCauseMessage(ex.getCause()));
@@ -141,6 +145,7 @@ public class AppControllerAdvice {
 		problem.setStatus(status.value());
 		problem.setType(request.getRequestURI());
 		problem.setTitle(ex.getClass().getName());
+		log.info(problem.toString());
 		return problem;
 	}
 

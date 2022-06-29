@@ -1,8 +1,7 @@
 package it.pagopa.pn.downtime;
 
-import static org.mockito.Mockito.mock;
-
 import java.math.BigDecimal;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -12,9 +11,7 @@ import java.util.List;
 
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -27,17 +24,19 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
+import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import it.pagopa.pn.downtime.dto.response.DownloadLegalFactDto;
 import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
+import it.pagopa.pn.downtime.dto.response.UploadSafeStorageDto;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
@@ -45,9 +44,11 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.repository.EventRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
+import it.pagopa.pn.downtime.service.LegalFactServiceImpl;
 
 public abstract class AbstractMock {
 
@@ -61,11 +62,16 @@ public abstract class AbstractMock {
 	protected EventRepository mockEventRepository;
 	@MockBean
 	protected DowntimeLogsRepository mockDowntimeLogsRepository;
-	@Mock
-	private DynamoDBMapper mapperDynamoDBMapper;
+	@MockBean
+	private DynamoDBMapper mockDynamoDBMapper;
+	@MockBean
+	protected DowntimeLogsSend downtimeLogsSend;
 
 	@InjectMocks
-	protected DowntimeLogsServiceImpl service;
+	protected DowntimeLogsServiceImpl serviceDowntimeLogs;
+	@InjectMocks
+	protected LegalFactServiceImpl serviceLegalFact;
+
 
 	public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(),
 			MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
@@ -74,7 +80,7 @@ public abstract class AbstractMock {
 	protected final String currentStatusUrl = "/downtime/status";
 	protected final String historyStatusUrl = "/downtime/history";
 	protected final String eventsUrl = "/downtime/events";
-	protected final String legalFactIdUrl = "/downtime/legal-facts/{legalFactId}";
+	protected final String legalFactIdUrl = "/downtime/legal-facts/";
 
 	protected void mockFindByFunctionality(Page<Event> returnListPage) {
 		Mockito.when(mockEventRepository.findAllByFunctionality(Mockito.anyString(), Mockito.any()))
@@ -114,12 +120,11 @@ public abstract class AbstractMock {
 		List<DowntimeLogs> list = new ArrayList<>();
 		list.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
 				PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT", "akdocdfe-50403"));
-		list.add(getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
-				PnFunctionality.NOTIFICATION_VISUALIZZATION, PnFunctionalityStatus.KO, "EVENT", "ADFakdocdfe-50403"));
-		Mockito.when(
-				mapperDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
-				.thenReturn(mock(PaginatedQueryList.class,
-						Mockito.withSettings().defaultAnswer(new ForwardsInvocations(list))));
+
+		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage();
+		queryResult.setResults(list);
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
+				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
 
 	}
 
@@ -142,18 +147,36 @@ public abstract class AbstractMock {
 
 	@SuppressWarnings("unchecked")
 	protected void mockLegalFactId(RestTemplate client) {
-		String mock = "{\"filename\":\"filename\",\"retryAfter\": \"retryAfter\",\"contentLength\":\"contentLength\",\"url\":\"url\"}";
-		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
-		GetLegalFactDto getLegalFactDto = new GetLegalFactDto();
+//		String mock = "{\"filename\":\"filename\",\"retryAfter\": \"retryAfter\",\"contentLength\":\"contentLength\",\"url\":\"url\"}";
+//		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
 		DownloadLegalFactDto downloadLegalFactDto = new DownloadLegalFactDto();
 		downloadLegalFactDto.setUrl("http://localhost:9090");
+		GetLegalFactDto getLegalFactDto = new GetLegalFactDto();
+		getLegalFactDto.setVersionId("tQ74qWG0vAywePcNc");
+		getLegalFactDto.setDocumentType("PN_LEGAL_FACTS");
+		getLegalFactDto.setContentType("application/pdf");
 		getLegalFactDto.setContentLength(new BigDecimal(104697));
 		getLegalFactDto.setDownload(downloadLegalFactDto);
-		ResponseEntity<GetLegalFactDto> responseSearch = new ResponseEntity<GetLegalFactDto>(getLegalFactDto,
-				HttpStatus.OK);
-		Mockito.when(client.exchange(ArgumentMatchers.anyString(), ArgumentMatchers.any(HttpMethod.class),
-				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<GetLegalFactDto>>any()))
+		getLegalFactDto.setKey("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S");
+		getLegalFactDto.setStatus("PRELOADED");
+		getLegalFactDto.setResultCode("200.00");
+		getLegalFactDto.setRetentionUntil("2033-07-27T00:00:00.000Z");
+		getLegalFactDto.setLifecycleRule("PN_LEGAL_FACTS");
+		getLegalFactDto.setChecksum("cSSf87ZqNi9Dn8lZ1cDJUDNub");
+
+		ResponseEntity<GetLegalFactDto> responseSearch = new ResponseEntity<>(getLegalFactDto, HttpStatus.OK);
+		Mockito.when(client.exchange(
+				ArgumentMatchers.any(URI.class), 
+				ArgumentMatchers.any(HttpMethod.class),
+				ArgumentMatchers.any(HttpEntity.class), 
+				ArgumentMatchers.<Class<GetLegalFactDto>>any()))
 				.thenReturn(responseSearch);
+	}
+
+	protected void mockLegalFactIdError(RestTemplate client) {
+		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),
+				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<Object>>any()))
+				.thenThrow(HttpClientErrorException.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -165,14 +188,32 @@ public abstract class AbstractMock {
 
 	@SuppressWarnings("unchecked")
 	protected void mockAddStatusChange_OK(RestTemplate client) {
-		DowntimeLogs downtimeLogs = getDowntimeLogs("NOTIFICATION_CREATE2022",
-				OffsetDateTime.parse("2022-08-28T14:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE,
-				PnFunctionalityStatus.OK, "EVENTKO", "akdoe-50403");
-		ResponseEntity<DowntimeLogs> responseSearch = new ResponseEntity<DowntimeLogs>(downtimeLogs, HttpStatus.OK);
-		Mockito.when(client.exchange(ArgumentMatchers.anyString(), ArgumentMatchers.any(HttpMethod.class),
-				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<DowntimeLogs>>any()))
-				.thenReturn(responseSearch);
+		UploadSafeStorageDto uploadSafeStorageDto = new UploadSafeStorageDto();
+		uploadSafeStorageDto.setUploadMethod("PUT");
+		uploadSafeStorageDto.setKey("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S");
+		uploadSafeStorageDto.setSecret("123930");
+		uploadSafeStorageDto.setResultCode("200.00");
+		uploadSafeStorageDto.setUploadUrl("http://amazon_url");
+		ResponseEntity<UploadSafeStorageDto> responseUpload = new ResponseEntity<>(uploadSafeStorageDto, HttpStatus.OK);
+		Mockito.when(client.exchange(
+				ArgumentMatchers.anyString(), 
+				ArgumentMatchers.any(HttpMethod.class), 
+				ArgumentMatchers.any(HttpEntity.class),
+				ArgumentMatchers.<Class<UploadSafeStorageDto>>any()))
+		.thenReturn(responseUpload);
+		ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
+		Mockito.when(client.exchange(
+				ArgumentMatchers.any(URI.class), 
+				ArgumentMatchers.any(HttpMethod.class),
+				ArgumentMatchers.any(HttpEntity.class), 
+				ArgumentMatchers.<Class<Object>>any()))
+		.thenReturn(response);
 	}
+
+//	protected void mockAWS_SQS_MessageOK() throws JsonProcessingException {
+//		Mockito.when((sqs.sendMessage(any(SendMessageRequest.class)))).thenReturn(new SendMessageResult());
+//		downtimeLogsSend.sendMessage(any(DowntimeLogs.class), anyString());
+//	}
 
 	protected List<PnStatusUpdateEvent> getAddStatusChangeEventInterface() {
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
@@ -196,11 +237,13 @@ public abstract class AbstractMock {
 		LinkedMultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
 		String fromTimeString = fromTime.toString();
 		String toTimeString = toTime.toString();
-		String functionalityString = Arrays.toString(functionality.toArray()).replace('[', ' ').replace(']', ' ')
-				.trim();
+		if (functionality != null) {
+			String functionalityString = Arrays.toString(functionality.toArray()).replace('[', ' ').replace(']', ' ')
+					.trim();
+			requestParams.add("functionality", functionalityString);
+		}
 		requestParams.add("fromTime", fromTimeString);
 		requestParams.add("toTime", toTimeString);
-		requestParams.add("functionality", functionalityString);
 		requestParams.add("page", page);
 		requestParams.add("size", size);
 		return requestParams;

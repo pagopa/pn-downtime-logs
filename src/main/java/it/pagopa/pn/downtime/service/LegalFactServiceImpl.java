@@ -55,7 +55,10 @@ public class LegalFactServiceImpl implements LegalFactService {
 	private String pagoPaDocumentType;
 	@Autowired
 	DowntimeLogsRepository downtimeLogsRepository;
-
+	
+	@Autowired
+	private RestTemplate restTemplate;
+	
 	private static final String PAGOPA_SAFESTORAGE_HEADER = "x-pagopa-safestorage-cx-id";
 	private static final String PAGOPA_SAFESTORAGE_HEADER_VALUE = "pn-delivery-push";
 	private static final String UPLOAD_SAFESTORAGE_HEADER_SECRET = "x-amz-meta-secret";
@@ -67,7 +70,6 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Override
 	public LegalFactDownloadMetadataResponse getLegalFact(String legalFactId) {
 		log.info("getLegalFact - Input: " + legalFactId);
-		RestTemplate restTemplate = new RestTemplate();
 		LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
 		HttpHeaders requestHeaders = new HttpHeaders();
 		List<MediaType> acceptedTypes = new ArrayList<>();
@@ -97,7 +99,6 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Override
 	public DowntimeLogs reserveUploadFile(byte[] file, DowntimeLogs downtime) throws NoSuchAlgorithmException {
 		log.info("reserveUploadFile");
-		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setContentType(MediaType.APPLICATION_JSON);
 		List<MediaType> acceptedTypes = new ArrayList<>();
@@ -135,7 +136,6 @@ public class LegalFactServiceImpl implements LegalFactService {
 
 	public void uploadFile(UploadSafeStorageDto uploadDto, String checkSum, byte[] file) {
 		log.info("uploadFile");
-		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setContentType(MediaType.APPLICATION_PDF);
 		List<MediaType> acceptedTypes = new ArrayList<>();

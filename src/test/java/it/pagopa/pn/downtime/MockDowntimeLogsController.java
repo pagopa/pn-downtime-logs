@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,6 +29,7 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnu
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 
 public class MockDowntimeLogsController extends AbstractMock {
 
@@ -115,12 +117,24 @@ public class MockDowntimeLogsController extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("result");
 		assertThat(response.getContentAsString()).contains("nextPage");
 	}
-
+	
+	@Test
+	public void test_CheckHistoryErrorFunctionality() throws Exception {
+		mockHistoryStatus(client);
+		mockFindByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual();
+		
+		MockHttpServletResponse response = mvc
+				.perform(get(historyStatusUrl)
+						.params(getMockHistoryStatus(OffsetDateTime.parse("2022-01-23T04:56:07.000+00:00"),
+								OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"), null, "5", "5")))
+				.andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
 	@Test
 	public void test_CheckLegalFactId() throws Exception {
 		mockLegalFactId(client);
 
-		MockHttpServletResponse response = mvc.perform(get(legalFactIdUrl, "PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S"))
+		MockHttpServletResponse response = mvc.perform(get(legalFactIdUrl.concat("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S")))
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentAsString()).contains("url");
@@ -129,9 +143,9 @@ public class MockDowntimeLogsController extends AbstractMock {
 
 	@Test
 	public void test_CheckLegalFactIdNotExists() throws Exception {
-		mockLegalFactId(client);
+		mockLegalFactIdError(client);
 
-		MockHttpServletResponse response = mvc.perform(get(legalFactIdUrl, "PN_LEGAL_FACTS-NOT-EXISTS")).andReturn()
+		MockHttpServletResponse response = mvc.perform(get(legalFactIdUrl.concat("PN_LEGAL_FACTS-NOT-EXISTS"))).andReturn()
 				.getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 	}
@@ -159,7 +173,6 @@ public class MockDowntimeLogsController extends AbstractMock {
 		mockFindByFunctionalityAndStartDateLessThanEqual();
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
 		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
-		pnFunctionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
 
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
