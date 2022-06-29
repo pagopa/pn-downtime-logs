@@ -10,7 +10,6 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import it.pagopa.pn.downtime.dto.request.MessageStatus;
 import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 
@@ -27,10 +26,9 @@ public class DowntimeLogsSend {
 	DowntimeLogsMapper mapperDowntimeLogsMapper;
 
 	public void sendMessage(DowntimeLogs downtimeLogs, String url) throws JsonProcessingException {
-		MessageStatus body = mapperDowntimeLogsMapper.downtimeLogsToMessageStatus(downtimeLogs);
 		SendMessageRequest sendMessageRequest = null;
             sendMessageRequest = new SendMessageRequest().withQueueUrl(url)
-                    .withMessageBody(objectMapper.writeValueAsString(body));
+                    .withMessageBody(objectMapper.writeValueAsString(downtimeLogs));
             amazonSQS.sendMessage(sendMessageRequest);
             LOGGER.info("Event has been published in SQS.");
 	}

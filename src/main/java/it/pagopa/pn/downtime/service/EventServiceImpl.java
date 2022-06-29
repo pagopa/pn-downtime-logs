@@ -1,7 +1,6 @@
 package it.pagopa.pn.downtime.service;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +15,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
-import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
@@ -39,8 +37,6 @@ public class EventServiceImpl implements EventService {
 	@Autowired
 	DowntimeLogsService downtimeLogsService;
 	@Autowired
-	LegalFactService legalFactService;
-	@Autowired
 	DowntimeLogsRepository downtimeLogsRepository;
 	@Autowired
 	DowntimeLogsSend producer;
@@ -54,7 +50,7 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
-			throws NoSuchAlgorithmException, IOException, TemplateException {
+			throws IOException {
 		log.info("addStatusChangeEvent");
 		for (PnStatusUpdateEvent event : pnStatusUpdateEvent) {
 			log.info("Input: " + event.toString());
@@ -104,7 +100,7 @@ public class EventServiceImpl implements EventService {
 	}
 
 	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt)
-			throws NoSuchAlgorithmException, IOException, TemplateException {
+			throws  IOException {
 
 		if (dt != null && ((event.getStatus().equals(PnFunctionalityStatus.KO)
 				&& !dt.getStatus().equals(PnFunctionalityStatus.KO))
@@ -115,8 +111,6 @@ public class EventServiceImpl implements EventService {
 					&& dt.getEndDate() == null) {
 
 				dt.setEndDate(event.getTimestamp());
-
-				legalFactService.generateLegalFact(dt);
 				producer.sendMessage(dt, url);
 
 			}
@@ -130,7 +124,7 @@ public class EventServiceImpl implements EventService {
 	}
 
 	public void createEvent(String xPagopaPnUid, DowntimeLogs dt, PnFunctionality functionality,
-			PnStatusUpdateEvent event) throws NoSuchAlgorithmException, IOException, TemplateException {
+			PnStatusUpdateEvent event) throws  IOException {
 
 		String saveUid = "";
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK)

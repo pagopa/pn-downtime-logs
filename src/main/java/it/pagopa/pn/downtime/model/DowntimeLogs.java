@@ -11,22 +11,27 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import it.pagopa.pn.downtime.model.converter.OffsetDateTimeConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityStatusConverter;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.serializer.OffsetDateTimeSerializer;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @DynamoDBTable(tableName = "DowntimeLogs")
 @JsonIgnoreProperties
+@ToString
 public class DowntimeLogs implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	private DowntimeLogsId downtimeLogsId;
+	@JsonSerialize(using = OffsetDateTimeSerializer.class)
 	private OffsetDateTime endDate;
 	private PnFunctionality functionality;
 	private PnFunctionalityStatus status;

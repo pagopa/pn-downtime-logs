@@ -1,10 +1,8 @@
 package it.pagopa.pn.downtime.service;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
 
 /**
@@ -12,5 +10,5 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
  */
 public interface EventService {
 	
-	Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent) throws NoSuchAlgorithmException, IOException, TemplateException;
+	Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent) throws  IOException;
 }

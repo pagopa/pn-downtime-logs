@@ -6,21 +6,19 @@ import java.time.OffsetDateTime;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import it.pagopa.pn.downtime.model.converter.OffsetDateTimeConverter;
+import it.pagopa.pn.downtime.serializer.OffsetDateTimeSerializer;
 
 public class DowntimeLogsId implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	private String functionalityStartYear;
+	@JsonSerialize(using = OffsetDateTimeSerializer.class)
 	private OffsetDateTime startDate;
 	
 	
-//	public DowntimeLogsId(String functionalityStartYear, OffsetDateTime startDate) {
-//		super();
-//		this.functionalityStartYear = functionalityStartYear;
-//		this.startDate = startDate;
-//	}
 	
 	@DynamoDBHashKey
 	public String getFunctionalityStartYear() {
