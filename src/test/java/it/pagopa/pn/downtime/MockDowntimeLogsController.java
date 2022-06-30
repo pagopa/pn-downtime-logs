@@ -94,7 +94,8 @@ public class MockDowntimeLogsController extends AbstractMock {
 	@Test
 	public void test_CheckHistoryStatus() throws Exception {
 		mockHistoryStatus(client);
-		mockFindByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual();
+		mockFindAllByFunctionalityInAndStartDateBetween();
+		mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore();
 		List<PnFunctionality> functionality = new ArrayList<>();
 		functionality.add(PnFunctionality.NOTIFICATION_CREATE);
 		functionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
@@ -102,7 +103,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		MockHttpServletResponse response = mvc
 				.perform(get(historyStatusUrl)
 						.params(getMockHistoryStatus(OffsetDateTime.parse("2022-01-23T04:56:07.000+00:00"),
-								OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"), functionality, "0", "5")))
+								OffsetDateTime.parse("2022-10-28T12:56:07.000+00:00"), functionality, "0", "5")))
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentAsString()).contains("result");
@@ -112,7 +113,8 @@ public class MockDowntimeLogsController extends AbstractMock {
 	@Test
 	public void test_CheckHistoryStatusPage5() throws Exception {
 		mockHistoryStatus(client);
-		mockFindByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual();
+		mockFindAllByFunctionalityInAndStartDateBetween();
+		mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore();
 		List<PnFunctionality> functionality = new ArrayList<>();
 		functionality.add(PnFunctionality.NOTIFICATION_CREATE);
 		functionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
@@ -129,11 +131,10 @@ public class MockDowntimeLogsController extends AbstractMock {
 	
 	@Test
 	public void test_CheckHistoryErrorFunctionality() throws Exception {
-		mockHistory_BADREQUEST();
-		 mvc
-				.perform(get(historyStatusUrl)
-						.params(getMockHistoryStatus(OffsetDateTime.parse("2022-01-23T04:56:07.000+00:00"),
-								OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"),new ArrayList<>(), "5", "5"))).andExpect(status().isBadRequest());
+		mockHistory_BADREQUEST(client);
+		 mvc.perform(get(historyStatusUrl).params(getMockHistoryStatus(OffsetDateTime.parse("2022-01-23T04:56:07.000+00:00"),
+				 OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"), null, "0", "5")))
+		 .andExpect(status().isBadRequest());
 		
 	}
 	@Test

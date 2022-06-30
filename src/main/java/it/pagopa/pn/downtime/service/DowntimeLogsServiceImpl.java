@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,14 +42,32 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
 		Pageable pageRequest = PageRequest.of(Integer.valueOf(page), Integer.valueOf(size));
 
-		Page<DowntimeLogs> pageHistory = downtimeLogsRepository
-				.findAllByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual(functionality, fromTime,
-						toTime, pageRequest);
+		List<DowntimeLogs> listHistoryStartDate  = downtimeLogsRepository
+				.findAllByFunctionalityInAndStartDateBetween(functionality, fromTime,
+						toTime);
+		
+		List<DowntimeLogs> listHistoryEndDate = downtimeLogsRepository
+				.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(functionality, fromTime,
+						toTime, fromTime);
 
-		List<DowntimeLogs> listHistory = pageHistory.getContent();
+		List<DowntimeLogs> listHistory = new ArrayList<>();
+		
+		listHistory.addAll(listHistoryStartDate);
+		
+		listHistory.addAll(listHistoryEndDate);
+		
+		List<DowntimeLogs> listHistorySubList = new ArrayList<>();
+		
+		if(Integer.valueOf(size)*Integer.valueOf(page) <= listHistory.size()) {
+		listHistorySubList = listHistory.subList(Integer.valueOf(size)*Integer.valueOf(page), 
+				Integer.valueOf(size)*Integer.valueOf(page)+Integer.valueOf(size)-1 < listHistory.size()-1 ? Integer.valueOf(size)*Integer.valueOf(page)+Integer.valueOf(size) : listHistory.size());
+		}
+		
+		Page<DowntimeLogs> pageHistory = new PageImpl<>(listHistorySubList, pageRequest, listHistory.size());
+		
 		List<PnDowntimeEntry> listResponse = new ArrayList<>();
 
-		for (DowntimeLogs downtimeLogs : listHistory) {
+		for (DowntimeLogs downtimeLogs : pageHistory.getContent()) {
 			PnDowntimeEntry entry = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtimeLogs);
 			listResponse.add(entry);
 		}

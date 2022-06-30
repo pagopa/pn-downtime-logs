@@ -83,20 +83,31 @@ public abstract class AbstractMock {
 
 
 
-	protected void mockFindByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual() {
+	protected void mockFindAllByFunctionalityInAndStartDateBetween() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
 		downtimeLogsList
 				.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403",null));
-
-		Page<DowntimeLogs> pagedDowntimeLogs = new PageImpl<>(downtimeLogsList);
+		downtimeLogsList.add(getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-05-10T10:55:15.995Z"),
+				PnFunctionality.NOTIFICATION_VISUALIZZATION, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403",null));
 		Mockito.when(
-				mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
-						Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class),
-						Mockito.any(Pageable.class)))
-				.thenReturn(pagedDowntimeLogs);
+				mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateBetween(
+						Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class)))
+				.thenReturn(downtimeLogsList);
+	}
+	
+	protected void mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore() {
+		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
+		downtimeLogsList
+				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_WORKFLOW, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403",null));
+		Mockito.when(
+				mockDowntimeLogsRepository.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(
+						Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class)))
+				.thenReturn(downtimeLogsList);
 	}
 
+	
 	protected void mockFindByFunctionalityAndEndDateIsNull(DowntimeLogs downtimeLogs) {
 		Mockito.when(mockDowntimeLogsRepository.findByFunctionalityAndEndDateIsNull(Mockito.any(PnFunctionality.class)))
 				.thenReturn(downtimeLogs);
@@ -195,17 +206,17 @@ public abstract class AbstractMock {
 		.thenReturn(response);
 	}
 	
-	protected void mockHistory_BADREQUEST() {
+	@SuppressWarnings("unchecked")
+	protected void mockHistory_BADREQUEST(RestTemplate client) {
 		DowntimeLogsService serviceDowntime = Mockito.mock(DowntimeLogsService.class);
 		
 		Mockito.when(serviceDowntime.getStatusHistory(
 				ArgumentMatchers.any(OffsetDateTime.class), 
 				ArgumentMatchers.any(OffsetDateTime.class), 
-				ArgumentMatchers.anyList() , 
+				ArgumentMatchers.isNull(),
 				ArgumentMatchers.anyString(), 
 				ArgumentMatchers.anyString()))
-		.thenThrow(new RuntimeException("Le Funzionalita sono obbligatorie"));
-
+		.thenThrow(new RuntimeException("Le Funzionalita sono obbligatorie"));	
 	}
 
 
