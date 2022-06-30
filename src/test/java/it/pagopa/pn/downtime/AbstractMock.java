@@ -38,7 +38,6 @@ import it.pagopa.pn.downtime.dto.response.DownloadLegalFactDto;
 import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
 import it.pagopa.pn.downtime.dto.response.UploadSafeStorageDto;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
@@ -47,7 +46,7 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnu
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.repository.EventRepository;
-import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
+import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.LegalFactServiceImpl;
 
 public abstract class AbstractMock {
@@ -66,9 +65,8 @@ public abstract class AbstractMock {
 	private DynamoDBMapper mockDynamoDBMapper;
 	@MockBean
 	protected DowntimeLogsSend downtimeLogsSend;
-
-	@InjectMocks
-	protected DowntimeLogsServiceImpl serviceDowntimeLogs;
+	
+	
 	@InjectMocks
 	protected LegalFactServiceImpl serviceLegalFact;
 
@@ -82,27 +80,16 @@ public abstract class AbstractMock {
 	protected final String eventsUrl = "/downtime/events";
 	protected final String legalFactIdUrl = "/downtime/legal-facts/";
 
-	protected void mockFindByFunctionality(Page<Event> returnListPage) {
-		Mockito.when(mockEventRepository.findAllByFunctionality(Mockito.anyString(), Mockito.any()))
-				.thenReturn(returnListPage);
-	}
 
-	protected void mockSaveEvent(Event event) {
-		Mockito.when(mockEventRepository.save(Mockito.any(Event.class))).thenReturn(event);
-	}
 
-	protected void mockSaveDowntimeLogs(DowntimeLogs downtimeLogs) {
-		Mockito.when(mockDowntimeLogsRepository.save(Mockito.any(DowntimeLogs.class))).thenReturn(downtimeLogs);
-	}
 
-	@SuppressWarnings("unchecked")
 	protected void mockFindByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
 		downtimeLogsList
 				.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
-						PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403"));
+						PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403",null));
 
-		Page<DowntimeLogs> pagedDowntimeLogs = new PageImpl(downtimeLogsList);
+		Page<DowntimeLogs> pagedDowntimeLogs = new PageImpl<>(downtimeLogsList);
 		Mockito.when(
 				mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
 						Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class),
@@ -119,9 +106,9 @@ public abstract class AbstractMock {
 	protected void mockFindByFunctionalityAndStartDateLessThanEqual() {
 		List<DowntimeLogs> list = new ArrayList<>();
 		list.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
-				PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT", "akdocdfe-50403"));
+				PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT", "akdocdfe-50403",null));
 
-		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage();
+		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
 		queryResult.setResults(list);
 		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
@@ -145,10 +132,8 @@ public abstract class AbstractMock {
 				.thenReturn(response);
 	}
 
-	@SuppressWarnings("unchecked")
+
 	protected void mockLegalFactId(RestTemplate client) {
-//		String mock = "{\"filename\":\"filename\",\"retryAfter\": \"retryAfter\",\"contentLength\":\"contentLength\",\"url\":\"url\"}";
-//		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
 		DownloadLegalFactDto downloadLegalFactDto = new DownloadLegalFactDto();
 		downloadLegalFactDto.setUrl("http://localhost:9090");
 		GetLegalFactDto getLegalFactDto = new GetLegalFactDto();
@@ -176,7 +161,7 @@ public abstract class AbstractMock {
 	protected void mockLegalFactIdError(RestTemplate client) {
 		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),
 				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<Object>>any()))
-				.thenThrow(HttpClientErrorException.class);
+				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "403 Forbidden: [{\"resultDescription\": \"Unauthorized\", \"errorList\": [\"client is not allowed to read doc type PROVA\"], \"resultCode\": \"403.00\"}]"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -186,7 +171,7 @@ public abstract class AbstractMock {
 		Mockito.when(client.getForObject(Mockito.anyString(), Mockito.any(Class.class))).thenReturn(response);
 	}
 
-	@SuppressWarnings("unchecked")
+
 	protected void mockAddStatusChange_OK(RestTemplate client) {
 		UploadSafeStorageDto uploadSafeStorageDto = new UploadSafeStorageDto();
 		uploadSafeStorageDto.setUploadMethod("PUT");
@@ -209,11 +194,20 @@ public abstract class AbstractMock {
 				ArgumentMatchers.<Class<Object>>any()))
 		.thenReturn(response);
 	}
+	
+	protected void mockHistory_BADREQUEST() {
+		DowntimeLogsService serviceDowntime = Mockito.mock(DowntimeLogsService.class);
+		
+		Mockito.when(serviceDowntime.getStatusHistory(
+				ArgumentMatchers.any(OffsetDateTime.class), 
+				ArgumentMatchers.any(OffsetDateTime.class), 
+				ArgumentMatchers.anyList() , 
+				ArgumentMatchers.anyString(), 
+				ArgumentMatchers.anyString()))
+		.thenThrow(new RuntimeException("Le Funzionalita sono obbligatorie"));
 
-//	protected void mockAWS_SQS_MessageOK() throws JsonProcessingException {
-//		Mockito.when((sqs.sendMessage(any(SendMessageRequest.class)))).thenReturn(new SendMessageResult());
-//		downtimeLogsSend.sendMessage(any(DowntimeLogs.class), anyString());
-//	}
+	}
+
 
 	protected List<PnStatusUpdateEvent> getAddStatusChangeEventInterface() {
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
@@ -264,7 +258,7 @@ public abstract class AbstractMock {
 	}
 
 	protected static DowntimeLogs getDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate,
-			PnFunctionality functionality, PnFunctionalityStatus status, String startEventUuid, String uuid) {
+			PnFunctionality functionality, PnFunctionalityStatus status, String startEventUuid, String uuid ,OffsetDateTime endDate) {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
 		downtimeLogs.setStartDate(startDate);
@@ -272,6 +266,7 @@ public abstract class AbstractMock {
 		downtimeLogs.setStartEventUuid(startEventUuid);
 		downtimeLogs.setFunctionality(functionality);
 		downtimeLogs.setUuid(uuid);
+		downtimeLogs.setEndDate(endDate);
 		return downtimeLogs;
 	}
 

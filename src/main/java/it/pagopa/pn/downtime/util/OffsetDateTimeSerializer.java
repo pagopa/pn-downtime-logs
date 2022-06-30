@@ -1,4 +1,4 @@
-package it.pagopa.pn.downtime.serializer;
+package it.pagopa.pn.downtime.util;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;

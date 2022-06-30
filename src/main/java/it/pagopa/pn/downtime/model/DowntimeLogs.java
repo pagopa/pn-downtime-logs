@@ -18,7 +18,7 @@ import it.pagopa.pn.downtime.model.converter.PnFunctionalityConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityStatusConverter;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.serializer.OffsetDateTimeSerializer;
+import it.pagopa.pn.downtime.util.OffsetDateTimeSerializer;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 

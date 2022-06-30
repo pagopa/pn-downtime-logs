@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -20,10 +22,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.service.LegalFactService;
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -34,6 +38,11 @@ import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnu
 public class MockDowntimeLogsController extends AbstractMock {
 
 	DowntimeApi downtimeApi = spy(DowntimeApi.class);
+	
+
+	
+	@Autowired
+	LegalFactService legalFactService ;
 
 	@Test
 	public void test_AddStatusChangeEventInterface() throws Exception {
@@ -74,7 +83,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		mockCurrentStatus(client);
 		mockFindByFunctionalityAndEndDateIsNull(
 				getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
-						PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403"));
+						PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403",null));
 		MockHttpServletResponse response = mvc.perform(get(currentStatusUrl)).andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -120,15 +129,12 @@ public class MockDowntimeLogsController extends AbstractMock {
 	
 	@Test
 	public void test_CheckHistoryErrorFunctionality() throws Exception {
-		mockHistoryStatus(client);
-		mockFindByFunctionalityInAndStartDateGreaterThanEqualAndEndDateLessThanEqual();
-		
-		MockHttpServletResponse response = mvc
+		mockHistory_BADREQUEST();
+		 mvc
 				.perform(get(historyStatusUrl)
 						.params(getMockHistoryStatus(OffsetDateTime.parse("2022-01-23T04:56:07.000+00:00"),
-								OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"), null, "5", "5")))
-				.andReturn().getResponse();
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+								OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"),new ArrayList<>(), "5", "5"))).andExpect(status().isBadRequest());
+		
 	}
 	@Test
 	public void test_CheckLegalFactId() throws Exception {
@@ -169,7 +175,6 @@ public class MockDowntimeLogsController extends AbstractMock {
 
 	@Test
 	public void test_CheckAddStatusChangeOK() throws Exception {
-		mockAddStatusChange_OK(client);
 		mockFindByFunctionalityAndStartDateLessThanEqual();
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
 		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
@@ -181,5 +186,13 @@ public class MockDowntimeLogsController extends AbstractMock {
 						.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK"))
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+	}
+	
+	@Test
+	public void test_GenerateLegalFact() throws Exception {
+		mockAddStatusChange_OK(client);
+		DowntimeLogs downtime= getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
+				PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT", "akdocdfe-50403",OffsetDateTime.parse("2022-08-28T08:55:15.995Z"));
+		assertThat(legalFactService.generateLegalFact(downtime).toString()).contains("legalFactId");
 	}
 }

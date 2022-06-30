@@ -9,7 +9,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import it.pagopa.pn.downtime.model.converter.OffsetDateTimeConverter;
-import it.pagopa.pn.downtime.serializer.OffsetDateTimeSerializer;
+import it.pagopa.pn.downtime.util.OffsetDateTimeSerializer;
 
 public class DowntimeLogsId implements Serializable{
 
