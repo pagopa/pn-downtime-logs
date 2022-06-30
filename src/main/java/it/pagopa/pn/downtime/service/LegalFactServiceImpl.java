@@ -1,7 +1,6 @@
 package it.pagopa.pn.downtime.service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -90,7 +89,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 			log.info("request for the legalFact made successfully: "+ safeStorageResponseBody.toString());
 			response.setContentLength(safeStorageResponseBody.getContentLength());
 			response.setUrl(safeStorageResponseBody.getDownload().getUrl());
-			response.setRetryAfter(new BigDecimal(120));
+			response.setRetryAfter(safeStorageResponseBody.getDownload().getRetryAfter());
 		}
 		log.info("Response: " + response.toString());
 		return response;

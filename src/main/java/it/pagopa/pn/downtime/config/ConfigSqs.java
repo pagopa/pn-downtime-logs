@@ -25,13 +25,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConfigSqs {
 
-	@Value("${cloud.aws.region.static}")
+	@Value("${amazon.sqs.region.static}")
 	private String region;
-	@Value("${cloud.aws.credentials.accessKey}")
+	@Value("${amazon.sqs.credentials.accessKey}")
 	private String accessKey;
-	@Value("${cloud.aws.credentials.secretKey}")
+	@Value("${amazon.sqs.credentials.secretKey}")
 	private String secretKey;
-	@Value("${cloud.aws.end-point.uri}")
+	@Value("${amazon.sqs.end-point.uri}")
     private String sqsUrl;
 	
 	

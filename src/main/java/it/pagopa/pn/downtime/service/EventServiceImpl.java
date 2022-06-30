@@ -41,7 +41,7 @@ public class EventServiceImpl implements EventService {
 	@Autowired
 	DowntimeLogsSend producer;
 
-	@Value("${cloud.aws.fila.atti_opponibili_da_generare}")
+	@Value("${amazon.sqs.end-point.uri}")
 	private String url;
 	
 	@Autowired
