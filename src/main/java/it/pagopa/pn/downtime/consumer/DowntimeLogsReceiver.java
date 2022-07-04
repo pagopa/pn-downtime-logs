@@ -30,7 +30,7 @@ public class DowntimeLogsReceiver {
 	@Autowired
 	DowntimeLogsRepository downtimeLogsRepository;
 	
-	//@SqsListener(value = "${amazon.sqs.end-point.uri}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+	@SqsListener(value = "${amazon.sqs.end-point.uri}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 	public void receiveStringMessage(final String message) throws InterruptedException, ExecutionException, NoSuchAlgorithmException, IOException, TemplateException {
 		DowntimeLogs downtimeLog = mapper.readValue(message, DowntimeLogs.class);
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
