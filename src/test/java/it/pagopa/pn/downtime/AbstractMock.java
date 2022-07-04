@@ -90,9 +90,9 @@ public abstract class AbstractMock {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
 		downtimeLogsList
 				.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
-						PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403",null));
+						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403",null));
 		downtimeLogsList.add(getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-05-10T10:55:15.995Z"),
-				PnFunctionality.NOTIFICATION_VISUALIZZATION, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403",null));
+				PnFunctionality.NOTIFICATION_VISUALIZZATION, "EVENT_START", "akdoe-50403",null));
 		Mockito.when(
 				mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateBetween(
 						Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class)))
@@ -103,7 +103,7 @@ public abstract class AbstractMock {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
 		downtimeLogsList
 				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
-						PnFunctionality.NOTIFICATION_WORKFLOW, PnFunctionalityStatus.KO, "EVENT_START", "akdoe-50403",null));
+						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403",null));
 		Mockito.when(
 				mockDowntimeLogsRepository.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(
 						Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class)))
@@ -117,10 +117,10 @@ public abstract class AbstractMock {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void mockFindByFunctionalityAndStartDateLessThanEqual() {
+	protected void mockFindByFunctionalityAndStartDateLessThanEqualWithEndDate() {
 		List<DowntimeLogs> list = new ArrayList<>();
 		list.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
-				PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, "EVENT", "akdocdfe-50403",null));
+				PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", OffsetDateTime.parse("2022-08-28T09:55:15.995Z")));
 
 		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
 		queryResult.setResults(list);
@@ -128,7 +128,18 @@ public abstract class AbstractMock {
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
 
 	}
+	@SuppressWarnings("unchecked")
+	protected void mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate() {
+		List<DowntimeLogs> list = new ArrayList<>();
+		list.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
+				PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
 
+		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
+		queryResult.setResults(list);
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
+				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
+
+	}
 	@SuppressWarnings("unchecked")
 	protected void mockCurrentStatus(RestTemplate client) throws IOException {
 		String mock = getStringFromResourse(currentStatus);
@@ -208,7 +219,6 @@ public abstract class AbstractMock {
 		.thenReturn(response);
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected void mockHistory_BADREQUEST(RestTemplate client) {
 		DowntimeLogsService serviceDowntime = Mockito.mock(DowntimeLogsService.class);
 		
@@ -271,11 +281,11 @@ public abstract class AbstractMock {
 	}
 
 	protected static DowntimeLogs getDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate,
-			PnFunctionality functionality, PnFunctionalityStatus status, String startEventUuid, String uuid ,OffsetDateTime endDate) {
+			PnFunctionality functionality, String startEventUuid, String uuid ,OffsetDateTime endDate) {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
 		downtimeLogs.setStartDate(startDate);
-		downtimeLogs.setStatus(status);
+		downtimeLogs.setStatus(PnFunctionalityStatus.KO);
 		downtimeLogs.setStartEventUuid(startEventUuid);
 		downtimeLogs.setFunctionality(functionality);
 		downtimeLogs.setUuid(uuid);

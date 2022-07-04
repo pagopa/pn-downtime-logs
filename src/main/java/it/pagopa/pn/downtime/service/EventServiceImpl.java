@@ -82,53 +82,38 @@ public class EventServiceImpl implements EventService {
 			String xPagopaPnUid) {
 		downtimeLogsService.saveDowntimeLogs(
 				functionality.getValue().concat(pnStatusUpdateEvent.getTimestamp().toString().substring(0, 4)),
-				pnStatusUpdateEvent.getTimestamp(), functionality, pnStatusUpdateEvent.getStatus(), eventId,
+				pnStatusUpdateEvent.getTimestamp(), functionality, eventId,
 				xPagopaPnUid);
 	}
 
 	public void checkCreateDowntime(PnFunctionality functionality, String eventId, PnStatusUpdateEvent event,
 			String xPagopaPnUid, DowntimeLogs dt) {
-		if ((dt != null && ((event.getStatus().equals(PnFunctionalityStatus.KO)
-				&& (!dt.getStatus().equals(PnFunctionalityStatus.KO) || (dt.getStatus().equals(PnFunctionalityStatus.KO)
-						&& dt.getEndDate() != null && dt.getEndDate().compareTo(event.getTimestamp()) <= 0)))
-				|| (!event.getStatus().equals(PnFunctionalityStatus.KO)
-						&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null)))
+		if ((dt != null && event.getStatus().equals(PnFunctionalityStatus.KO)
+				&& dt.getEndDate() != null && dt.getEndDate().compareTo(event.getTimestamp()) <= 0)
 				|| dt == null) {
 			saveDowntime(functionality, eventId, event, xPagopaPnUid);
 		}
-
 	}
 
 	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt)
 			throws  IOException {
-
-		if (dt != null && ((event.getStatus().equals(PnFunctionalityStatus.KO)
-				&& !dt.getStatus().equals(PnFunctionalityStatus.KO))
-				|| (!event.getStatus().equals(PnFunctionalityStatus.KO)
-						&& dt.getStatus().equals(PnFunctionalityStatus.KO)))
-				&& dt.getEndDate() == null) {
-			if (!event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getStatus().equals(PnFunctionalityStatus.KO)
-					&& dt.getEndDate() == null) {
-
+		if (dt != null && !event.getStatus().equals(PnFunctionalityStatus.KO)
+						&& dt.getEndDate() == null) {
+			
 				dt.setEndDate(event.getTimestamp());
+				dt.setEndEventUuid(eventId);
+				downtimeLogsRepository.save(dt);
 				producer.sendMessage(dt, url);
-
 			}
 
-			if (dt.getEndDate() == null) {
-				dt.setEndDate(event.getTimestamp());
-			}
-			dt.setEndEventUuid(eventId);
-			downtimeLogsRepository.save(dt);
 		}
-	}
 
 	public void createEvent(String xPagopaPnUid, DowntimeLogs dt, PnFunctionality functionality,
 			PnStatusUpdateEvent event) throws  IOException {
 
 		String saveUid = "";
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK)
-				&& dt.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null) {
+				&& dt.getEndDate() != null) {
 			log.error("Errore nella creazione dell'evento");
 		} else {
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,

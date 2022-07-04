@@ -100,11 +100,11 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	
 	@Override
 	public void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate,
-			PnFunctionality functionality, PnFunctionalityStatus status, String startEventUuid, String uuid) {
+			PnFunctionality functionality, String startEventUuid, String uuid) {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
 		downtimeLogs.setStartDate(startDate);
-		downtimeLogs.setStatus(status);
+		downtimeLogs.setStatus(PnFunctionalityStatus.KO);
 		downtimeLogs.setStartEventUuid(startEventUuid);
 		downtimeLogs.setFunctionality(functionality);
 		downtimeLogs.setUuid(uuid);
