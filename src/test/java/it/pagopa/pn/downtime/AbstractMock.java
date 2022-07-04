@@ -1,5 +1,6 @@
 package it.pagopa.pn.downtime;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -13,10 +14,9 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -65,6 +66,8 @@ public abstract class AbstractMock {
 	private DynamoDBMapper mockDynamoDBMapper;
 	@MockBean
 	protected DowntimeLogsSend downtimeLogsSend;
+	@Value("classpath:data/current_status.json") private Resource currentStatus;
+	@Value("classpath:data/history_status.json") private Resource historyStatus;
 	
 	
 	@InjectMocks
@@ -127,17 +130,16 @@ public abstract class AbstractMock {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void mockCurrentStatus(RestTemplate client) {
-		String mock = "{\"functionalities\":[\"NOTIFICATION_CREATE\",\"NOTIFICATION_VISUALIZZATION\",\"NOTIFICATION_WORKFLOW\"],\"openIncidents\":[{\"functionality\": \"NOTIFICATION_CREATE\",\"status\": \"KO\",\"startDate\": \"2022-08-24T08:55:15.995Z\",\"endDate\": null,\"legalFactId\": null}]}";
+	protected void mockCurrentStatus(RestTemplate client) throws IOException {
+		String mock = getStringFromResourse(currentStatus);
 		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
 		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
 				.thenReturn(response);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void mockHistoryStatus(RestTemplate client) {
-		String mock = "{\"result\":[{\"endDate\":\"2000-01-23T04:56:07.000+00:00\",\"legalFactId\":\"PN_LEGAL_FACTS-0002-DHKS-ZK03-9OAG-9OYQ\",\"startDate\":\"2000-01-23T04:56:07.000+00:00\", \"functionality\": \"NOTIFICATION_VISUALIZZATION\", \"status\": \"KO\"},"
-				+ "{\"endDate\":\"2000-01-23T04:56:07.000+00:00\",\"legalFactId\":\"PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S\",\"startDate\":\"2000-01-23T04:56:07.000+00:00\", \"functionality\": \"NOTIFICATION_CREATE\", \"status\": \"KO\"}],\"nextPage\": 0}";
+	protected void mockHistoryStatus(RestTemplate client) throws IOException {
+		String mock = getStringFromResourse(historyStatus);
 		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
 		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
 				.thenReturn(response);
@@ -279,6 +281,10 @@ public abstract class AbstractMock {
 		downtimeLogs.setUuid(uuid);
 		downtimeLogs.setEndDate(endDate);
 		return downtimeLogs;
+	}
+	
+	private static String getStringFromResourse(Resource resource) throws IOException {
+		return StreamUtils.copyToString(resource.getInputStream(), Charset.defaultCharset());
 	}
 
 }

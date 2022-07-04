@@ -1,0 +1,16 @@
+{
+  "functionalities": [
+    "NOTIFICATION_CREATE",
+    "NOTIFICATION_VISUALIZZATION",
+    "NOTIFICATION_WORKFLOW"
+  ],
+  "openIncidents": [
+    {
+      "functionality": "NOTIFICATION_CREATE",
+      "status": "KO",
+      "startDate": "2022-08-24T08:55:15.995Z",
+      "endDate": null,
+      "legalFactId": null
+    }
+  ]
+}
