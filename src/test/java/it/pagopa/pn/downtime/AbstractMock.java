@@ -38,6 +38,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.pagopa.pn.downtime.dto.response.DownloadLegalFactDto;
 import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
 import it.pagopa.pn.downtime.dto.response.UploadSafeStorageDto;
+import it.pagopa.pn.downtime.mapper.CloudwatchMapper;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
@@ -56,6 +57,8 @@ public abstract class AbstractMock {
 	DowntimeApi downtimeApi;
 	@Autowired
 	MockMvc mvc;
+	@Autowired
+	CloudwatchMapper cloudwatchMapper;
 	@MockBean
 	RestTemplate client;
 	@MockBean

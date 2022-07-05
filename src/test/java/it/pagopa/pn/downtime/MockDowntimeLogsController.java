@@ -1,6 +1,7 @@
 package it.pagopa.pn.downtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.spy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -22,10 +23,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import it.pagopa.pn.downtime.model.Alarm;
+import it.pagopa.pn.downtime.model.Dimensions;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
+import it.pagopa.pn.downtime.model.Trigger;
 import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.service.LegalFactService;
 
@@ -38,8 +43,6 @@ import it.pagopa.pn.downtime.service.LegalFactService;
 public class MockDowntimeLogsController extends AbstractMock {
 
 	DowntimeApi downtimeApi = spy(DowntimeApi.class);
-	
-
 	
 	@Autowired
 	LegalFactService legalFactService ;
@@ -211,5 +214,26 @@ public class MockDowntimeLogsController extends AbstractMock {
 		DowntimeLogs downtime= getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
 				PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403",OffsetDateTime.parse("2022-08-28T08:55:15.995Z"));
 		assertThat(legalFactService.generateLegalFact(downtime).toString()).contains("legalFactId");
+	}
+	
+	@Test
+	public void test_cloudwatchMapper() {
+		Alarm alarm = new Alarm();
+		Trigger trigger = new Trigger();
+		Dimensions dimension = new Dimensions();
+		List<Dimensions> listDimensions = new ArrayList<>();
+		alarm.setAlarmDescription("CloudWatch alarm for when DLQ has 1 or more messages.");
+		alarm.setNewStateValue("OK");
+		alarm.setStateChangeTime(OffsetDateTime.parse("2022-10-24T21:00:15.995Z"));
+		dimension.setValue("NOTIFICATION_CREATE");
+		listDimensions.add(dimension);
+		trigger.setDimensions(listDimensions);
+		alarm.setTrigger(trigger);
+		PnStatusUpdateEvent pnStatusUpdateEvent = cloudwatchMapper.alarmToPnStatusUpdateEvent(alarm);
+		
+		assertEquals(pnStatusUpdateEvent.getFunctionality().size(), listDimensions.size());
+		assertEquals(pnStatusUpdateEvent.getStatus().toString(), alarm.getNewStateValue());
+		assertEquals(pnStatusUpdateEvent.getTimestamp(), alarm.getStateChangeTime());
+		assertEquals(pnStatusUpdateEvent.getSource(), alarm.getAlarmDescription());
 	}
 }

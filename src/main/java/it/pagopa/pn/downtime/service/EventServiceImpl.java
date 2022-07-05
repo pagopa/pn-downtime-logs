@@ -90,7 +90,7 @@ public class EventServiceImpl implements EventService {
 			String xPagopaPnUid, DowntimeLogs dt) {
 		if ((dt != null && event.getStatus().equals(PnFunctionalityStatus.KO)
 				&& dt.getEndDate() != null && dt.getEndDate().compareTo(event.getTimestamp()) <= 0)
-				|| dt == null) {
+				|| (dt == null && event.getStatus().equals(PnFunctionalityStatus.KO))) {
 			saveDowntime(functionality, eventId, event, xPagopaPnUid);
 		}
 	}
