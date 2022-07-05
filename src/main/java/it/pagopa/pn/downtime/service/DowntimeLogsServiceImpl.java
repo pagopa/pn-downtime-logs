@@ -37,48 +37,66 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	public PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
 
-		log.info("getStatusHistory - Input - fromTime: " + fromTime.toString() + " toTime: " +toTime.toString()+ 
-				" functionality: " + functionality.toString() + " page: " +page + " size: " +size);
+		log.info("getStatusHistory - Input - fromTime: " + fromTime.toString() + " toTime: "
+				+ (toTime != null ? toTime.toString() : "") + " functionality: "
+				+ (functionality != null ? functionality.toString() : "") + " page: " + page + " size: " + size);
 
-		Pageable pageRequest = PageRequest.of(Integer.valueOf(page), Integer.valueOf(size));
+		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, functionality);
 
-		List<DowntimeLogs> listHistoryStartDate  = downtimeLogsRepository
-				.findAllByFunctionalityInAndStartDateBetween(functionality, fromTime,
-						toTime);
-		
-		List<DowntimeLogs> listHistoryEndDate = downtimeLogsRepository
-				.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(functionality, fromTime,
-						toTime, fromTime);
+		Page<DowntimeLogs> pageHistory = null;
 
-		List<DowntimeLogs> listHistory = new ArrayList<>();
-		
-		listHistory.addAll(listHistoryStartDate);
-		
-		listHistory.addAll(listHistoryEndDate);
-		
-		List<DowntimeLogs> listHistorySubList = new ArrayList<>();
-		
-		if(Integer.valueOf(size)*Integer.valueOf(page) <= listHistory.size()) {
-		listHistorySubList = listHistory.subList(Integer.valueOf(size)*Integer.valueOf(page), 
-				Integer.valueOf(size)*Integer.valueOf(page)+Integer.valueOf(size)-1 < listHistory.size()-1 ? Integer.valueOf(size)*Integer.valueOf(page)+Integer.valueOf(size) : listHistory.size());
+		if (page != null && !page.isEmpty() && size != null && !size.isEmpty()) {
+
+			List<DowntimeLogs> listHistorySubList = new ArrayList<>();
+
+			if (Integer.valueOf(size) * Integer.valueOf(page) <= listHistoryResults.size()) {
+				listHistorySubList = listHistoryResults.subList(Integer.valueOf(size) * Integer.valueOf(page),
+						Integer.valueOf(size) * Integer.valueOf(page) + Integer.valueOf(size)
+								- 1 < listHistoryResults.size() - 1
+										? Integer.valueOf(size) * Integer.valueOf(page) + Integer.valueOf(size)
+										: listHistoryResults.size());
+			}
+
+			Pageable pageRequest = PageRequest.of(Integer.valueOf(page), Integer.valueOf(size));
+
+			pageHistory = new PageImpl<>(listHistorySubList, pageRequest, listHistoryResults.size());
 		}
-		
-		Page<DowntimeLogs> pageHistory = new PageImpl<>(listHistorySubList, pageRequest, listHistory.size());
-		
+
 		List<PnDowntimeEntry> listResponse = new ArrayList<>();
 
-		for (DowntimeLogs downtimeLogs : pageHistory.getContent()) {
+		for (DowntimeLogs downtimeLogs : pageHistory != null ? pageHistory.getContent() : listHistoryResults) {
 			PnDowntimeEntry entry = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtimeLogs);
 			listResponse.add(entry);
 		}
 
 		PnDowntimeHistoryResponse pn = new PnDowntimeHistoryResponse();
 
-		pn.setNextPage(pageHistory.hasNext() ? Integer.valueOf(page) + 1 + "" : page);
+		pn.setNextPage(pageHistory != null && pageHistory.hasNext() ? Integer.valueOf(page) + 1 + "" : page);
 		pn.setResult(listResponse);
 
 		log.info("Response: " + pn.toString());
 		return pn;
+	}
+
+	public List<DowntimeLogs> getStatusHistoryResults(OffsetDateTime fromTime, OffsetDateTime toTime,
+			List<PnFunctionality> functionality) {
+
+		List<DowntimeLogs> listHistoryStartDate = downtimeLogsRepository.findAllByFunctionalityInAndStartDateBetween(
+				functionality != null ? functionality : Arrays.asList(PnFunctionality.values()), fromTime,
+				toTime != null ? toTime : OffsetDateTime.now());
+
+		List<DowntimeLogs> listHistoryEndDate = downtimeLogsRepository
+				.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(
+						functionality != null ? functionality : Arrays.asList(PnFunctionality.values()), fromTime,
+						toTime != null ? toTime : OffsetDateTime.now(), fromTime);
+
+		List<DowntimeLogs> listHistory = new ArrayList<>();
+
+		listHistory.addAll(listHistoryStartDate);
+
+		listHistory.addAll(listHistoryEndDate);
+
+		return listHistory;
 	}
 
 	@Override
@@ -97,10 +115,10 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		log.info("Response: " + pnStatusResponseEntry.toString());
 		return pnStatusResponseEntry;
 	}
-	
+
 	@Override
-	public void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate,
-			PnFunctionality functionality, String startEventUuid, String uuid) {
+	public void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate, PnFunctionality functionality,
+			String startEventUuid, String uuid) {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
 		downtimeLogs.setStartDate(startDate);

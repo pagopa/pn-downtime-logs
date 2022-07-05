@@ -74,6 +74,13 @@ public class AppControllerAdvice {
 		return new ResponseEntity<>(createProblem(HttpStatus.BAD_REQUEST, ex, ex.getMessage(), request),
 				new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
+	
+	@ExceptionHandler(value = { ServletException.class })
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ResponseEntity<Object> servletException(HttpServletRequest request, ServletException ex) {
+		return new ResponseEntity<>(createProblem(HttpStatus.BAD_REQUEST, ex, ex.getMessage(), request),
+				new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	}
 
 	@ExceptionHandler(value = { HttpClientErrorException.class })
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)

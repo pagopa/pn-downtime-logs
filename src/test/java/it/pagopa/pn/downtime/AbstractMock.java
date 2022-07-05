@@ -226,12 +226,12 @@ public abstract class AbstractMock {
 		DowntimeLogsService serviceDowntime = Mockito.mock(DowntimeLogsService.class);
 		
 		Mockito.when(serviceDowntime.getStatusHistory(
-				ArgumentMatchers.any(OffsetDateTime.class), 
+				ArgumentMatchers.isNull(), 
 				ArgumentMatchers.any(OffsetDateTime.class), 
 				ArgumentMatchers.isNull(),
 				ArgumentMatchers.anyString(), 
 				ArgumentMatchers.anyString()))
-		.thenThrow(new RuntimeException("Le Funzionalita sono obbligatorie"));	
+		.thenThrow(new RuntimeException("La data di inzio /U+00E8 obbligatoria"));	
 	}
 
 
@@ -255,7 +255,7 @@ public abstract class AbstractMock {
 			OffsetDateTime toTime, List<PnFunctionality> functionality, String page, String size)
 			throws JsonProcessingException {
 		LinkedMultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
-		String fromTimeString = fromTime.toString();
+		String fromTimeString = fromTime !=null ?fromTime.toString() : "";
 		String toTimeString = toTime.toString();
 		if (functionality != null) {
 			String functionalityString = Arrays.toString(functionality.toArray()).replace('[', ' ').replace(']', ' ')
