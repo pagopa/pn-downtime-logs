@@ -21,18 +21,34 @@ import it.pagopa.pn.downtime.service.EventService;
 import lombok.extern.slf4j.Slf4j;
 
 
+
+/** The Constant log. */
 @Slf4j
 @Component
 public class CloudwatchReceiver {
+	
+	/** The mapper. */
 	@Autowired
 	ObjectMapper mapper;
 	
+	/** The event service. */
 	@Autowired
 	EventService eventService;
 	
+	/** The cloudwatch mapper. */
 	@Autowired
 	CloudwatchMapper cloudwatchMapper;
 	
+	/**
+	 * Receive message from the cloudwatch sqs queue which will be used to register a new event.
+	 *
+	 * @param message the message which contains the new event
+	 * @throws InterruptedException the interrupted exception
+	 * @throws ExecutionException the execution exception
+	 * @throws NoSuchAlgorithmException the no such algorithm exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws TemplateException the template exception
+	 */
 	@SqsListener(value = "${amazon.sqs.end-point.url}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 	public void receiveMessage(final String message) throws InterruptedException, ExecutionException, NoSuchAlgorithmException, IOException, TemplateException {
 		Alarm alarm = mapper.readValue(message, Alarm.class);

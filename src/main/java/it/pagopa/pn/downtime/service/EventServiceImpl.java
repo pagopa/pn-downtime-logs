@@ -27,27 +27,53 @@ import it.pagopa.pn.downtime.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The Class EventServiceImpl.
+ */
 @Service
+
+/**
+ * Instantiates a new event service impl.
+ */
 @RequiredArgsConstructor
+
+/** The Constant log. */
 @Slf4j
 public class EventServiceImpl implements EventService {
 
+	/** The event repository. */
 	@Autowired
 	EventRepository eventRepository;
+	
+	/** The downtime logs service. */
 	@Autowired
 	DowntimeLogsService downtimeLogsService;
+	
+	/** The downtime logs repository. */
 	@Autowired
 	DowntimeLogsRepository downtimeLogsRepository;
+	
+	/** The producer. */
 	@Autowired
 	DowntimeLogsSend producer;
 
+	/** The url for the generate legal fact queue */
 	@Value("${amazon.sqs.end-point.uri}")
 	private String url;
 	
+	/** The dynamo DB mapper. */
 	@Autowired
 	private DynamoDBMapper dynamoDBMapper;
 	
 
+	/**
+	 * Adds the status change event.
+	 *
+	 * @param xPagopaPnUid the x pagopa pn uid. Required
+	 * @param pnStatusUpdateEvent the input for the new event. Required
+	 * @return the void
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	@Override
 	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
 			throws IOException {
@@ -78,23 +104,35 @@ public class EventServiceImpl implements EventService {
 		return null;
 	}
 
-	public void saveDowntime(PnFunctionality functionality, String eventId, PnStatusUpdateEvent pnStatusUpdateEvent,
-			String xPagopaPnUid) {
-		downtimeLogsService.saveDowntimeLogs(
-				functionality.getValue().concat(pnStatusUpdateEvent.getTimestamp().toString().substring(0, 4)),
-				pnStatusUpdateEvent.getTimestamp(), functionality, eventId,
-				xPagopaPnUid);
-	}
-
+	/**
+	 * Check if a new downtime has to be created.
+	 *
+	 * @param functionality the functionality
+	 * @param eventId the id of the starting event
+	 * @param event the input event
+	 * @param xPagopaPnUid the x pagopa pn uid
+	 * @param dt the previous downtime for the given functionality
+	 */
 	public void checkCreateDowntime(PnFunctionality functionality, String eventId, PnStatusUpdateEvent event,
 			String xPagopaPnUid, DowntimeLogs dt) {
 		if ((dt != null && event.getStatus().equals(PnFunctionalityStatus.KO)
 				&& dt.getEndDate() != null && dt.getEndDate().compareTo(event.getTimestamp()) <= 0)
 				|| (dt == null && event.getStatus().equals(PnFunctionalityStatus.KO))) {
-			saveDowntime(functionality, eventId, event, xPagopaPnUid);
+			downtimeLogsService.saveDowntimeLogs(
+					functionality.getValue().concat(event.getTimestamp().toString().substring(0, 4)),
+					event.getTimestamp(), functionality, eventId,
+					xPagopaPnUid);
 		}
 	}
 
+	/**
+	 * Check if the current downtime has to be closed and closes it.
+	 *
+	 * @param eventId the id of the closing event.
+	 * @param event the input event
+	 * @param dt the current downtime for the given functionality
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt)
 			throws  IOException {
 		if (dt != null && !event.getStatus().equals(PnFunctionalityStatus.KO)
@@ -108,6 +146,15 @@ public class EventServiceImpl implements EventService {
 
 		}
 
+	/**
+	 * Creates the event and saves it and checks for the creation and update of the current downtimes.
+	 *
+	 * @param xPagopaPnUid the x pagopa pn uid
+	 * @param dt the current downtime for the given functionality
+	 * @param functionality the functionality
+	 * @param event the input event
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public void createEvent(String xPagopaPnUid, DowntimeLogs dt, PnFunctionality functionality,
 			PnStatusUpdateEvent event) throws  IOException {
 
@@ -125,6 +172,17 @@ public class EventServiceImpl implements EventService {
 
 	}
 
+	/**
+	 * Creates and saves the new event.
+	 *
+	 * @param timestamp the timestamp
+	 * @param yearMonth the year month
+	 * @param functionality the functionality
+	 * @param status the status
+	 * @param sourceType the source type
+	 * @param source the source
+	 * @return the string
+	 */
 	public String saveEvent(OffsetDateTime timestamp, String yearMonth, PnFunctionality functionality,
 			PnFunctionalityStatus status, SourceTypeEnum sourceType, String source) {
 		log.info("addStatusChangeEvent");

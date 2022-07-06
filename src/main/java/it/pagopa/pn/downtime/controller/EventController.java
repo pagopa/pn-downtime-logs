@@ -21,23 +21,47 @@ import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
 import it.pagopa.pn.downtime.service.LegalFactService;
 
+
+/**
+ * The Class EventController.
+ */
 @Validated
 @RestController
 public class EventController implements DowntimeApi {
 
+	/** The event service. */
 	@Autowired
 	private EventService eventService;
+	
+	/** The legal fact service. */
 	@Autowired
 	private LegalFactService legalFactService;
+	
+	/** The downtime logs service. */
 	@Autowired
 	private DowntimeLogsService downtimeLogsService;
 
+	/**
+	 * Current status.
+	 *
+	 * @return all functionalities and the open downtimes
+	 */
 	@Override
 	public ResponseEntity<PnStatusResponse> currentStatus() {
 		return ResponseEntity.ok(downtimeLogsService.currentStatus());
 
 	}
 
+	/**
+	 * Adds the status change event.
+	 *
+	 * @param xPagopaPnUid the x pagopa pn uid. Required
+	 * @param pnStatusUpdateEvent the input for the new event. Required
+	 * @return the response entity
+	 * @throws NoSuchAlgorithmException the no such algorithm exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws TemplateException the template exception
+	 */
 	@Override
 	public ResponseEntity<Void> addStatusChangeEvent(String xPagopaPnUid,
 			List<PnStatusUpdateEvent> pnStatusUpdateEvent) throws NoSuchAlgorithmException, IOException, TemplateException {
@@ -45,11 +69,27 @@ public class EventController implements DowntimeApi {
 
 	}
 
+	/**
+	 * Gets the legal fact.
+	 *
+	 * @param legalFactId the legal fact id. Required
+	 * @return the link for the download of the legal fact or the retry after for retrying the request
+	 */
 	@Override
 	public ResponseEntity<LegalFactDownloadMetadataResponse> getLegalFact(String legalFactId) {
 	    return ResponseEntity.ok(legalFactService.getLegalFact(legalFactId));
 	}
 
+	/**
+	 * Status history.
+	 *
+	 * @param fromTime starting timestamp of the research. Required
+	 * @param toTime ending timestamp of the research
+	 * @param functionality functionalities for which the research has to be done
+	 * @param page the page of the research
+	 * @param size the size of the researcj
+	 * @return all the downtimes present in the period of time specified
+	 */
 	@Override
 	public ResponseEntity<PnDowntimeHistoryResponse> statusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {

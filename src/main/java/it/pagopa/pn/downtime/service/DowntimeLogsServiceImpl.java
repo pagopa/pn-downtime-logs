@@ -23,16 +23,39 @@ import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+
+/**
+ * The Class DowntimeLogsServiceImpl.
+ */
 @Service
+
+/**
+ * Instantiates a new downtime logs service impl.
+ */
 @RequiredArgsConstructor
+
+/** The Constant log. */
 @Slf4j
 public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
+	/** The downtime logs repository. */
 	@Autowired
 	DowntimeLogsRepository downtimeLogsRepository;
+	
+	/** The downtime logs mapper. */
 	@Autowired
 	DowntimeLogsMapper downtimeLogsMapper;
 
+	/**
+	 * Gets the status history.
+	 *
+	 * @param fromTime starting timestamp of the research. Required
+	 * @param toTime ending timestamp of the research
+	 * @param functionality functionalities for which the research has to be done
+	 * @param page the page of the research
+	 * @param size the size of the researcj
+	 * @return all the downtimes present in the period of time specified
+	 */
 	@Override
 	public PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
@@ -78,6 +101,14 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		return pn;
 	}
 
+	/**
+	 * Executes the queries for the getStatusHistory service
+	 *
+	 * @param fromTime starting timestamp of the research. Required
+	 * @param toTime ending timestamp of the research
+	 * @param functionality functionalities for which the research has to be done
+	 * @return the combined results of the queries
+	 */
 	public List<DowntimeLogs> getStatusHistoryResults(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality) {
 
@@ -109,6 +140,11 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		return listHistory;
 	}
 
+	/**
+	 * Current status.
+	 *
+	 * @return all functionalities and the open downtimes
+	 */
 	@Override
 	public PnStatusResponse currentStatus() {
 		List<PnDowntimeEntry> openIncidents = new ArrayList<>();
@@ -126,6 +162,15 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		return pnStatusResponseEntry;
 	}
 
+	/**
+	 * Save a new downtime logs.
+	 *
+	 * @param functionalityStartYear the functionality start year which is a comination of functionality and the yeat of the startDate
+	 * @param startDate the start date
+	 * @param functionality the functionality
+	 * @param startEventUuid the uuid of start event
+	 * @param uuid the uuid
+	 */
 	@Override
 	public void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate, PnFunctionality functionality,
 			String startEventUuid, String uuid) {
