@@ -22,6 +22,12 @@ public interface DowntimeLogsRepository extends PagingAndSortingRepository<Downt
 	List<DowntimeLogs> findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(List<PnFunctionality> functionality,
 			OffsetDateTime fromTime, OffsetDateTime toTime, OffsetDateTime startDateTime);
 	
+	List<DowntimeLogs> findAllByFunctionalityInAndStartDateAfter(List<PnFunctionality> functionality,
+			OffsetDateTime fromTime);
+
+	List<DowntimeLogs> findAllByFunctionalityInAndEndDateAfterAndStartDateBefore(List<PnFunctionality> functionality,
+			OffsetDateTime fromTime, OffsetDateTime startDateTime);
+	
 	DowntimeLogs findByFunctionalityAndEndDateIsNull(PnFunctionality functionality);
 	
 	List<DowntimeLogs> findByFunctionalityAndStartDateLessThanEqual(PnFunctionality functionality, OffsetDateTime timestamp);

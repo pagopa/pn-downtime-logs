@@ -81,16 +81,26 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	public List<DowntimeLogs> getStatusHistoryResults(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality) {
 
-		List<DowntimeLogs> listHistoryStartDate = downtimeLogsRepository.findAllByFunctionalityInAndStartDateBetween(
-				functionality != null ? functionality : Arrays.asList(PnFunctionality.values()), fromTime,
-				toTime != null ? toTime : OffsetDateTime.now());
-
-		List<DowntimeLogs> listHistoryEndDate = downtimeLogsRepository
-				.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(
-						functionality != null ? functionality : Arrays.asList(PnFunctionality.values()), fromTime,
-						toTime != null ? toTime : OffsetDateTime.now(), fromTime);
-
+		List<DowntimeLogs> listHistoryStartDate = null;
+		List<DowntimeLogs> listHistoryEndDate = null;
 		List<DowntimeLogs> listHistory = new ArrayList<>();
+		
+		if (toTime != null) {
+			listHistoryStartDate = downtimeLogsRepository.findAllByFunctionalityInAndStartDateBetween(
+					functionality != null ? functionality : Arrays.asList(PnFunctionality.values()), fromTime, toTime);
+
+			listHistoryEndDate = downtimeLogsRepository.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(
+					functionality != null ? functionality : Arrays.asList(PnFunctionality.values()), fromTime, toTime,
+					fromTime);
+		} else {
+			listHistoryStartDate = downtimeLogsRepository.findAllByFunctionalityInAndStartDateAfter(
+					functionality != null ? functionality : Arrays.asList(PnFunctionality.values()), fromTime);
+			
+			listHistoryEndDate = downtimeLogsRepository.findAllByFunctionalityInAndEndDateAfterAndStartDateBefore(
+					functionality != null ? functionality : Arrays.asList(PnFunctionality.values()), fromTime,
+					fromTime);
+
+		}
 
 		listHistory.addAll(listHistoryStartDate);
 

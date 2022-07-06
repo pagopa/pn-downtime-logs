@@ -113,6 +113,33 @@ public abstract class AbstractMock {
 				.thenReturn(downtimeLogsList);
 	}
 
+	protected void mockFindAllByFunctionalityInAndStartDateAfter() {
+		List<DowntimeLogs> listDowntime = new ArrayList<>();
+		listDowntime.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-02-24T08:56:07.000+00:00"),
+				PnFunctionality.NOTIFICATION_WORKFLOW, "PAGO-PA-EVENT-W", "123", null));
+		listDowntime.add(getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-01-28T04:56:07.000+00:00"),
+				PnFunctionality.NOTIFICATION_VISUALIZZATION, "PAGO-PA-EVENT-V", "12345", OffsetDateTime.parse("2022-01-30T04:56:07.000+00:00")));
+		listDowntime.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00"),
+				PnFunctionality.NOTIFICATION_CREATE, "PAGO-PA-EVENT-C", "10DJAKDF", OffsetDateTime.parse("2022-01-25T10:56:07.000+00:00")));
+		Mockito.when(
+				mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateAfter(
+						Mockito.anyList(), Mockito.any(OffsetDateTime.class)))
+				.thenReturn(listDowntime);
+	}
+	
+	protected void mockFindAllByFunctionalityInAndEndDateAfterAndStartDateBefore() {
+		List<DowntimeLogs> listDowntime = new ArrayList<>();
+		listDowntime.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-01-19T04:56:07.000+00:00"),
+				PnFunctionality.NOTIFICATION_WORKFLOW, "PAGO-PA-EVENT", "123", OffsetDateTime.parse("2022-01-23T10:56:07.000+00:00")));
+		listDowntime.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-01-20T04:56:07.000+00:00"),
+				PnFunctionality.NOTIFICATION_WORKFLOW, "PAGO-PA-EVENT", "123", OffsetDateTime.parse("2022-02-23T04:56:07.000+00:00")));
+		listDowntime.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-01-23T02:56:07.000+00:00"),
+				PnFunctionality.NOTIFICATION_WORKFLOW, "PAGO-PA-EVENT", "123", OffsetDateTime.parse("2022-01-30T04:56:07.000+00:00")));
+		Mockito.when(
+				mockDowntimeLogsRepository.findAllByFunctionalityInAndEndDateAfterAndStartDateBefore(
+						Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class)))
+				.thenReturn(listDowntime);
+	}
 	
 	protected void mockFindByFunctionalityAndEndDateIsNull(DowntimeLogs downtimeLogs) {
 		Mockito.when(mockDowntimeLogsRepository.findByFunctionalityAndEndDateIsNull(Mockito.any(PnFunctionality.class)))
@@ -158,7 +185,6 @@ public abstract class AbstractMock {
 		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
 				.thenReturn(response);
 	}
-
 
 	protected void mockLegalFactId(RestTemplate client) {
 		DownloadLegalFactDto downloadLegalFactDto = new DownloadLegalFactDto();
@@ -233,7 +259,7 @@ public abstract class AbstractMock {
 				ArgumentMatchers.anyString()))
 		.thenThrow(new RuntimeException("La data di inzio /U+00E8 obbligatoria"));	
 	}
-
+	
 
 	protected List<PnStatusUpdateEvent> getAddStatusChangeEventInterface() {
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
@@ -256,7 +282,7 @@ public abstract class AbstractMock {
 			throws JsonProcessingException {
 		LinkedMultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
 		String fromTimeString = fromTime !=null ?fromTime.toString() : "";
-		String toTimeString = toTime.toString();
+		String toTimeString = toTime !=null ?toTime.toString() : "";
 		if (functionality != null) {
 			String functionalityString = Arrays.toString(functionality.toArray()).replace('[', ' ').replace(']', ' ')
 					.trim();

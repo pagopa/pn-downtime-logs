@@ -133,12 +133,30 @@ public class MockDowntimeLogsController extends AbstractMock {
 	}
 	
 	@Test
-	public void test_CheckHistoryErrorFunctionality() throws Exception {
+	public void test_CheckHistoryErrorFromTime() throws Exception {
 		mockHistory_BADREQUEST(client);
 		 mvc.perform(get(historyStatusUrl).params(getMockHistoryStatus(null,
 				 OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"), null, "0", "5")))
-		 .andExpect(status().isBadRequest());
-		
+		 .andExpect(status().isBadRequest());	
+	}
+	
+	@Test
+	public void test_CheckHistoryNoToTime() throws Exception {
+		mockHistoryStatus(client);
+		mockFindAllByFunctionalityInAndStartDateAfter();
+		mockFindAllByFunctionalityInAndEndDateAfterAndStartDateBefore();
+		List<PnFunctionality> functionality = new ArrayList<>();
+		functionality.add(PnFunctionality.NOTIFICATION_CREATE);
+		functionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
+		functionality.add(PnFunctionality.NOTIFICATION_VISUALIZZATION);
+		MockHttpServletResponse response = mvc
+				.perform(get(historyStatusUrl)
+						.params(getMockHistoryStatus(OffsetDateTime.parse("2022-01-23T04:56:07.000+00:00"),
+								null, functionality, "0", "5")))
+				.andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentAsString()).contains("result");
+		assertThat(response.getContentAsString()).contains("functionality");
 	}
 	@Test
 	public void test_CheckLegalFactId() throws Exception {
