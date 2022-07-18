@@ -257,7 +257,7 @@ public abstract class AbstractMock {
 				ArgumentMatchers.isNull(),
 				ArgumentMatchers.anyString(), 
 				ArgumentMatchers.anyString()))
-		.thenThrow(new RuntimeException("La data di inzio /U+00E8 obbligatoria"));	
+		.thenThrow(new RuntimeException("The starting date is required."));	
 	}
 	
 

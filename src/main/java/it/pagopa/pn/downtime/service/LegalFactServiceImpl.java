@@ -128,7 +128,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 				HttpMethod.GET, safeStorageRequest, GetLegalFactDto.class);
 		if (safeStorageResponse.getBody() != null && safeStorageResponse.getBody().getContentLength() != null) {
 			GetLegalFactDto safeStorageResponseBody = safeStorageResponse.getBody();
-			log.info("request for the legalFact made successfully: "+ safeStorageResponseBody.toString());
+			log.info("Request for the legalFact made successfully: "+ safeStorageResponseBody.toString());
 			response.setContentLength(safeStorageResponseBody.getContentLength());
 			response.setUrl(safeStorageResponseBody.getDownload().getUrl());
 			response.setRetryAfter(safeStorageResponseBody.getDownload().getRetryAfter());

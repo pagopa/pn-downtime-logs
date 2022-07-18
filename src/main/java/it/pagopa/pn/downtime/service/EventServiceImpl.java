@@ -161,7 +161,7 @@ public class EventServiceImpl implements EventService {
 		String saveUid = "";
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK)
 				&& dt.getEndDate() != null) {
-			log.error("Errore nella creazione dell'evento");
+			log.error("Error creating event!");
 		} else {
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,
 					event.getStatus(), event.getSourceType(), event.getSource());
