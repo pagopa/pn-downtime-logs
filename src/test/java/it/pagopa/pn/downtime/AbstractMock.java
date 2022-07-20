@@ -102,6 +102,7 @@ public abstract class AbstractMock {
 				.thenReturn(downtimeLogsList);
 	}
 	
+	
 	protected void mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
 		downtimeLogsList
@@ -170,6 +171,17 @@ public abstract class AbstractMock {
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
 
 	}
+	
+	@SuppressWarnings("unchecked")
+	protected void mockFindNothing() {
+		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
+		
+		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
+		queryResult.setResults(downtimeLogsList);
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
+				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
+	}
+	
 	@SuppressWarnings("unchecked")
 	protected void mockCurrentStatus(RestTemplate client) throws IOException {
 		String mock = getStringFromResourse(currentStatus);

@@ -211,8 +211,11 @@ public class MockDowntimeLogsController extends AbstractMock {
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
+	
+	
 	@Test
 	public void test_CheckAddStatusChangeOK() throws Exception {
+		mockAddStatusChange_KO(client);
 		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
 		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
@@ -227,6 +230,23 @@ public class MockDowntimeLogsController extends AbstractMock {
 	}
 	
 	@Test
+	public void test_CheckAddStatusChangeOKAfterYear() throws Exception {
+		mockAddStatusChange_KO(client);
+		mockFindNothing();
+		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
+		List<PnFunctionality> pnFunctionality = new ArrayList<>();
+		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
+
+		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2023-04-08T16:55:15.995Z"),
+				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
+		MockHttpServletResponse response = mvc
+				.perform(post(eventsUrl).accept(APPLICATION_JSON_UTF8).content(pnStatusUpdateEvent)
+						.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK-LAST-YEAR"))
+				.andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+	}
+	
+	@Test
 	public void test_GenerateLegalFact() throws Exception {
 		mockAddStatusChange_OK(client);
 		DowntimeLogs downtime= getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
@@ -235,7 +255,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	}
 	
 	@Test
-	public void test_cloudwatchMapper() {
+	public void test_CloudwatchMapper() {
 		Alarm alarm = new Alarm();
 		Trigger trigger = new Trigger();
 		Dimensions dimension = new Dimensions();
