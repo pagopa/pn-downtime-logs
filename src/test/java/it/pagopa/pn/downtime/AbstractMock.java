@@ -174,10 +174,10 @@ public abstract class AbstractMock {
 	
 	@SuppressWarnings("unchecked")
 	protected void mockFindNothing() {
-		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
-		
+		List<DowntimeLogs> downtimeLogsList = null;
 		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
 		queryResult.setResults(downtimeLogsList);
+		
 		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
 	}
@@ -235,7 +235,7 @@ public abstract class AbstractMock {
 		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
 		Mockito.when(client.getForObject(Mockito.anyString(), Mockito.any(Class.class))).thenReturn(response);
 	}
-
+	
 
 	protected void mockAddStatusChange_OK(RestTemplate client) {
 		UploadSafeStorageDto uploadSafeStorageDto = new UploadSafeStorageDto();

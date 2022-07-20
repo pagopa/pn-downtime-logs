@@ -81,47 +81,40 @@ public class EventServiceImpl implements EventService {
 			log.info("Input: " + event.toString());
 			for (PnFunctionality functionality : event.getFunctionality()) {
 
-				OffsetDateTime date1 = event.getTimestamp();
-				Map<String, AttributeValue> eav1 = new HashMap<>();
-				eav1.put(":startYear1",
-						new AttributeValue().withS(functionality.getValue().concat(date1.toString().substring(0, 4))));
-				eav1.put(":functionality1", new AttributeValue().withS(functionality.getValue()));
-				eav1.put(":startDate1", new AttributeValue().withS(event.getTimestamp().toString()));
-
-				DynamoDBQueryExpression<DowntimeLogs> queryExpression = new DynamoDBQueryExpression<DowntimeLogs>()
-						.withKeyConditionExpression("functionalityStartYear =:startYear1 and startDate <=:startDate1")
-						.withFilterExpression("functionality = :functionality1").withScanIndexForward(false)
-						.withExpressionAttributeValues(eav1).withLimit(1);
-
-				QueryResultPage<DowntimeLogs> downtimeLogs = dynamoDBMapper.queryPage(DowntimeLogs.class,
-						queryExpression);
-
-				OffsetDateTime date2 = event.getTimestamp().minusYears(1);
-				Map<String, AttributeValue> eav2 = new HashMap<>();
-				eav2.put(":startYear2",
-						new AttributeValue().withS(functionality.getValue().concat(date2.toString().substring(0, 4))));
-				eav2.put(":functionality1", new AttributeValue().withS(functionality.getValue()));
-				eav2.put(":startDate1", new AttributeValue().withS(event.getTimestamp().toString()));
-
-				DynamoDBQueryExpression<DowntimeLogs> queryExpressionEmpty = new DynamoDBQueryExpression<DowntimeLogs>()
-						.withKeyConditionExpression("functionalityStartYear =:startYear2 and startDate <=:startDate1")
-						.withFilterExpression("functionality = :functionality1").withScanIndexForward(false)
-						.withExpressionAttributeValues(eav2).withLimit(1);
-
-				QueryResultPage<DowntimeLogs> downtimeLogsEmpty = dynamoDBMapper.queryPage(DowntimeLogs.class,
-						queryExpressionEmpty);
+				OffsetDateTime date = event.getTimestamp();
+				QueryResultPage<DowntimeLogs> downtimeLogs = resultQuery(date, functionality, event);
 
 				DowntimeLogs dt = null;
 
 				if (!downtimeLogs.getResults().isEmpty()) {
 					dt = downtimeLogs.getResults().get(0);
-				} else if (!downtimeLogsEmpty.getResults().isEmpty()) {
-					dt = downtimeLogsEmpty.getResults().get(0);
+				} else {
+					date = event.getTimestamp().minusYears(1);
+					downtimeLogs = resultQuery(date, functionality, event);
+					if (!downtimeLogs.getResults().isEmpty()) {
+						dt = downtimeLogs.getResults().get(0);
+					}
 				}
 				createEvent(xPagopaPnUid, dt, functionality, event);
 			}
 		}
 		return null;
+	}
+
+	private QueryResultPage<DowntimeLogs> resultQuery(OffsetDateTime date, PnFunctionality functionality,
+			PnStatusUpdateEvent event) {
+		Map<String, AttributeValue> eav1 = new HashMap<>();
+		eav1.put(":startYear1",
+				new AttributeValue().withS(functionality.getValue().concat(date.toString().substring(0, 4))));
+		eav1.put(":functionality1", new AttributeValue().withS(functionality.getValue()));
+		eav1.put(":startDate1", new AttributeValue().withS(event.getTimestamp().toString()));
+
+		DynamoDBQueryExpression<DowntimeLogs> queryExpression = new DynamoDBQueryExpression<DowntimeLogs>()
+				.withKeyConditionExpression("functionalityStartYear =:startYear1 and startDate <=:startDate1")
+				.withFilterExpression("functionality = :functionality1").withScanIndexForward(false)
+				.withExpressionAttributeValues(eav1).withLimit(1);
+
+		return dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
 	}
 
 	/**
