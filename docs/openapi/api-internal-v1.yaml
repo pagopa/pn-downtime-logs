@@ -34,7 +34,7 @@ paths:
     ###########################################################################################
     ###                                 LETTURA DELLO STATO                                 ###
     ###########################################################################################
-  "/downtime/status":
+  "/v1/downtime/status":
     get:
       summary: Stato attuale
       description: >-
@@ -63,7 +63,7 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
-  "/downtime/history":
+  "/v1/downtime/history":
     get:
       summary: Ricerca storico disservizi
       description: >-
@@ -99,7 +99,7 @@ paths:
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
     ###########################################################################################
 
-  '/downtime/legal-facts/{legalFactId}':
+  "/v1/downtime/legal-facts/{legalFactId}":
     get:
       summary: Ottieni atto opponibile a terzi
       description: >-
@@ -147,7 +147,7 @@ paths:
     ###########################################################################################
     ###                                MODIFICA DELLO STATO                                 ###
     ###########################################################################################
-  "/downtime/events":
+  "/v1/downtime/events":
     post:
       summary: Modifica stato di servizio
       description: >-

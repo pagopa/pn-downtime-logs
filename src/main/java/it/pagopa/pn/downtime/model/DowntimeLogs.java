@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @NoArgsConstructor
-@DynamoDBTable(tableName = "DowntimeLogs")
+@DynamoDBTable(tableName = "Downtime-DowntimeLogs")
 @JsonIgnoreProperties
 @ToString
 public class DowntimeLogs implements Serializable {
@@ -39,46 +39,46 @@ public class DowntimeLogs implements Serializable {
 	private String endEventUuid;
 	private String legalFactId;
 	private String uuid;
-	
+
 	@DynamoDBHashKey
 	public String getFunctionalityStartYear() {
 		return downtimeLogsId != null ? downtimeLogsId.getFunctionalityStartYear() : null;
 	}
-	
+
 	public void setFunctionalityStartYear(String functionalityStartYear) {
-	 if (downtimeLogsId == null) {
-		 downtimeLogsId = new DowntimeLogsId();
-     }
-	 downtimeLogsId.setFunctionalityStartYear(functionalityStartYear);
-     }
-	
+		if (downtimeLogsId == null) {
+			downtimeLogsId = new DowntimeLogsId();
+		}
+		downtimeLogsId.setFunctionalityStartYear(functionalityStartYear);
+	}
+
 	public void setStartDate(OffsetDateTime startDate) {
-		 if (downtimeLogsId == null) {
-			 downtimeLogsId = new DowntimeLogsId();
-	     }
-		 downtimeLogsId.setStartDate(startDate);
-	     }
-	
+		if (downtimeLogsId == null) {
+			downtimeLogsId = new DowntimeLogsId();
+		}
+		downtimeLogsId.setStartDate(startDate);
+	}
+
 	@DynamoDBRangeKey
-	@DynamoDBTypeConverted(converter=OffsetDateTimeConverter.Converter.class)
+	@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
 	public OffsetDateTime getStartDate() {
 		return downtimeLogsId != null ? downtimeLogsId.getStartDate() : null;
 	}
 
 	@DynamoDBAttribute
-	@DynamoDBTypeConverted(converter=OffsetDateTimeConverter.Converter.class)
+	@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
 	public OffsetDateTime getEndDate() {
 		return endDate;
 	}
 
 	@DynamoDBAttribute
-	@DynamoDBTypeConverted(converter=PnFunctionalityConverter.Converter.class)
+	@DynamoDBTypeConverted(converter = PnFunctionalityConverter.Converter.class)
 	public PnFunctionality getFunctionality() {
 		return functionality;
 	}
 
 	@DynamoDBAttribute
-	@DynamoDBTypeConverted(converter=PnFunctionalityStatusConverter.Converter.class)
+	@DynamoDBTypeConverted(converter = PnFunctionalityStatusConverter.Converter.class)
 	public PnFunctionalityStatus getStatus() {
 		return status;
 	}
@@ -130,7 +130,5 @@ public class DowntimeLogs implements Serializable {
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
-	
-
 
 }

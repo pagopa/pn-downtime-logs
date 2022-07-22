@@ -31,7 +31,7 @@ public class ConfigSqs {
 	private String accessKey;
 	@Value("${amazon.sqs.credentials.secretKey}")
 	private String secretKey;
-	@Value("${amazon.sqs.end-point.uri}")
+	@Value("${amazon.sqs.end-point.attidagenerare}")
     private String sqsUrl;
 	
 	

@@ -58,7 +58,7 @@ public class EventServiceImpl implements EventService {
 	DowntimeLogsSend producer;
 
 	/** The url for the generate legal fact queue */
-	@Value("${amazon.sqs.end-point.uri}")
+	@Value("${amazon.sqs.end-point.attidagenerare}")
 	private String url;
 
 	/** The dynamo DB mapper. */

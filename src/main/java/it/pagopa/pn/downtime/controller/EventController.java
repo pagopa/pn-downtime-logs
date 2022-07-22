@@ -11,7 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import freemarker.template.TemplateException;
-import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
+import it.pagopa.pn.downtime.pn_downtime.api.V1Api;
 import it.pagopa.pn.downtime.pn_downtime.model.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
@@ -27,7 +27,7 @@ import it.pagopa.pn.downtime.service.LegalFactService;
  */
 @Validated
 @RestController
-public class EventController implements DowntimeApi {
+public class EventController implements V1Api {
 
 	/** The event service. */
 	@Autowired

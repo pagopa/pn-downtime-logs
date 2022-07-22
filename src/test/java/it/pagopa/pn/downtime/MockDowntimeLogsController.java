@@ -27,7 +27,7 @@ import it.pagopa.pn.downtime.model.Alarm;
 import it.pagopa.pn.downtime.model.Dimensions;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Trigger;
-import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
+import it.pagopa.pn.downtime.pn_downtime.api.V1Api;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
@@ -42,7 +42,7 @@ import it.pagopa.pn.downtime.service.LegalFactService;
 
 public class MockDowntimeLogsController extends AbstractMock {
 
-	DowntimeApi downtimeApi = spy(DowntimeApi.class);
+	V1Api downtimeApi = spy(V1Api.class);
 	
 	@Autowired
 	LegalFactService legalFactService ;

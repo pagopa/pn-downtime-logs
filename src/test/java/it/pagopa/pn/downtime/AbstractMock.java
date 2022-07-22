@@ -40,7 +40,7 @@ import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
 import it.pagopa.pn.downtime.dto.response.UploadSafeStorageDto;
 import it.pagopa.pn.downtime.mapper.CloudwatchMapper;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
+import it.pagopa.pn.downtime.pn_downtime.api.V1Api;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
@@ -54,7 +54,7 @@ import it.pagopa.pn.downtime.service.LegalFactServiceImpl;
 public abstract class AbstractMock {
 
 	@Autowired
-	DowntimeApi downtimeApi;
+	V1Api downtimeApi;
 	@Autowired
 	MockMvc mvc;
 	@Autowired
