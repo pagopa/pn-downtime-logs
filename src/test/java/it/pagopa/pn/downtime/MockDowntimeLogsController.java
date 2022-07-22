@@ -215,7 +215,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	
 	@Test
 	public void test_CheckAddStatusChangeOK() throws Exception {
-		mockAddStatusChange_KO(client);
+		mockAddStatusChange_OK(client);
 		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
 		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
@@ -231,9 +231,8 @@ public class MockDowntimeLogsController extends AbstractMock {
 	
 	@Test
 	public void test_CheckAddStatusChangeOKAfterYear() throws Exception {
-		mockAddStatusChange_KO(client);
+		mockAddStatusChange_OK(client);
 		mockFindNothing();
-		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
 		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
 
