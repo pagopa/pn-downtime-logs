@@ -71,6 +71,12 @@ public interface DowntimeLogsRepository extends PagingAndSortingRepository<Downt
 	 */
 	DowntimeLogs findByFunctionalityAndEndDateIsNull(PnFunctionality functionality);
 	
+	/**
+	 * Query that recovers any downtime possibly lost from the sqs queue
+	 * @return the list
+	 */
+	List<DowntimeLogs> findAllByEndDateIsNotNullAndLegalFactIdIsNull();
+	
 	
 
 }

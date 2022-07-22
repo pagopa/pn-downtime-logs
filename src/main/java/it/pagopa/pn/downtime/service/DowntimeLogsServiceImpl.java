@@ -183,4 +183,9 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		downtimeLogs.setUuid(uuid);
 		downtimeLogsRepository.save(downtimeLogs);
 	}
+	
+	@Override
+	public List<DowntimeLogs> findAllByEndDateIsNotNullAndLegalFactIdIsNull() {
+		return downtimeLogsRepository.findAllByEndDateIsNotNullAndLegalFactIdIsNull();
+	}
 }

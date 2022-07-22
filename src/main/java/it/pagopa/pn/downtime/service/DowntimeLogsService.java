@@ -3,6 +3,7 @@ package it.pagopa.pn.downtime.service;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusResponse;
@@ -44,4 +45,8 @@ public interface DowntimeLogsService {
 	 */
 	void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate, PnFunctionality functionality,
 			String startEventUuid, String uuid);
+
+	
+	
+	List<DowntimeLogs> findAllByEndDateIsNotNullAndLegalFactIdIsNull();
 }

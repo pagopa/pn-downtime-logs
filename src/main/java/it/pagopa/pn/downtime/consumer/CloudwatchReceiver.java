@@ -49,7 +49,7 @@ public class CloudwatchReceiver {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws TemplateException the template exception
 	 */
-	@SqsListener(value = "${amazon.sqs.end-point.url}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+	@SqsListener(value = "${amazon.sqs.end-point.cloudwatch}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 	public void receiveMessage(final String message) throws InterruptedException, ExecutionException, NoSuchAlgorithmException, IOException, TemplateException {
 		Alarm alarm = mapper.readValue(message, Alarm.class);
 		PnStatusUpdateEvent pnStatusUpdateEvent = cloudwatchMapper.alarmToPnStatusUpdateEvent(alarm);
