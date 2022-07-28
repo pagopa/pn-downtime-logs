@@ -86,7 +86,7 @@ public class EventServiceImpl implements EventService {
 
 				DowntimeLogs dt = null;
 
-				if (!downtimeLogs.getResults().isEmpty()) {
+				if (downtimeLogs.getResults()!=null && !downtimeLogs.getResults().isEmpty()) {
 					dt = downtimeLogs.getResults().get(0);
 				} else {
 					date = event.getTimestamp().minusYears(1);
