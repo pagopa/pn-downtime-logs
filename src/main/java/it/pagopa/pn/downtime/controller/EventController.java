@@ -4,14 +4,17 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import freemarker.template.TemplateException;
-import it.pagopa.pn.downtime.pn_downtime.api.V1Api;
+import it.pagopa.pn.downtime.pn_downtime.api.DowntimeApi;
+import it.pagopa.pn.downtime.pn_downtime.api.DowntimeInternalApi;
 import it.pagopa.pn.downtime.pn_downtime.model.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
@@ -27,7 +30,7 @@ import it.pagopa.pn.downtime.service.LegalFactService;
  */
 @Validated
 @RestController
-public class EventController implements V1Api {
+public class EventController implements DowntimeApi, DowntimeInternalApi {
 
 	/** The event service. */
 	@Autowired
@@ -94,6 +97,11 @@ public class EventController implements V1Api {
 	public ResponseEntity<PnDowntimeHistoryResponse> statusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
 		return ResponseEntity.ok(downtimeLogsService.getStatusHistory(fromTime, toTime, functionality, page, size));
+	}
+
+	@Override
+	public Optional<NativeWebRequest> getRequest() {
+		return DowntimeApi.super.getRequest();
 	}
 
 }

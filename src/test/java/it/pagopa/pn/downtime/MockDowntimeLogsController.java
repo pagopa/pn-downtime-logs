@@ -23,11 +23,11 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import it.pagopa.pn.downtime.controller.EventController;
 import it.pagopa.pn.downtime.model.Alarm;
 import it.pagopa.pn.downtime.model.Dimensions;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Trigger;
-import it.pagopa.pn.downtime.pn_downtime.api.V1Api;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
@@ -41,45 +41,9 @@ import it.pagopa.pn.downtime.service.LegalFactService;
 @ExtendWith(MockitoExtension.class)
 
 public class MockDowntimeLogsController extends AbstractMock {
-
-	V1Api downtimeApi = spy(V1Api.class);
 	
 	@Autowired
 	LegalFactService legalFactService ;
-
-	@Test
-	public void test_AddStatusChangeEventInterface() throws Exception {
-		mockAddStatusChange_KO(client);
-		assertThat(
-				downtimeApi.addStatusChangeEvent("PAGO-PA-OK", getAddStatusChangeEventInterface()).getStatusCodeValue())
-				.isEqualTo(HttpStatus.NOT_IMPLEMENTED.value());
-	}
-
-	@Test
-	public void test_CurrentStatusInterface() throws Exception {
-		mockCurrentStatus(client);
-
-		assertThat(downtimeApi.currentStatus().getStatusCodeValue()).isEqualTo(HttpStatus.NOT_IMPLEMENTED.value());
-	}
-
-	@Test
-	public void test_LegalFactInterface() throws Exception {
-		mockLegalFactId(client);
-		assertThat(downtimeApi.getLegalFact("PN_LEGAL_FACTS-0002-19PR-C7IB-SGGZ-VOYY").getStatusCodeValue())
-				.isEqualTo(HttpStatus.NOT_IMPLEMENTED.value());
-	}
-
-	@Test
-	public void test_StatusHistoryInterface() throws Exception {
-		mockHistoryStatus(client);
-		List<PnFunctionality> functionality = new ArrayList<>();
-		functionality.add(PnFunctionality.NOTIFICATION_CREATE);
-		functionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
-		assertThat(downtimeApi
-				.statusHistory(OffsetDateTime.parse("2022-01-23T04:56:07.000+00:00"),
-						OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"), functionality, "0", "5")
-				.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_IMPLEMENTED.value());
-	}
 
 	@Test
 	public void test_CheckCurretStatus() throws Exception {
