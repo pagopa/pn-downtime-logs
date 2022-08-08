@@ -181,6 +181,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		downtimeLogs.setStartEventUuid(startEventUuid);
 		downtimeLogs.setFunctionality(functionality);
 		downtimeLogs.setUuid(uuid);
+		downtimeLogs.setFileAvailable(false);
 		downtimeLogsRepository.save(downtimeLogs);
 	}
 	

@@ -77,6 +77,5 @@ public interface DowntimeLogsRepository extends PagingAndSortingRepository<Downt
 	 */
 	List<DowntimeLogs> findAllByEndDateIsNotNullAndLegalFactIdIsNull();
 	
-	
-
+	DowntimeLogs findFirstByLegalFactId(String legalFactId);
 }

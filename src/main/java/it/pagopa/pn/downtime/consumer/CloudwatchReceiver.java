@@ -53,14 +53,15 @@ public class CloudwatchReceiver {
 	@SqsListener(value = "${amazon.sqs.end-point.cloudwatch}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 	public void receiveMessage(final String message)
 			throws InterruptedException, ExecutionException, NoSuchAlgorithmException, IOException, TemplateException {
+		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
+		log.info("message received in CloudWatch queue {}", message);
+
 		MessageCloudwatch messageCloudwatch = mapper.readValue(message, MessageCloudwatch.class);
 		if (Objects.nonNull(messageCloudwatch) && Objects.nonNull(messageCloudwatch.getAlarm())) {
 			Alarm alarm = messageCloudwatch.getAlarm();
 			PnStatusUpdateEvent pnStatusUpdateEvent = cloudwatchMapper.alarmToPnStatusUpdateEvent(alarm);
 			List<PnStatusUpdateEvent> listEvent = new ArrayList<>();
 			listEvent.add(pnStatusUpdateEvent);
-			log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
-			log.info("message received {}", pnStatusUpdateEvent.toString());
 			eventService.addStatusChangeEvent("PAGO-PA-EVENT_provv", listEvent);
 		}
 	}

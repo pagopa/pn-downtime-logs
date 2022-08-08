@@ -40,13 +40,13 @@ public class TestSchedulerDowntimeLogs extends AbstractMock{
     @MockBean
 	DowntimeLogsSend producer;
     
-	@Value("${amazon.sqs.end-point.attidagenerare}")
+	@Value("${amazon.sqs.end-point.acts-queue}")
 	private String url;
 	
-    @Before
-    public void setUp() {
-    	before();
-    }
+//    @Before
+//    public void setUp() {
+//    	before();
+//    }
     
 	@Test
 	public void test_CheckLegalFactId() throws SchedulerException, InterruptedException {

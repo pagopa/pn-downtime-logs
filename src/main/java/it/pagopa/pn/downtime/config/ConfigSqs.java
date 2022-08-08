@@ -31,15 +31,18 @@ public class ConfigSqs {
 	private String accessKey;
 	@Value("${amazon.sqs.credentials.secretKey}")
 	private String secretKey;
-	@Value("${amazon.sqs.end-point.attidagenerare}")
-    private String sqsUrl;
+	@Value("${amazon.sqs.end-point.acts-queue}")
+    private String sqsUrlActs;
+	@Value("${amazon.sqs.end-point.cloudwatch}")
+    private String sqsUrlCloudwatch;
+	@Value("${amazon.sqs.end-point.legalfact-available}")
+	private String sqsUrlSafeStorage;
 	
-	
-	@Bean
+	@Bean(name = "acts")
     @Primary
     public AmazonSQSAsync amazonSQSAsync() {
 		return AmazonSQSAsyncClientBuilder.standard()
-				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(sqsUrl, region))
+				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(sqsUrlActs, region))
 				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
 				.build();
 	}
@@ -47,6 +50,32 @@ public class ConfigSqs {
 	@Bean
 	public QueueMessagingTemplate queueMessagingTemplate() {
 		return new QueueMessagingTemplate(amazonSQSAsync());
+	}
+
+	@Bean(name = "cloudwatch")
+    public AmazonSQSAsync amazonSQSCloudWatch() {
+		return AmazonSQSAsyncClientBuilder.standard()
+				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(sqsUrlCloudwatch, region))
+				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+				.build();
+	}
+	
+	@Bean
+	public QueueMessagingTemplate queueMessagingTemplateCloudWatch() {
+		return new QueueMessagingTemplate(amazonSQSCloudWatch());
+	}
+	
+	@Bean(name = "safestorage")
+    public AmazonSQSAsync amazonSQSAsyncSafeStorage() {
+		return AmazonSQSAsyncClientBuilder.standard()
+				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(sqsUrlSafeStorage, region))
+				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+				.build();
+	}
+	
+	@Bean
+	public QueueMessagingTemplate queueMessagingTemplateSafeStorage() {
+		return new QueueMessagingTemplate(amazonSQSAsyncSafeStorage());
 	}
 	
 	@Bean

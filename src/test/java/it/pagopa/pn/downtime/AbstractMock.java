@@ -69,9 +69,8 @@ public abstract class AbstractMock {
 	@MockBean
 	private DynamoDBMapper mockDynamoDBMapper;
 
-
-	@Autowired
-	protected DowntimeLogsServiceImpl service;
+//	@Autowired
+//	protected DowntimeLogsServiceImpl service;
 
 	@Value("classpath:data/current_status.json")
 	private Resource currentStatus;
@@ -84,10 +83,10 @@ public abstract class AbstractMock {
 			MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	protected final String currentStatusUrl = "/v1/downtime/status";
-	protected final String historyStatusUrl = "/v1/downtime/history";
-	protected final String eventsUrl = "/v1/downtime/events";
-	protected final String legalFactIdUrl = "/v1/downtime/legal-facts/";
+	protected final String currentStatusUrl = "/downtime/v1/status";
+	protected final String historyStatusUrl = "/downtime/v1/history";
+	protected final String eventsUrl = "/downtime-internal/v1/events";
+	protected final String legalFactIdUrl = "/downtime/v1/legal-facts/";
 
 	protected void mockFindAllByFunctionalityInAndStartDateBetween() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
@@ -268,21 +267,6 @@ public abstract class AbstractMock {
 				.thenThrow(new RuntimeException("The starting date is required."));
 	}
 
-	protected List<PnStatusUpdateEvent> getAddStatusChangeEventInterface() {
-		List<PnFunctionality> pnFunctionality = new ArrayList<>();
-		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
-		pnFunctionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
-		List<PnStatusUpdateEvent> pnStatusUpdateEventList = new ArrayList<>();
-		PnStatusUpdateEvent pnStatusUpdateEvent = new PnStatusUpdateEvent();
-		pnStatusUpdateEvent.setFunctionality(pnFunctionality);
-		pnStatusUpdateEvent.setTimestamp(OffsetDateTime.parse("2022-08-28T09:55:15.995Z"));
-		pnStatusUpdateEvent.setSource("OPERATOR");
-		pnStatusUpdateEvent.setSourceType(SourceTypeEnum.OPERATOR);
-		pnStatusUpdateEvent.setStatus(PnFunctionalityStatus.OK);
-		pnStatusUpdateEventList.add(pnStatusUpdateEvent);
-
-		return pnStatusUpdateEventList;
-	}
 
 	protected static LinkedMultiValueMap<String, String> getMockHistoryStatus(OffsetDateTime fromTime,
 			OffsetDateTime toTime, List<PnFunctionality> functionality, String page, String size)
@@ -338,7 +322,8 @@ public abstract class AbstractMock {
 		Mockito.when(client.getForEntity(url, classResult)).thenReturn(new ResponseEntity(resp, status));
 	}
 
-	protected void before() {
-		service = new DowntimeLogsServiceImpl();
-	}
+//	protected void before() {
+//		service = new DowntimeLogsServiceImpl();
+//	}
+	
 }

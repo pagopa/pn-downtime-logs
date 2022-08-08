@@ -30,7 +30,7 @@ public class LegalFactIdJob implements Job {
 	@Autowired
 	DowntimeLogsSend producer;
 	/** The url for the generate legal fact queue */
-	@Value("${amazon.sqs.end-point.attidagenerare}")
+	@Value("${amazon.sqs.end-point.acts-queue}")
 	private String url;
 
 	public void execute(JobExecutionContext context) {

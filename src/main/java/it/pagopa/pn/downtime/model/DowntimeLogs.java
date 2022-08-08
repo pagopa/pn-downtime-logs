@@ -39,7 +39,8 @@ public class DowntimeLogs implements Serializable {
 	private String endEventUuid;
 	private String legalFactId;
 	private String uuid;
-
+	private Boolean fileAvailable;
+	
 	@DynamoDBHashKey
 	public String getFunctionalityStartYear() {
 		return downtimeLogsId != null ? downtimeLogsId.getFunctionalityStartYear() : null;
@@ -102,7 +103,11 @@ public class DowntimeLogs implements Serializable {
 	public String getUuid() {
 		return uuid;
 	}
-
+	
+	@DynamoDBAttribute
+	public Boolean getFileAvailable() {
+		return fileAvailable;
+	}
 	public void setEndDate(OffsetDateTime endDate) {
 		this.endDate = endDate;
 	}
@@ -129,6 +134,10 @@ public class DowntimeLogs implements Serializable {
 
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
+	}
+
+	public void setFileAvailable(Boolean fileAvailable) {
+		this.fileAvailable = fileAvailable;
 	}
 
 }

@@ -323,7 +323,8 @@ components:
             terminati da pochi minuti. <br/>
             Questo valore è da utilizzare con l'API _getLegalFact_ di questo stesso servizio.
           type: string
-        
+        fileAvailable:
+          type: boolean
     PnFunctionality:
       title: Funzionalità di PN
       description: >-
