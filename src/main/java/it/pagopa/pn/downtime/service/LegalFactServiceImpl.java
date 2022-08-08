@@ -19,16 +19,17 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.google.gson.Gson;
-
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import freemarker.template.Version;
-import it.pagopa.pn.downtime.dto.request.ReserveSafeStorageDto;
-import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
-import it.pagopa.pn.downtime.dto.response.UploadSafeStorageDto;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.pn_downtime.model.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.downtime.pn_downtime.restclient.safestorage.ApiClient;
+import it.pagopa.pn.downtime.pn_downtime.restclient.safestorage.api.FileDownloadApi;
+import it.pagopa.pn.downtime.pn_downtime.restclient.safestorage.api.FileUploadApi;
+import it.pagopa.pn.downtime.pn_downtime.restclient.safestorage.model.FileCreationRequest;
+import it.pagopa.pn.downtime.pn_downtime.restclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.downtime.pn_downtime.restclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.util.DocumentComposition;
 import it.pagopa.pn.downtime.util.LegalFactGenerator;
@@ -111,30 +112,21 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Override
 	public LegalFactDownloadMetadataResponse getLegalFact(String legalFactId) {
 		log.info("getLegalFact - Input: " + legalFactId);
-		LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
-		HttpHeaders requestHeaders = new HttpHeaders();
-		List<MediaType> acceptedTypes = new ArrayList<>();
-		acceptedTypes.add(MediaType.APPLICATION_JSON);
-		requestHeaders.setAccept(acceptedTypes);
-		requestHeaders.add(PAGOPA_SAFESTORAGE_HEADER, PAGOPA_SAFESTORAGE_HEADER_VALUE);
+		FileDownloadApi fileApi = new FileDownloadApi();
+		ApiClient api = new ApiClient();
+		api.setBasePath(urlSafeStore);	
 		if (enableApiKey) {
-			requestHeaders.add(apiKeyHeader, apiKeyHeaderValue);
+			//TODO verify authentication
+			api.setApiKey(apiKeyHeaderValue);
 		}
-		UriComponents uriComponents = UriComponentsBuilder
-				.fromHttpUrl(urlSafeStore.concat(urlReserveStore).concat("/{fileKey}?metadataOnly=false"))
-				.buildAndExpand(legalFactId);
-		HttpEntity<String> safeStorageRequest = new HttpEntity<>(null, requestHeaders);
-		ResponseEntity<GetLegalFactDto> safeStorageResponse = restTemplate.exchange(uriComponents.toUri(),
-				HttpMethod.GET, safeStorageRequest, GetLegalFactDto.class);
-		if (safeStorageResponse.getBody() != null && safeStorageResponse.getBody().getContentLength() != null) {
-			GetLegalFactDto safeStorageResponseBody = safeStorageResponse.getBody();
-			log.info("Request for the legalFact made successfully: "+ safeStorageResponseBody.toString());
-			response.setContentLength(safeStorageResponseBody.getContentLength());
-			response.setUrl(safeStorageResponseBody.getDownload().getUrl());
-			response.setRetryAfter(safeStorageResponseBody.getDownload().getRetryAfter());
-		}
-		log.info("Response: " + response.toString());
-		return response;
+		fileApi.setApiClient(api);
+		FileDownloadResponse response = fileApi.getFile(legalFactId, PAGOPA_SAFESTORAGE_HEADER_VALUE, false);	
+		LegalFactDownloadMetadataResponse legalFactResponse = new LegalFactDownloadMetadataResponse();
+		legalFactResponse.setContentLength(response.getContentLength());
+		legalFactResponse.setUrl(response.getDownload().getUrl());
+		legalFactResponse.setRetryAfter(response.getDownload().getRetryAfter());
+		log.info("Response: " + legalFactResponse.toString());
+		return legalFactResponse;
 	}
 
 	/**
@@ -147,35 +139,29 @@ public class LegalFactServiceImpl implements LegalFactService {
 	 */
 	public DowntimeLogs reserveUploadFile(byte[] file, DowntimeLogs downtime) throws NoSuchAlgorithmException {
 		log.info("reserveUploadFile");
-		HttpHeaders requestHeaders = new HttpHeaders();
-		requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-		List<MediaType> acceptedTypes = new ArrayList<>();
-		acceptedTypes.add(MediaType.APPLICATION_JSON);
-		requestHeaders.setAccept(acceptedTypes);
-		requestHeaders.add(PAGOPA_SAFESTORAGE_HEADER, PAGOPA_SAFESTORAGE_HEADER_VALUE);
+		FileUploadApi fileApi = new FileUploadApi();
+		ApiClient api = new ApiClient();
+		api.setBasePath(urlSafeStore);	
 		if (enableApiKey) {
-			requestHeaders.add(apiKeyHeader, apiKeyHeaderValue);
+			//TODO verify authentication
+			api.setApiKey(apiKeyHeaderValue);
 		}
+		fileApi.setApiClient(api);
 
+		FileCreationRequest fileCreationRequest = new FileCreationRequest();
+		fileCreationRequest.setContentType("application/pdf");
+		fileCreationRequest.setDocumentType(pagoPaDocumentType);
+		fileCreationRequest.setStatus("PRELOADED");
 		MessageDigest digest = null;
-
-			digest = MessageDigest.getInstance(SHA256);
-
+		digest = MessageDigest.getInstance(SHA256);
 		byte[] hash = digest != null ? digest.digest(file) : null;
 		String checkSum = Base64.getEncoder().encodeToString(hash);
-		requestHeaders.add(RESERVE_SAFESTORAGE_HEADER_CHECKSUM_VALUE, checkSum);
-		requestHeaders.add(RESERVE_SAFESTORAGE_HEADER_CHECKSUM, SHA256);
-		ReserveSafeStorageDto requestDto = new ReserveSafeStorageDto("application/pdf", pagoPaDocumentType, "PRELOADED");
-		log.info(requestDto.toString());
-		String jsonInString = new Gson().toJson(requestDto);
-		HttpEntity<String> safeStorageRequest = new HttpEntity<>(jsonInString, requestHeaders);
-		ResponseEntity<UploadSafeStorageDto> safeStorageResponse = restTemplate.exchange(
-				urlSafeStore.concat(urlReserveStore), HttpMethod.POST, safeStorageRequest, UploadSafeStorageDto.class);
-		if (safeStorageResponse.getBody().getResultCode() != null
-				&& safeStorageResponse.getBody().getResultCode().equals("200.00")) {
-			log.info("Reservation made successfully" + safeStorageResponse.getBody());
-			uploadFile(safeStorageResponse.getBody(), checkSum, file);
-			downtime.setLegalFactId(safeStorageResponse.getBody().getKey());
+		ResponseEntity<FileCreationResponse> response = fileApi.createFileWithHttpInfo(PAGOPA_SAFESTORAGE_HEADER_VALUE, checkSum, SHA256, fileCreationRequest);
+		
+		if (response != null && response.getStatusCodeValue() == 200) {
+			log.info("Reservation made successfully" + response.getBody());
+			uploadFile(response.getBody(), checkSum, file);
+			downtime.setLegalFactId(response.getBody().getKey());
 		} else {
 			log.error("Error during the reservation request");
 		}
@@ -189,8 +175,8 @@ public class LegalFactServiceImpl implements LegalFactService {
 	 * @param checkSum the check sum of the file calculated during the reservation used to be sure that no data was lost during between the reservation and the upload
 	 * @param file the generated pdf of the legal fact
 	 */
-	public void uploadFile(UploadSafeStorageDto uploadDto, String checkSum, byte[] file) {
-		log.info("uploadFile");
+	public void uploadFile(FileCreationResponse uploadDto, String checkSum, byte[] file) {
+		log.info("uploadFile");		
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setContentType(MediaType.APPLICATION_PDF);
 		List<MediaType> acceptedTypes = new ArrayList<>();
@@ -201,7 +187,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 		HttpEntity<byte[]> requestEntity = new HttpEntity<>(file, requestHeaders);
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(uploadDto.getUploadUrl()).build(true);
 		ResponseEntity<Object> safeStorageResponse = restTemplate.exchange(uriComponents.toUri(),
-				HttpMethod.valueOf(uploadDto.getUploadMethod()), requestEntity, Object.class);
+				HttpMethod.valueOf(uploadDto.getUploadMethod().getValue()), requestEntity, Object.class);
 
 		if (safeStorageResponse.getStatusCode().is2xxSuccessful()) {
 			log.info("Upload Operation was successfull");
