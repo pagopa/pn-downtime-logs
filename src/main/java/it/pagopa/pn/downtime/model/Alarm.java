@@ -14,7 +14,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @JsonIgnoreProperties
 public class Alarm {
-
+	
+	@JsonProperty("AlarmName")
+	private String alarmName;
+	
 	@JsonProperty("AlarmDescription")
 	private String alarmDescription;
 
@@ -24,7 +27,10 @@ public class Alarm {
 	@JsonProperty("StateChangeTime")
 	private OffsetDateTime stateChangeTime;
 
-	@JsonProperty("Trigger")
-	private Trigger trigger;
+//	@JsonProperty("OldStateValue")
+//	private String oldStateValue;
+
+//	@JsonProperty("Trigger")
+//	private Trigger trigger;
 
 }

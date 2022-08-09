@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,20 +50,24 @@ public class CloudwatchReceiver {
 	 * @throws NoSuchAlgorithmException the no such algorithm exception
 	 * @throws IOException              Signals that an I/O exception has occurred.
 	 * @throws TemplateException        the template exception
+	 * @throws JSONException
 	 */
-	@SqsListener(value = "${amazon.sqs.end-point.cloudwatch}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-	public void receiveMessage(final String message)
-			throws InterruptedException, ExecutionException, NoSuchAlgorithmException, IOException, TemplateException {
+	@SqsListener(value = "${amazon.sqs.end-point.cloudwatch}", deletionPolicy = SqsMessageDeletionPolicy.ALWAYS)
+	public void receiveMessage(final String message) throws InterruptedException, ExecutionException,
+			NoSuchAlgorithmException, IOException, TemplateException, JSONException {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
 		log.info("message received in CloudWatch queue {}", message);
 
 		MessageCloudwatch messageCloudwatch = mapper.readValue(message, MessageCloudwatch.class);
-		if (Objects.nonNull(messageCloudwatch) && Objects.nonNull(messageCloudwatch.getAlarm())) {
-			Alarm alarm = messageCloudwatch.getAlarm();
+		Alarm alarm = mapper.readValue(messageCloudwatch.getMessage(), Alarm.class);
+
+		if (Objects.nonNull(messageCloudwatch) && Objects.nonNull(messageCloudwatch.getMessage())) {
 			PnStatusUpdateEvent pnStatusUpdateEvent = cloudwatchMapper.alarmToPnStatusUpdateEvent(alarm);
-			List<PnStatusUpdateEvent> listEvent = new ArrayList<>();
-			listEvent.add(pnStatusUpdateEvent);
-			eventService.addStatusChangeEvent("PAGO-PA-EVENT_provv", listEvent);
+			if (!pnStatusUpdateEvent.getFunctionality().isEmpty()) {
+				List<PnStatusUpdateEvent> listEvent = new ArrayList<>();
+				listEvent.add(pnStatusUpdateEvent);
+				eventService.addStatusChangeEvent("PAGO-PA-EVENT_provv", listEvent);
+			}
 		}
 	}
 }

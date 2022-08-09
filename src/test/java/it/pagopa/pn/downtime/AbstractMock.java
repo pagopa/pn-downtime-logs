@@ -69,8 +69,8 @@ public abstract class AbstractMock {
 	@MockBean
 	private DynamoDBMapper mockDynamoDBMapper;
 
-//	@Autowired
-//	protected DowntimeLogsServiceImpl service;
+	@Autowired
+	protected DowntimeLogsServiceImpl service;
 
 	@Value("classpath:data/current_status.json")
 	private Resource currentStatus;
@@ -322,8 +322,8 @@ public abstract class AbstractMock {
 		Mockito.when(client.getForEntity(url, classResult)).thenReturn(new ResponseEntity(resp, status));
 	}
 
-//	protected void before() {
-//		service = new DowntimeLogsServiceImpl();
-//	}
+	protected void before() {
+		service = new DowntimeLogsServiceImpl();
+	}
 	
 }
