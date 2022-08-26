@@ -33,7 +33,9 @@ import org.springframework.web.client.RestTemplate;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -76,8 +78,10 @@ public abstract class AbstractMock {
 	private Resource currentStatus;
 	@Value("classpath:data/history_status.json")
 	private Resource historyStatus;
-
-
+	@Value("classpath:data/messageCloudwatch.json")
+	private Resource mockMessageCloudwatch;
+	@Value("classpath:data/messageLegalFactId.json")
+	private Resource mockMessageLegalFactId;
 
 	public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(),
 			MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
@@ -99,8 +103,10 @@ public abstract class AbstractMock {
 		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateBetween(Mockito.anyList(),
 				Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class))).thenReturn(downtimeLogsList);
 	}
-	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(List<DowntimeLogs> downtimeLogsList){
-		Mockito.when(mockDowntimeLogsRepository.findAllByEndDateIsNotNullAndLegalFactIdIsNull()).thenReturn(downtimeLogsList);
+
+	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(List<DowntimeLogs> downtimeLogsList) {
+		Mockito.when(mockDowntimeLogsRepository.findAllByEndDateIsNotNullAndLegalFactIdIsNull())
+				.thenReturn(downtimeLogsList);
 	}
 
 	protected void mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore() {
@@ -111,6 +117,14 @@ public abstract class AbstractMock {
 		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(
 				Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class),
 				Mockito.any(OffsetDateTime.class))).thenReturn(downtimeLogsList);
+	}
+
+	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
+		Mockito.when(mockDowntimeLogsRepository.findFirstByLegalFactId(Mockito.anyString())).thenReturn(dt);
+	}
+
+	protected void mockSaveDowntime(DowntimeLogs dt) {
+		Mockito.when(mockDowntimeLogsRepository.save(Mockito.any(DowntimeLogs.class))).thenReturn(dt);
 	}
 
 	protected void mockFindAllByFunctionalityInAndStartDateAfter() {
@@ -182,8 +196,9 @@ public abstract class AbstractMock {
 		QueryResultPage<DowntimeLogs> queryResult1 = new QueryResultPage<>();
 		queryResult1.setResults(downtimeLogsList1);
 		List<DowntimeLogs> downtimeLogsList2 = new ArrayList<>();
-		downtimeLogsList2.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
-				PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
+		downtimeLogsList2
+				.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
 		QueryResultPage<DowntimeLogs> queryResult2 = new QueryResultPage<>();
 		queryResult2.setResults(downtimeLogsList2);
 		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
@@ -267,7 +282,6 @@ public abstract class AbstractMock {
 				.thenThrow(new RuntimeException("The starting date is required."));
 	}
 
-
 	protected static LinkedMultiValueMap<String, String> getMockHistoryStatus(OffsetDateTime fromTime,
 			OffsetDateTime toTime, List<PnFunctionality> functionality, String page, String size)
 			throws JsonProcessingException {
@@ -310,6 +324,7 @@ public abstract class AbstractMock {
 		downtimeLogs.setFunctionality(functionality);
 		downtimeLogs.setUuid(uuid);
 		downtimeLogs.setEndDate(endDate);
+		downtimeLogs.setFileAvailable(false);
 		return downtimeLogs;
 	}
 
@@ -325,5 +340,12 @@ public abstract class AbstractMock {
 	protected void before() {
 		service = new DowntimeLogsServiceImpl();
 	}
-	
+
+	protected String getMessageCloudwatchFromResource() throws JsonParseException, JsonMappingException, IOException {
+		return StreamUtils.copyToString(mockMessageCloudwatch.getInputStream(), Charset.defaultCharset());
+	}
+
+	protected String getMessageLegalFactIdFromResource() throws JsonParseException, JsonMappingException, IOException {
+		return StreamUtils.copyToString(mockMessageLegalFactId.getInputStream(), Charset.defaultCharset());
+	}
 }

@@ -86,13 +86,15 @@ public class EventServiceImpl implements EventService {
 
 				DowntimeLogs dt = null;
 
-				if (downtimeLogs.getResults()!=null && !downtimeLogs.getResults().isEmpty()) {
-					dt = downtimeLogs.getResults().get(0);
-				} else {
-					date = event.getTimestamp().minusYears(1);
-					downtimeLogs = resultQuery(date, functionality, event);
-					if (!downtimeLogs.getResults().isEmpty()) {
+				if (downtimeLogs != null) {
+					if (downtimeLogs.getResults() != null && !downtimeLogs.getResults().isEmpty()) {
 						dt = downtimeLogs.getResults().get(0);
+					} else {
+						date = event.getTimestamp().minusYears(1);
+						downtimeLogs = resultQuery(date, functionality, event);
+						if (!downtimeLogs.getResults().isEmpty()) {
+							dt = downtimeLogs.getResults().get(0);
+						}
 					}
 				}
 				createEvent(xPagopaPnUid, dt, functionality, event);
