@@ -10,9 +10,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
     <relativePath/>
   </parent>
   <groupId>it.pagopa.pn.downtime</groupId>
-  <artifactId>pn-downtime</artifactId>
+  <artifactId>pn-downtime-logs</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>pn-downtime</name>
+  <name>pn-downtime-logs</name>
   <description>Register PN downtime logs</description>
 
   <dependencies>
