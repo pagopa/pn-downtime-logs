@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Some storage with input and output
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Nome dell'ambiente destinazione
+
+  # Unused but required by CD pipeline
+  MicroserviceNumber:
+    Type: Number
+    Description: An unique number that identify the microservice inside the ECS cluster.
+
+  # Unused but required by CD pipeline
+  TemplateBucketBaseUrl:
+    Type: String
+    Description: URL da cui caricare i frammenti di template di infrastruttura
+  
+  Version:
+    Type: String
+    Description: 'keep track of used projects commitIds'
+
+Resources:
+
+  ### Queue that receive safe-storage notification to DOWNTIME LOGS ###
+  InternalEventQueueQueue:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-downtime_logs_internal_events'
+        DelaySeconds: 1
+
+Outputs:
+  
+  # External channels outputs
+  InternalEventQueueQueueName:
+    Value: !GetAtt InternalEventQueueQueue.Outputs.QueueName
+    Description: internal events queue name
+  InternalEventQueueQueueURL:
+    Value: !GetAtt InternalEventQueueQueue.Outputs.QueueURL
+    Description: internal events queue URL
+  InternalEventQueueQueueARN:
+    Value: !GetAtt InternalEventQueueQueue.Outputs.QueueARN
+    Description: internal events queue ARN
