@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 
 /**
@@ -24,13 +23,6 @@ import lombok.ToString;
  * Instantiates a new gets the legal fact dto.
  */
 @NoArgsConstructor
-
-/**
- * To string.
- *
- * @return the java.lang. string
- */
-@ToString
 
 public class GetLegalFactDto {
       

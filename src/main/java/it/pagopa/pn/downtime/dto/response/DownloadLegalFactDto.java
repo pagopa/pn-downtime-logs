@@ -2,15 +2,9 @@ package it.pagopa.pn.downtime.dto.response;
 
 import java.math.BigDecimal;
 
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-/**
- * Sub-Response Dto of the getLegalFact safeStorage request.It contains the downwolad url and the retry after.
- */
-@Getter
 
 /**
  * Sets the retry after.
