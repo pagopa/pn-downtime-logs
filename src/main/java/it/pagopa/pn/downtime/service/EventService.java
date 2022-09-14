@@ -3,7 +3,7 @@ package it.pagopa.pn.downtime.service;
 import java.io.IOException;
 import java.util.List;
 
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 
 
 /**

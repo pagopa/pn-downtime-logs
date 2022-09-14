@@ -14,11 +14,11 @@ import org.springframework.stereotype.Service;
 
 import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeEntry;
-import it.pagopa.pn.downtime.pn_downtime.model.PnDowntimeHistoryResponse;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusResponse;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeEntry;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeHistoryResponse;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

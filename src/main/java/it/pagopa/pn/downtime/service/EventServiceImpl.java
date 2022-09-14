@@ -17,10 +17,10 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.repository.EventRepository;

@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import it.pagopa.pn.downtime.consumer.CloudwatchReceiver;
 import it.pagopa.pn.downtime.consumer.LegalFactIdReceiver;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")

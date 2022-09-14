@@ -8,9 +8,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import it.pagopa.pn.downtime.model.Alarm;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 
 @Mapper(componentModel = "spring")
 public interface CloudwatchMapper {

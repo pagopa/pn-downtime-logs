@@ -29,8 +29,8 @@ import com.google.gson.reflect.TypeToken;
 
 import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.dto.response.AwsSafeStorageErrorDto;
-import it.pagopa.pn.downtime.pn_downtime.model.Problem;
-import it.pagopa.pn.downtime.pn_downtime.model.ProblemError;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.Problem;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.ProblemError;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

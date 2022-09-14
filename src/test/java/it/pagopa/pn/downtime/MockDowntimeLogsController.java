@@ -28,10 +28,10 @@ import it.pagopa.pn.downtime.model.Alarm;
 import it.pagopa.pn.downtime.model.Dimensions;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Trigger;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.service.LegalFactService;
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

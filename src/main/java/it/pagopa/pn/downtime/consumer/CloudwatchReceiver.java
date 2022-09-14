@@ -19,7 +19,7 @@ import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.downtime.mapper.CloudwatchMapper;
 import it.pagopa.pn.downtime.model.Alarm;
 import it.pagopa.pn.downtime.model.MessageCloudwatch;
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.service.EventService;
 import lombok.extern.slf4j.Slf4j;
 

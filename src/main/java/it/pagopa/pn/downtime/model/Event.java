@@ -13,9 +13,9 @@ import it.pagopa.pn.downtime.model.converter.OffsetDateTimeConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityStatusConverter;
 import it.pagopa.pn.downtime.model.converter.PnSourceTypeConverter;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
