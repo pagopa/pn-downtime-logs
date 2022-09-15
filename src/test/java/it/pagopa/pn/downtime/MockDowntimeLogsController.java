@@ -2,7 +2,6 @@ package it.pagopa.pn.downtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.spy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,20 +17,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import it.pagopa.pn.downtime.controller.EventController;
 import it.pagopa.pn.downtime.model.Alarm;
-import it.pagopa.pn.downtime.model.Dimensions;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.model.Trigger;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.service.LegalFactService;
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -44,6 +42,9 @@ public class MockDowntimeLogsController extends AbstractMock {
 	
 	@Autowired
 	LegalFactService legalFactService ;
+	
+	@MockBean
+	protected DowntimeLogsSend producer;
 
 	@Test
 	public void test_CheckCurretStatus() throws Exception {
@@ -195,6 +196,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	
 	@Test
 	public void test_CheckAddStatusChangeOKAfterYear() throws Exception {
+		mockProducer(producer);
 		mockAddStatusChange_OK(client);
 		mockFindNothing();
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
