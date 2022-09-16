@@ -248,7 +248,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 			            </goals>
 			            <configuration>
 			            	<generatorName>java</generatorName>
-			                <inputSpec>${basedir}/docs/openapi/pn-safestorage-v1-api.yaml</inputSpec>
+			                <inputSpec>${basedir}/docs/wsclients/pn-safestorage-v1-api.yaml</inputSpec>
 			                <library>resttemplate</library>
 			                <output>${project.basedir}/target/generated-sources/</output>
 			                <apiPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.api</apiPackage>
