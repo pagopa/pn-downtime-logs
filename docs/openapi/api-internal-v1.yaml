@@ -31,6 +31,50 @@ tags:
       Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
 
 paths:
+    ##########################################################################################
+    ###                           API DI STATO RICHIESTE DA AGID                           ###
+    ##########################################################################################
+  "/status":
+    get:
+      summary: healthCheck path
+      description: >-
+        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>
+          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>
+        Il body e lasciato libero quindi utilizziamo quanto già definito per il path 
+        /downtime/status
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PnStatusResponse"
+              example:
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                openIncidents: []
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PnStatusResponse"
+              example:
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                openIncidents:
+                  - functionality: NOTIFICATION_CREATE
+                    status: KO
+                    startDate: "2019-08-24T14:15:22Z"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
     ###########################################################################################
     ###                                 LETTURA DELLO STATO                                 ###
     ###########################################################################################
