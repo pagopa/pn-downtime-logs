@@ -261,7 +261,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 			                <generateModelDocumentation>false</generateModelDocumentation>
 			                <configOptions>
 			                    <dateLibrary>java8</dateLibrary>
-	
 			                </configOptions>
 			            </configuration>
 			        </execution>
