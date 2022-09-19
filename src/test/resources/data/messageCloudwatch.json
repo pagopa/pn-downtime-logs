@@ -1,0 +1,12 @@
+{
+  "Type" : "Notification",
+  "MessageId" : "5fab7542-7715-5a60-9b8a-2e1b84d09528",
+  "TopicArn" : "arn:aws:sns:us-east-1:551158864219:Default_CloudWatch_Alarms_Topic",
+  "Subject" : "ALARM: \"allarme\" in US East (N. Virginia)",
+  "Message" : "{\"AlarmName\":\"allarmeNOTIFICATION_CREATE\",\"AlarmDescription\":\"descrizione\",\"AWSAccountId\":\"551158864219\",\"AlarmConfigurationUpdatedTimestamp\":\"2022-07-26T13:44:29.800+0000\",\"NewStateValue\":\"ALARM\",\"NewStateReason\":\"Threshold Crossed: 1 out of the last 1 datapoints [3.0 (26/07/22 13:47:00)] was greater than the threshold (0.0) (minimum 1 datapoint for OK -> ALARM transition).\",\"StateChangeTime\":\"2022-07-26T13:52:05.479+0000\",\"Region\":\"US East (N. Virginia)\",\"AlarmArn\":\"arn:aws:cloudwatch:us-east-1:551158864219:alarm:allarme\",\"OldStateValue\":\"OK\",\"OKActions\":[],\"AlarmActions\":[\"arn:aws:sns:us-east-1:551158864219:Default_CloudWatch_Alarms_Topic\"],\"InsufficientDataActions\":[],\"Trigger\":{\"MetricName\":\"NumberOfMessagesReceived\",\"Namespace\":\"AWS/SQS\",\"StatisticType\":\"Statistic\",\"Statistic\":\"SUM\",\"Unit\":null,\"Dimensions\":[{\"value\":\"downtime-cloudwatch\",\"name\":\"QueueName\"}],\"Period\":300,\"EvaluationPeriods\":1,\"DatapointsToAlarm\":1,\"ComparisonOperator\":\"GreaterThanThreshold\",\"Threshold\":0.0,\"TreatMissingData\":\"missing\",\"EvaluateLowSampleCountPercentile\":\"\"}}",
+  "Timestamp" : "2022-07-26T13:52:05.549Z",
+  "SignatureVersion" : "1",
+  "Signature" : "P1+IVwYKEhiF1lot9ta9gsLeSRq1gqJjeQgrqDzLO6hpNLoXGY83suDT2V82DjN6Uk5A9oQq/WNt5PRd8WW4EM3GR9PcegQ4RaalQ0E5/HADx3k0liQaL0oiGRdQSTPaWwekvfDrSJ/ZVWYAHdJMf2IsCjIFNJFDq3YLmXG7iDmG8YfKGFiAZbNzxiD+nTZSBgrfRaBt6lpiH1PDpBdW6i/c9rXtGS3ACvSxrJj/r4jcVttB+/k74+HbApiPI76FdnTfUrqDkiDt+70Gn4+62dnobHz9KatagYgk5z3DkhpaJeajm8Nun+vc5++e4HAJ87+ljfmB6bXssN0UgjqLwQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:551158864219:Default_CloudWatch_Alarms_Topic:a0307bba-80d0-4c4d-8f27-6fd28f29c621"
+}

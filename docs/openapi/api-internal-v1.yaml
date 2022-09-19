@@ -34,7 +34,7 @@ paths:
     ###########################################################################################
     ###                                 LETTURA DELLO STATO                                 ###
     ###########################################################################################
-  "/downtime/status":
+  "/downtime/v1/status":
     get:
       summary: Stato attuale
       description: >-
@@ -49,8 +49,6 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
                   $ref: "#/components/schemas/PnStatusResponse"
               example: 
                 functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
@@ -65,7 +63,7 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
-  "/downtime/history":
+  "/downtime/v1/history":
     get:
       summary: Ricerca storico disservizi
       description: >-
@@ -81,14 +79,13 @@ paths:
         - $ref: '#/components/parameters/queryToTime'
         - $ref: '#/components/parameters/queryFunctionality'
         - $ref: '#/components/parameters/queryPage'
+        - $ref: '#/components/parameters/querySize'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
                   $ref: "#/components/schemas/PnDowntimeHistoryResponse"
         '400':
           description: Bad request
@@ -102,7 +99,7 @@ paths:
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
     ###########################################################################################
 
-  '/downtime/legal-facts/{legalFactId}':
+  "/downtime/v1/legal-facts/{legalFactId}":
     get:
       summary: Ottieni atto opponibile a terzi
       description: >-
@@ -139,8 +136,20 @@ paths:
                     filename: downtime_NEW_NOTIFICATION_20221204.pdf
                     contentLength: 32423
                     retryAfter: 7200    
+        '204':
+          description: Not signed
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
           content:
             application/json:
               schema:
@@ -150,7 +159,7 @@ paths:
     ###########################################################################################
     ###                                MODIFICA DELLO STATO                                 ###
     ###########################################################################################
-  "/downtime/events":
+  "/downtime-internal/v1/events":
     post:
       summary: Modifica stato di servizio
       description: >-
@@ -222,7 +231,14 @@ components:
       description: Pagina di risultati a cui il client è interessato
       schema:
         type: string
-
+        
+    querySize:
+      name: size
+      in: query
+      required: false
+      description: Size della pagina di risultati a cui il client è interessato
+      schema:
+        type: string
 
   schemas:
     
@@ -307,7 +323,8 @@ components:
             terminati da pochi minuti. <br/>
             Questo valore è da utilizzare con l'API _getLegalFact_ di questo stesso servizio.
           type: string
-        
+        fileAvailable:
+          type: boolean
     PnFunctionality:
       title: Funzionalità di PN
       description: >-
@@ -316,12 +333,16 @@ components:
         - __NOTIFICATION_VISUALIZZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
 
         - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
-      type: string
+      type: string       
       enum:
         - NOTIFICATION_CREATE
         - NOTIFICATION_VISUALIZZATION
         - NOTIFICATION_WORKFLOW  
-
+      x-enum-varnames:
+        - NOTIFICATION_CREATE
+        - NOTIFICATION_VISUALIZZATION
+        - NOTIFICATION_WORKFLOW 
+        
     PnFunctionalityStatus:
       type: string
       enum:
