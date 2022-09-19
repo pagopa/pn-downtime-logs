@@ -13,10 +13,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.amazonaws.services.sqs.AmazonSQS;
@@ -35,7 +34,7 @@ import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
-
+@ActiveProfiles("test")
 public class TestSchedulerDowntimeLogs extends AbstractMock{
 
     @InjectMocks

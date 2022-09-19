@@ -10,11 +10,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.amazonaws.services.sqs.AmazonSQS;
@@ -31,6 +30,7 @@ import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class PnDowntimeSqs extends AbstractMock {
 
 	@InjectMocks
