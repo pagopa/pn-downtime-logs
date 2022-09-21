@@ -1,0 +1,13 @@
+{
+	"downtimeLogsId": "it.pagopa.pn.downtime.model.DowntimeLogs@test",
+	"endDate": "2022-08-28T08:55:15.995Z",
+	"functionality": "NOTIFICATION_CREATE",
+	"status": "KO",
+	"startEventUuid": null,
+	"endEventUuid": null,
+	"legalFactId": null,
+	"uuid": null,
+	"fileAvailable": "false",
+	"functionalityStartYear": "NOTIFICATION_CREATE2022",
+	"startDate": "2022-08-27T08:55:15.995Z"
+}

@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,9 +123,9 @@ public class LegalFactServiceImpl implements LegalFactService {
 		fileApi.setApiClient(api);
 		FileDownloadResponse response = fileApi.getFile(legalFactId, PAGOPA_SAFESTORAGE_HEADER_VALUE, false);	
 		LegalFactDownloadMetadataResponse legalFactResponse = new LegalFactDownloadMetadataResponse();
-		legalFactResponse.setContentLength(response.getContentLength());
+		legalFactResponse.setContentLength(Optional.ofNullable(response.getContentLength()).map(contentLength -> contentLength.intValue()).orElse(null));
 		legalFactResponse.setUrl(response.getDownload().getUrl());
-		legalFactResponse.setRetryAfter(response.getDownload().getRetryAfter());
+		legalFactResponse.setRetryAfter(Optional.ofNullable(response.getDownload().getRetryAfter()).map(retry -> retry.intValue()).orElse(null));
 		log.info("Response: " + legalFactResponse.toString());
 		return legalFactResponse;
 	}

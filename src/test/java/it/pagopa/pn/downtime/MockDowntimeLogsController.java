@@ -6,8 +6,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -19,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -48,11 +51,35 @@ public class MockDowntimeLogsController extends AbstractMock {
 
 	@Test
 	public void test_CheckCurretStatus() throws Exception {
-		mockCurrentStatus(client);
+		mockCurrentStatus500(client);
 		mockFindByFunctionalityAndEndDateIsNull(
 				getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403",null));
 		MockHttpServletResponse response = mvc.perform(get(currentStatusUrl)).andReturn().getResponse();
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentAsString()).contains("functionalities");
+		assertThat(response.getContentAsString()).contains("openIncidents");
+	}
+	
+	@Test
+	public void test_CheckStatus500() throws Exception {
+		mockCurrentStatus500(client);
+		mockFindByFunctionalityAndEndDateIsNull(
+				getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403",null));
+		MockHttpServletResponse response = mvc.perform(get(statusUrl)).andReturn().getResponse();
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		assertThat(response.getContentAsString()).contains("functionalities");
+		assertThat(response.getContentAsString()).contains("openIncidents");
+	}
+	
+	@Test
+	public void test_CheckStatusOK() throws Exception {
+		mockCurrentStatusOK(client);
+		mockFindByFunctionalityAndEndDateIsNull(null);
+		MockHttpServletResponse response = mvc.perform(get(statusUrl)).andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentAsString()).contains("functionalities");
@@ -123,6 +150,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("result");
 		assertThat(response.getContentAsString()).contains("functionality");
 	}
+	
 	@Test
 	public void test_CheckLegalFactId() throws Exception {
 		mockLegalFactId(client);
@@ -154,7 +182,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
 		MockHttpServletResponse response = mvc
-				.perform(post(eventsUrl).accept(APPLICATION_JSON_UTF8).content(pnStatusUpdateEvent)
+				.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 						.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK"))
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -171,12 +199,11 @@ public class MockDowntimeLogsController extends AbstractMock {
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
 		MockHttpServletResponse response = mvc
-				.perform(post(eventsUrl).accept(APPLICATION_JSON_UTF8).content(pnStatusUpdateEvent)
+				.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 						.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK"))
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
-	
 	
 	@Test
 	public void test_CheckAddStatusChangeOK() throws Exception {
@@ -188,8 +215,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
 		MockHttpServletResponse response = mvc
-				.perform(post(eventsUrl).accept(APPLICATION_JSON_UTF8).content(pnStatusUpdateEvent)
-						.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK"))
+				.perform(post(eventsUrl).content(pnStatusUpdateEvent).contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK"))
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
@@ -205,7 +231,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2023-04-08T16:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
 		MockHttpServletResponse response = mvc
-				.perform(post(eventsUrl).accept(APPLICATION_JSON_UTF8).content(pnStatusUpdateEvent)
+				.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 						.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK-LAST-YEAR"))
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -222,21 +248,11 @@ public class MockDowntimeLogsController extends AbstractMock {
 	@Test
 	public void test_CloudwatchMapper() {
 		Alarm alarm = new Alarm();		
-		
 		alarm.setAlarmName("queueName-NOTIFICATION_CREATE");
 		alarm.setAlarmDescription("CloudWatch alarm for when DLQ has 1 or more messages.");
 		alarm.setNewStateValue("OK");
 		alarm.setStateChangeTime(OffsetDateTime.parse("2022-10-24T21:00:15.995Z"));
-//		List<Dimensions> listDimensions = new ArrayList<>();
-//		Trigger trigger = new Trigger();
-//		Dimensions dimension = new Dimensions();
-//		dimension.setValue("NOTIFICATION_CREATE");
-//		listDimensions.add(dimension);
-//		trigger.setDimensions(listDimensions);
-//		alarm.setTrigger(trigger);
 		PnStatusUpdateEvent pnStatusUpdateEvent = cloudwatchMapper.alarmToPnStatusUpdateEvent(alarm);
-		
-//		assertEquals(pnStatusUpdateEvent.getFunctionality().size(), listDimensions.size());
 		
 		assertEquals(pnStatusUpdateEvent.getStatus().toString(), alarm.getNewStateValue());
 		assertEquals(pnStatusUpdateEvent.getTimestamp(), alarm.getStateChangeTime());

@@ -72,37 +72,40 @@ public abstract class AbstractMock {
 	protected DowntimeLogsRepository mockDowntimeLogsRepository;
 	@MockBean
 	private DynamoDBMapper mockDynamoDBMapper;
-	
+
 	@MockBean
 	SimpleMessageListenerContainer simpleMessageListenerContainer;
-
 
 	@Autowired
 	protected DowntimeLogsServiceImpl service;
 
 	@Value("classpath:data/current_status.json")
 	private Resource currentStatus;
+	@Value("classpath:data/current_status500.json")
+	private Resource currentStatus500;
 	@Value("classpath:data/history_status.json")
 	private Resource historyStatus;
 	@Value("classpath:data/messageCloudwatch.json")
 	private Resource mockMessageCloudwatch;
 	@Value("classpath:data/messageLegalFactId.json")
 	private Resource mockMessageLegalFactId;
+	@Value("classpath:data/message_acts_queue.json")
+	private Resource mockMessageActsQueue;
 
 	public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(),
 			MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
+	
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	protected final String currentStatusUrl = "/downtime/v1/status";
+	protected final String statusUrl = "/status";
 	protected final String historyStatusUrl = "/downtime/v1/history";
 	protected final String eventsUrl = "/downtime-internal/v1/events";
 	protected final String legalFactIdUrl = "/downtime/v1/legal-facts/";
-	
 
-    protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
-    	Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
-    }
-    
+	protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
+		Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
+	}
 
 	protected void mockFindAllByFunctionalityInAndStartDateBetween() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
@@ -120,10 +123,10 @@ public abstract class AbstractMock {
 		Mockito.when(mockDowntimeLogsRepository.findAllByEndDateIsNotNullAndLegalFactIdIsNull())
 				.thenReturn(downtimeLogsList);
 	}
-	
-	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(DowntimeLogsService downtimeLogsService, List<DowntimeLogs> downtimeLogsList) {
-		Mockito.when(downtimeLogsService.findAllByEndDateIsNotNullAndLegalFactIdIsNull())
-				.thenReturn(downtimeLogsList);
+
+	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(DowntimeLogsService downtimeLogsService,
+			List<DowntimeLogs> downtimeLogsList) {
+		Mockito.when(downtimeLogsService.findAllByEndDateIsNotNullAndLegalFactIdIsNull()).thenReturn(downtimeLogsList);
 	}
 
 	protected void mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore() {
@@ -223,7 +226,15 @@ public abstract class AbstractMock {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void mockCurrentStatus(RestTemplate client) throws IOException {
+	protected void mockCurrentStatus500(RestTemplate client) throws IOException {
+		String mock = getStringFromResourse(currentStatus500);
+		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
+		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
+				.thenReturn(response);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void mockCurrentStatusOK(RestTemplate client) throws IOException {
 		String mock = getStringFromResourse(currentStatus);
 		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
 		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
@@ -241,6 +252,7 @@ public abstract class AbstractMock {
 	protected void mockLegalFactId(RestTemplate client) {
 		DownloadLegalFactDto downloadLegalFactDto = new DownloadLegalFactDto();
 		downloadLegalFactDto.setUrl("http://localhost:9090");
+		
 		GetLegalFactDto getLegalFactDto = new GetLegalFactDto();
 		getLegalFactDto.setVersionId("tQ74qWG0vAywePcNc");
 		getLegalFactDto.setDocumentType("PN_LEGAL_FACTS");
@@ -253,7 +265,8 @@ public abstract class AbstractMock {
 		getLegalFactDto.setRetentionUntil("2033-07-27T00:00:00.000Z");
 		getLegalFactDto.setLifecycleRule("PN_LEGAL_FACTS");
 		getLegalFactDto.setChecksum("cSSf87ZqNi9Dn8lZ1cDJUDNub");
-
+		
+		
 		ResponseEntity<GetLegalFactDto> responseSearch = new ResponseEntity<>(getLegalFactDto, HttpStatus.OK);
 		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),
 				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<GetLegalFactDto>>any()))
@@ -359,5 +372,9 @@ public abstract class AbstractMock {
 
 	protected String getMessageLegalFactIdFromResource() throws JsonParseException, JsonMappingException, IOException {
 		return StreamUtils.copyToString(mockMessageLegalFactId.getInputStream(), Charset.defaultCharset());
+	}
+
+	protected String getMessageActsQueueFromResource() throws JsonParseException, JsonMappingException, IOException {
+		return StreamUtils.copyToString(mockMessageActsQueue.getInputStream(), Charset.defaultCharset());
 	}
 }
