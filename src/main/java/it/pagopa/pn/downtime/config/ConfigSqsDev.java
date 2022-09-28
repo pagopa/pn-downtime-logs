@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 
@@ -23,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
-public class ConfigSqs {
+@Profile("dev")
+public class ConfigSqsDev {
 
 	@Value("${amazon.sqs.region.static}")
 	private String region;
@@ -51,7 +53,7 @@ public class ConfigSqs {
 	public QueueMessagingTemplate queueMessagingTemplate() {
 		return new QueueMessagingTemplate(amazonSQSAsync());
 	}
-
+	
 	@Bean(name = "cloudwatch")
     public AmazonSQSAsync amazonSQSCloudWatch() {
 		return AmazonSQSAsyncClientBuilder.standard()
