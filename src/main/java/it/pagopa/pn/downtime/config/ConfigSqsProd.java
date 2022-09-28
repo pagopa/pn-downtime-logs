@@ -20,7 +20,7 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
 
 @Configuration
-@Profile("prod")
+@Profile({"!dev", "!svil"})
 public class ConfigSqsProd {
 	
 	@Value("${amazon.sqs.region.static}")
