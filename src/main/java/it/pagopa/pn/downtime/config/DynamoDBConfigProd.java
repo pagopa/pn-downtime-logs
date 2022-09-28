@@ -12,7 +12,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 
 @Configuration
 @EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
-@Profile("prod")
+@Profile({"!dev", "!svil"})
 public class DynamoDBConfigProd {
 
 	@Value("${amazon.dynamodb.endpoint}")
