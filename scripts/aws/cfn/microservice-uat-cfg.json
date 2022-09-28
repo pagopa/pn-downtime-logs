@@ -1,5 +1,13 @@
 {
   "Parameters" : {
-    "Foo": "bar"
+    "SandboxSafeStorageBaseUrl":"",
+    "EnableApiKey":"false",
+    "ApiKeyHeader":"X-Api-Key",
+    "ApiKeyValue":"Apikey",
+    "DocumentType":"PN_LEGAL_FACT",
+    "SchedulerLegalfactidTimer":"0 /1 * ? * *",
+    "SchedulerLegalfactidActive":"true",
+    "ServerPort":"8081",
+    "CorsOriginDomains":"http://localhost:8090,http://localhost:8091"
   }
 }
