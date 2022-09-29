@@ -55,6 +55,7 @@ import it.pagopa.pn.downtime.repository.EventRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
 
+
 public abstract class AbstractMock {
 
 	@Rule
