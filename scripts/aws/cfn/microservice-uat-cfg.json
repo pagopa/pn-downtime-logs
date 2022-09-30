@@ -1,13 +1,7 @@
 {
   "Parameters" : {
-    "SandboxSafeStorageBaseUrl":"",
-    "EnableApiKey":"false",
-    "ApiKeyHeader":"X-Api-Key",
-    "ApiKeyValue":"Apikey",
-    "DocumentType":"PN_LEGAL_FACT",
+    "SafeStorageBaseUrl":"https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev",
     "SchedulerLegalfactidTimer":"0 /1 * ? * *",
-    "SchedulerLegalfactidActive":"true",
-    "ServerPort":"8081",
-    "CorsOriginDomains":"http://localhost:8090,http://localhost:8091"
+    "SchedulerLegalfactidActive":"true"
   }
 }

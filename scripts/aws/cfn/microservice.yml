@@ -67,26 +67,9 @@ Parameters:
     Type: String
     Description: 'keep track of used projects commitIds'
 
-  ApiLogRetentionInDays:
-    Type: Number
-    Default: 1
-    Description: Number of days to preserve the API logs
-
-  ProjectName:
-    Type: String
-    Description: Name of the project
-
-  TemplateBucketBaseUrl:
-    Type: String
-    Description: The S3 bucket from which to fetch the templates used by this stack
-
-  PrivateSubnetIds:
+  SubnetIds:
     Type: "List<AWS::EC2::Subnet::Id>"
     Description: Private subnets to deploy resources into
-
-  VpcCidrBlock:
-    Type: String
-    Description: Cidr block of the VPC
 
   VpcId:
     Type: "AWS::EC2::VPC::Id"
@@ -108,10 +91,40 @@ Parameters:
     Type: String  
     Description: ARN of dynamodb table containing log
 
+  SafeStorageBaseUrl:
+    Type: String
+    Description: base url for safe storage requests
+  
   InternalEventQueueQueueARN:
     Type: String
     Description: internal events queue ARN
+  
+  InternalEventQueueQueueURL:
+    Type: String
+    Description: queue url
+  
+  DowntimeLogsSafeStorageEventsQueueURL:
+    Type: String
+    Description: queue url
 
+  DowntimeLogsSafeStorageEventsQueueARN:
+    Type: String
+    Description: queue ARN
+  
+  DowntimeLogsAggregateAlarmQueueURL:
+    Type: String
+    Description: queue url
+
+  DowntimeLogsAggregateAlarmQueueARN:
+    Type: String
+    Description: queue ARN
+  
+  SchedulerLegalfactidActive:
+    Type: String
+    
+  SchedulerLegalfactidTimer:
+    Type: String
+  
 Resources:
 
   DowntimeLogsMicroservice:
@@ -125,20 +138,19 @@ Resources:
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
-        ContainerEnvEntry3: !Sub 'PN_DOWNTIMELOGS_ENABLE_APIKEY=${EnableApiKey}'
-        ContainerEnvEntry4: !Sub 'PN_DOWNTIMELOGS_APIKEY_HEADER=${ApiKeyHeader}'
-        ContainerEnvEntry5: !Sub 'PN_DOWNTIMELOGS_APIKEY_VALUE=${ApiKeyValue}'
-        ContainerEnvEntry6: !Sub 'PN_DOWNTIMELOGS_DOCUMENT_TYPE=${DocumentType}'        
+        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SafeStorageBaseUrl}'
+        ContainerEnvEntry3: 'PN_DOWNTIMELOGS_ENABLE_APIKEY=false'
+        ContainerEnvEntry4: 'PN_DOWNTIMELOGS_APIKEY_HEADER=NotApplicable'
+        ContainerEnvEntry5: 'PN_DOWNTIMELOGS_APIKEY_VALUE=NotApplicable'
+        ContainerEnvEntry6: 'PN_DOWNTIMELOGS_DOCUMENT_TYPE=PN_LEGALFACTS'
         ContainerEnvEntry7: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_TIMER=${SchedulerLegalfactidTimer}'
         ContainerEnvEntry8: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_ACTIVE=${SchedulerLegalfactidActive}' 
         ContainerEnvEntry9: !Sub 'PN_DOWNTIMELOGS_DYNAMODB_EVENT_ENDPOINT=${EventTableName}'
         ContainerEnvEntry10: !Sub 'PN_DOWNTIMELOGS_DYNAMODB_LOG_ENDPOINT=${LogTableName}'
-        ContainerEnvEntry11: !Sub 'PN_DOWNTIMELOGS_SQS_ACTS_ENDPOINT=${AttiDaGenerareQueue}'        
-        ContainerEnvEntry12: !Sub 'PN_DOWNTIMELOGS_CLOUDWATCH_ENDPOINT=${DowntimeLogsAggregateQueueURL}'
+        ContainerEnvEntry11: !Sub 'PN_DOWNTIMELOGS_SQS_ACTS_ENDPOINT=${InternalEventQueueQueueURL}'        
+        ContainerEnvEntry12: !Sub 'PN_DOWNTIMELOGS_CLOUDWATCH_ENDPOINT=${DowntimeLogsAggregateAlarmQueueURL}'
         ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'       
-        ContainerEnvEntry14: !Sub 'PN_DOWNTIMELOGS_SERVER_PORT=${ServerPort}'
-        ContainerEnvEntry1: !Sub 'PN_DOWNTIMELOGS_CORS_ORIGIN_DOMAINS=${CorsOriginDomains}'
+        ContainerEnvEntry15: !Sub 'PN_DOWNTIMELOGS_CORS_ORIGIN_DOMAINS=${CorsAllowedDomains}'
         MappedPaths: '/downtime/*,/downtime-internal/*,/status'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -187,37 +199,30 @@ Resources:
               - sqs:SendMessageBatch
             Resource:
               - !Ref InternalEventQueueQueueARN
+              - !Ref DowntimeLogsSafeStorageEventsQueueARN
+              - !Ref DowntimeLogsAggregateAlarmQueueARN
 
-  Api:
-    Type: "AWS::CloudFormation::Stack"
-    Properties:
-      Parameters:
-        LogRetentionInDays: !Ref ApiLogRetentionInDays
-        NetworkLoadBalancerDomain: !GetAtt Backend.Outputs.NlbDomain
-        NetworkLoadBalancerLink: !GetAtt Backend.Outputs.NlbLink
-        ProjectName: !Ref ProjectName
-      TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/api.yaml
+  # Api:
+  #   Type: "AWS::CloudFormation::Stack"
+  #   Properties:
+  #     Parameters:
+  #       LogRetentionInDays: !Ref ApiLogRetentionInDays
+  #       NetworkLoadBalancerDomain: !GetAtt Backend.Outputs.NlbDomain
+  #       NetworkLoadBalancerLink: !GetAtt Backend.Outputs.NlbLink
+  #       ProjectName: !Ref ProjectName
+  #     TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/api.yaml
 
-  # Expose PN-Downtime-Logs microservice public API with API-GW for WEB usage
-  MandateMicroservicePublicWebAPI:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
-        IntendedUsage: WEB
-        DnsName: !Ref WebApiDnsName
-        ProjectName: !Ref ProjectName
-        ServiceApiPath: 'downtime'
-        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+  # # Expose PN-Downtime-Logs microservice public API with API-GW for WEB usage
+  # MandateMicroservicePublicWebAPI:
+  #   Type: AWS::CloudFormation::Stack
+  #   Properties:
+  #     TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+  #     Parameters:
+  #       MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
+  #       IntendedUsage: WEB
+  #       DnsName: !Ref WebApiDnsName
+  #       ProjectName: !Ref ProjectName
+  #       ServiceApiPath: 'downtime'
+  #       NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+  #       ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
 
-
-Outputs:
-  EventTableName:
-    Description: Event table name
-    Value: !GetAtt Database.Outputs.EventTableName
-
-  LogsTableName:
-    Description: Logs table name
-    Value: !GetAtt Database.Outputs.LogTableName
