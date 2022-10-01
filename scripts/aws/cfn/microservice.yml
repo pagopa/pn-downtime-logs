@@ -67,10 +67,6 @@ Parameters:
     Type: String
     Description: 'keep track of used projects commitIds'
 
-  SubnetIds:
-    Type: "List<AWS::EC2::Subnet::Id>"
-    Description: Private subnets to deploy resources into
-
   VpcId:
     Type: "AWS::EC2::VPC::Id"
     Description: Id of the VPC to deploy resources into
