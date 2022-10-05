@@ -208,17 +208,17 @@ Resources:
   #       ProjectName: !Ref ProjectName
   #     TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/api.yaml
 
-  # # Expose PN-Downtime-Logs microservice public API with API-GW for WEB usage
-  # MandateMicroservicePublicWebAPI:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
-  #     Parameters:
-  #       MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
-  #       IntendedUsage: WEB
-  #       DnsName: !Ref WebApiDnsName
-  #       ProjectName: !Ref ProjectName
-  #       ServiceApiPath: 'downtime'
-  #       NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-  #       ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+  # Expose PN-Downtime-Logs microservice public API with API-GW for WEB usage
+  DowntimeLogsMicroservicePublicWebAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
+        IntendedUsage: WEB
+        DnsName: !Ref WebApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: ''
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
 
