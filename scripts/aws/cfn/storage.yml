@@ -19,6 +19,10 @@ Parameters:
   Version:
     Type: String
     Description: 'keep track of used projects commitIds'
+  
+  CdcKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send CDC'
 
 Resources:
 
@@ -46,6 +50,10 @@ Resources:
       SSESpecification:
         SSEEnabled: true
         SSEType: KMS
+      KinesisStreamSpecification:
+        StreamArn: !Ref CdcKinesisSourceStreamArn
+      StreamSpecification: 
+        StreamViewType: NEW_IMAGE
 
   Log:
     Type: "AWS::DynamoDB::Table"
@@ -77,6 +85,10 @@ Resources:
       SSESpecification:
         SSEEnabled: true
         SSEType: KMS
+      KinesisStreamSpecification:
+        StreamArn: !Ref CdcKinesisSourceStreamArn
+      StreamSpecification: 
+        StreamViewType: NEW_IMAGE
 
 Outputs:
   
