@@ -1,17 +1,23 @@
 package it.pagopa.pn.downtime.consumer;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.service.LegalFactService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,8 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LegalFactIdReceiver {
 	
+	/** The dynamo DB mapper. Log */
 	@Autowired
-	DowntimeLogsRepository downtimeLogsRepository;
+	@Qualifier("logMapper")
+	private DynamoDBMapper dynamoDBMapperLog;
 
 	@Autowired
 	ObjectMapper mapper;
@@ -34,11 +42,17 @@ public class LegalFactIdReceiver {
 		log.info("message received in Legal Facts queue {}", message);	
 		GetLegalFactDto legalFact = mapper.readValue(message, GetLegalFactDto.class);
 		
-		DowntimeLogs downtimeLogFiltered = downtimeLogsRepository.findFirstByLegalFactId(legalFact.getKey());
+		Map<String, AttributeValue> eav1 = new HashMap<>();
+		eav1.put(":legalFact1", new AttributeValue().withS(legalFact.getKey()));
+		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+			    .withFilterExpression("legalFactId =:legalFact1")
+			    .withExpressionAttributeValues(eav1).withLimit(1);
 		
-		if (downtimeLogFiltered != null) {
-			downtimeLogFiltered.setFileAvailable(true);
-			downtimeLogsRepository.save(downtimeLogFiltered);
+		List<DowntimeLogs> logs = dynamoDBMapperLog.scanPage(DowntimeLogs.class, scanExpression).getResults();
+	
+		if (logs != null && !logs.isEmpty()) {
+			logs.get(0).setFileAvailable(true);
+			dynamoDBMapperLog.save(logs.get(0));
 		}
 	  }
 	}

@@ -64,8 +64,8 @@ public class MessageSQSConsumerTest extends AbstractMock {
 		dt.setFileAvailable(true);
 		dt.setLegalFactId("PN_LEGAL_FACTS-TEST");
 
-		mockFindFirstByLegalFactId(dt);
-		mockSaveDowntime(dt);
+//		mockFindFirstByLegalFactId(dt);
+//		mockSaveDowntime(dt);
 
 		String messageLegalFactId = getMessageLegalFactIdFromResource();
 
@@ -81,7 +81,7 @@ public class MessageSQSConsumerTest extends AbstractMock {
 		mockDowntimeLogsReceiver.receiveStringMessage(messageActsQueue);
 
 		DowntimeLogs dt = mapper.readValue(messageActsQueue, DowntimeLogs.class);
-		mockSaveDowntime(dt);
+//		mockSaveDowntime(dt);
 
 		Assertions.assertTrue(true);
 		// assertThat(legalFactService.generateLegalFact(dt).toString()).contains("legalFactId");

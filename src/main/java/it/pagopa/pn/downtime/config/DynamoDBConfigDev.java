@@ -18,22 +18,33 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 @Profile("dev")
 public class DynamoDBConfigDev {
 
-	@Value("${amazon.dynamodb.endpoint}")
-	private String amazonDynamoDBEndpoint;
+	@Value("${amazon.dynamodb.log.endpoint}")
+	private String amazonDynamoDBEndpointLog;
+	
+	@Value("${amazon.dynamodb.event.endpoint}")
+	private String amazonDynamoDBEndpointEvent;
 
 	@Value("${amazon.dynamodb.accesskey}")
 	private String amazonAWSAccessKey;
 
 	@Value("${amazon.dynamodb.secretkey}")
 	private String amazonAWSSecretKey;
-
-	@Bean
-	public AmazonDynamoDB amazonDynamoDB() {
+	
+	@Bean(name = "log")
+	public AmazonDynamoDB amazonDynamoDBLog() {
 		return AmazonDynamoDBClientBuilder.standard().withCredentials(awsCredentialsProvider())
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpoint, "us-east-1")).build();
+				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-east-1")).build();
+	}
+	
+	@Bean(name = "event")
+	public AmazonDynamoDB amazonDynamoDBEvent() {
+		return AmazonDynamoDBClientBuilder.standard().withCredentials(awsCredentialsProvider())
+				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointEvent, "us-east-1")).build();
 	}
 
 	private AWSCredentialsProvider awsCredentialsProvider() {
 		return new AWSStaticCredentialsProvider(new BasicAWSCredentials(amazonAWSAccessKey, amazonAWSSecretKey));
 	}
+		
+
 }

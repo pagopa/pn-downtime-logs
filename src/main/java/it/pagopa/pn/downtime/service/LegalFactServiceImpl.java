@@ -31,7 +31,6 @@ import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.api.FileUpl
 import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreationRequest;
 import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.util.DocumentComposition;
 import it.pagopa.pn.downtime.util.LegalFactGenerator;
 import lombok.RequiredArgsConstructor;
@@ -75,9 +74,6 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Value("${pagopa.reservation.documenttype}")
 	private String pagoPaDocumentType;
 	
-	/** The downtime logs repository. */
-	@Autowired
-	DowntimeLogsRepository downtimeLogsRepository;
 	
 	/** The rest template. */
 	@Autowired

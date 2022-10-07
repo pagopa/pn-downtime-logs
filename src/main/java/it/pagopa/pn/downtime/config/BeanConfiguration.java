@@ -1,6 +1,7 @@
 package it.pagopa.pn.downtime.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,18 +21,25 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 @Configuration
 public class BeanConfiguration {
 	
+	@Autowired
+	DynamoDBConfigDev dynamoDBConfigLogDev;
 	
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 	   return new RestTemplate();
 	}
 	
-	@Bean
+
+	@Bean(name = "logMapper")
 	@Primary
-	public DynamoDBMapper amazonDBMapper(@Autowired AmazonDynamoDB amazonDynamoDB) {
+	public DynamoDBMapper amazonDBMapperLogs(@Autowired @Qualifier("log") AmazonDynamoDB amazonDynamoDB) {
 		return new DynamoDBMapper(amazonDynamoDB);
 	}
-	
+
+	@Bean(name = "eventMapper")
+	public DynamoDBMapper amazonDBMapperEvent(@Autowired @Qualifier("event") AmazonDynamoDB amazonDynamoDB) {
+		return new DynamoDBMapper(amazonDynamoDB);
+	}
 	
 	@Bean
 	public ObjectMapper getObjectMapper() {

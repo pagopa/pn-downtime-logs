@@ -50,8 +50,6 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
-import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
-import it.pagopa.pn.downtime.repository.EventRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
 
@@ -67,10 +65,10 @@ public abstract class AbstractMock {
 	CloudwatchMapper cloudwatchMapper;
 	@MockBean
 	RestTemplate client;
-	@MockBean
-	protected EventRepository mockEventRepository;
-	@MockBean
-	protected DowntimeLogsRepository mockDowntimeLogsRepository;
+//	@MockBean
+//	protected EventRepository mockEventRepository;
+//	@MockBean
+//	protected DowntimeLogsRepository mockDowntimeLogsRepository;
 	@MockBean
 	private DynamoDBMapper mockDynamoDBMapper;
 
@@ -116,14 +114,14 @@ public abstract class AbstractMock {
 		downtimeLogsList.add(
 				getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-05-10T10:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_VISUALIZZATION, "EVENT_START", "akdoe-50403", null));
-		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateBetween(Mockito.anyList(),
-				Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class))).thenReturn(downtimeLogsList);
+//		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateBetween(Mockito.anyList(),
+//				Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class))).thenReturn(downtimeLogsList);
 	}
 
-	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(List<DowntimeLogs> downtimeLogsList) {
-		Mockito.when(mockDowntimeLogsRepository.findAllByEndDateIsNotNullAndLegalFactIdIsNull())
-				.thenReturn(downtimeLogsList);
-	}
+//	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(List<DowntimeLogs> downtimeLogsList) {
+//		Mockito.when(mockDowntimeLogsRepository.findAllByEndDateIsNotNullAndLegalFactIdIsNull())
+//				.thenReturn(downtimeLogsList);
+//	}
 
 	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(DowntimeLogsService downtimeLogsService,
 			List<DowntimeLogs> downtimeLogsList) {
@@ -135,18 +133,18 @@ public abstract class AbstractMock {
 		downtimeLogsList
 				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
-		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(
-				Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class),
-				Mockito.any(OffsetDateTime.class))).thenReturn(downtimeLogsList);
+//		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndEndDateBetweenAndStartDateBefore(
+//				Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class),
+//				Mockito.any(OffsetDateTime.class))).thenReturn(downtimeLogsList);
 	}
 
-	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
-		Mockito.when(mockDowntimeLogsRepository.findFirstByLegalFactId(Mockito.anyString())).thenReturn(dt);
-	}
-
-	protected void mockSaveDowntime(DowntimeLogs dt) {
-		Mockito.when(mockDowntimeLogsRepository.save(Mockito.any(DowntimeLogs.class))).thenReturn(dt);
-	}
+//	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
+//		Mockito.when(mockDowntimeLogsRepository.findFirstByLegalFactId(Mockito.anyString())).thenReturn(dt);
+//	}
+//
+//	protected void mockSaveDowntime(DowntimeLogs dt) {
+//		Mockito.when(mockDowntimeLogsRepository.save(Mockito.any(DowntimeLogs.class))).thenReturn(dt);
+//	}
 
 	protected void mockFindAllByFunctionalityInAndStartDateAfter() {
 		List<DowntimeLogs> listDowntime = new ArrayList<>();
@@ -159,8 +157,8 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_CREATE2022",
 				OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_CREATE,
 				"PAGO-PA-EVENT-C", "10DJAKDF", OffsetDateTime.parse("2022-01-25T10:56:07.000+00:00")));
-		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateAfter(Mockito.anyList(),
-				Mockito.any(OffsetDateTime.class))).thenReturn(listDowntime);
+//		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndStartDateAfter(Mockito.anyList(),
+//				Mockito.any(OffsetDateTime.class))).thenReturn(listDowntime);
 	}
 
 	protected void mockFindAllByFunctionalityInAndEndDateAfterAndStartDateBefore() {
@@ -174,14 +172,14 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022",
 				OffsetDateTime.parse("2022-01-23T02:56:07.000+00:00"), PnFunctionality.NOTIFICATION_WORKFLOW,
 				"PAGO-PA-EVENT", "123", OffsetDateTime.parse("2022-01-30T04:56:07.000+00:00")));
-		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndEndDateAfterAndStartDateBefore(
-				Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class)))
-				.thenReturn(listDowntime);
+//		Mockito.when(mockDowntimeLogsRepository.findAllByFunctionalityInAndEndDateAfterAndStartDateBefore(
+//				Mockito.anyList(), Mockito.any(OffsetDateTime.class), Mockito.any(OffsetDateTime.class)))
+//				.thenReturn(listDowntime);
 	}
 
 	protected void mockFindByFunctionalityAndEndDateIsNull(DowntimeLogs downtimeLogs) {
-		Mockito.when(mockDowntimeLogsRepository.findByFunctionalityAndEndDateIsNull(Mockito.any(PnFunctionality.class)))
-				.thenReturn(downtimeLogs);
+//		Mockito.when(mockDowntimeLogsRepository.findByFunctionalityAndEndDateIsNull(Mockito.any(PnFunctionality.class)))
+//				.thenReturn(downtimeLogs);
 	}
 
 	@SuppressWarnings("unchecked")

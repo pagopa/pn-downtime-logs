@@ -15,13 +15,25 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 @Profile({"!dev", "!svil"})
 public class DynamoDBConfigProd {
 
-	@Value("${amazon.dynamodb.endpoint}")
-	private String amazonDynamoDBEndpoint;
+	@Value("${amazon.dynamodb.log.endpoint}")
+	private String amazonDynamoDBEndpointLog;
+	
+	@Value("${amazon.dynamodb.event.endpoint}")
+	private String amazonDynamoDBEndpointEvent;
 
-	@Bean
-	public AmazonDynamoDB amazonDynamoDB() {
+
+	
+	@Bean(name = "log")
+	public AmazonDynamoDB amazonDynamoDBLog() {
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpoint, "us-east-1"))
+				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-east-1"))
+				.build();
+	}
+	
+	@Bean(name = "event")
+	public AmazonDynamoDB amazonDynamoDBEvent() {
+		return AmazonDynamoDBClientBuilder.standard()
+				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointEvent, "us-east-1"))
 				.build();
 	}
 
