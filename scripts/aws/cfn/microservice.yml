@@ -160,11 +160,11 @@ Resources:
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
 
-  # Grant operational rights to PN-Mandate microservice
+  # Grant operational rights to PN-Downtime-Logs microservice
   DowntimeLogsMicroserviceTaskPolicy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: !Sub '${ProjectName}-mandate-CustomTaskPolicy'
+      PolicyName: !Sub '${ProjectName}-downtime-logs-CustomTaskPolicy'
       Roles:
         - !GetAtt DowntimeLogsMicroservice.Outputs.TaskRoleName
       PolicyDocument:
@@ -222,10 +222,11 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
         IntendedUsage: WEB
         DnsName: !Ref WebApiDnsName
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ProjectName: !Ref ProjectName
         ServiceApiPath: 'downtime'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-
 
