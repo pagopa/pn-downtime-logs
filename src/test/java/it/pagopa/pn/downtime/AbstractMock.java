@@ -52,6 +52,7 @@ import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
 import it.pagopa.pn.downtime.dto.response.UploadSafeStorageDto;
 import it.pagopa.pn.downtime.mapper.CloudwatchMapper;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
+import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
@@ -75,7 +76,11 @@ public abstract class AbstractMock {
 	@MockBean
 	@Qualifier("logMapper")
 	private DynamoDBMapper mockDynamoDBMapperLog;
-
+	
+	@MockBean
+	@Qualifier("eventMapper")
+	private DynamoDBMapper mockDynamoDBMapperEvent;
+	
 	@MockBean
 	SimpleMessageListenerContainer simpleMessageListenerContainer;
 
@@ -161,6 +166,10 @@ public abstract class AbstractMock {
 		Mockito.doNothing().when(mockDynamoDBMapperLog).save(Mockito.any(DowntimeLogs.class));
 	}
 
+	protected void mockSaveEvent() {
+		Mockito.doNothing().when(mockDynamoDBMapperEvent).save(Mockito.any(Event.class));
+	}
+	
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndStartDateAfter() {
 		List<DowntimeLogs> listDowntime = new ArrayList<>();

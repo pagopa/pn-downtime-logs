@@ -235,6 +235,8 @@ public class MockDowntimeLogsController extends AbstractMock {
 		mockProducer(producer);
 		mockAddStatusChange_OK(client);
 		mockFindNothing();
+		mockSaveEvent();
+		mockSaveDowntime();
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
 		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
 
