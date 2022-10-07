@@ -4,6 +4,7 @@ import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRep
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
@@ -24,6 +25,7 @@ public class DynamoDBConfigProd {
 
 	
 	@Bean(name = "log")
+	@Primary
 	public AmazonDynamoDB amazonDynamoDBLog() {
 		return AmazonDynamoDBClientBuilder.standard()
 				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-east-1"))

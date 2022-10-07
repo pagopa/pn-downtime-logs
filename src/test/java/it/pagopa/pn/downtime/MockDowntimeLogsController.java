@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,7 +43,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	
 	@Autowired
 	LegalFactService legalFactService ;
-	
+
 	@MockBean
 	protected DowntimeLogsSend producer;
 
@@ -57,6 +58,17 @@ public class MockDowntimeLogsController extends AbstractMock {
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentAsString()).contains("functionalities");
 		assertThat(response.getContentAsString()).contains("openIncidents");
+	}
+	
+	@Test
+	public void test_CheckLegalFactIdIsNull() {
+		
+		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
+		listDowntimeLogs.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
+				PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403",null));
+		mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(service, listDowntimeLogs);
+		
+		Assertions.assertNotNull(service.findAllByEndDateIsNotNullAndLegalFactIdIsNull()); 
 	}
 	
 	@Test
@@ -75,7 +87,8 @@ public class MockDowntimeLogsController extends AbstractMock {
 	@Test
 	public void test_CheckStatusOK() throws Exception {
 		mockCurrentStatusOK(client);
-		mockFindByFunctionalityAndEndDateIsNull(null);
+		DowntimeLogs dt = new DowntimeLogs();
+		mockFindByFunctionalityAndEndDateIsNull(dt);
 		MockHttpServletResponse response = mvc.perform(get(statusUrl)).andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());

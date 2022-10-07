@@ -119,51 +119,44 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	public List<DowntimeLogs> getStatusHistoryResults(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality) {
 
-
 		List<DowntimeLogs> listHistory = new ArrayList<>();
 
-		if(functionality== null || functionality.isEmpty()) {
+		if (functionality == null || functionality.isEmpty()) {
 			return listHistory;
 		}
-		
+
 		Map<String, AttributeValue> eav1 = new HashMap<>();
 
-
-
-		List<String> values =functionality.stream().map(fu -> fu.getValue())
-				.collect(Collectors.toList());
-		
+		List<String> values = functionality.stream().map(fu -> fu.getValue()).collect(Collectors.toList());
 
 		String expression = "";
-		for(String s : values ) {
-			eav1.put(":functionality"+(values.indexOf(s)+1), new AttributeValue().withS(s));
-			expression= expression.concat(":functionality"+(values.indexOf(s)+1)+",");
+		for (String s : values) {
+			eav1.put(":functionality" + (values.indexOf(s) + 1), new AttributeValue().withS(s));
+			expression = expression.concat(":functionality" + (values.indexOf(s) + 1) + ",");
 		}
-		
+
 		eav1.put(":startDate1", new AttributeValue().withS(fromTime.toString()));
 
-
-
-
 		if (toTime != null) {
-			
+
 			eav1.put(":endDate1", new AttributeValue().withS(toTime.toString()));
 			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-				    .withFilterExpression("functionality in ("+expression.substring(0, expression.length()-1)+") and  (startDate BETWEEN :startDate1 AND :endDate1 or  endDate BETWEEN :startDate1 AND :endDate1)")
-				    .withExpressionAttributeValues(eav1);
-			
+					.withFilterExpression("functionality in (" + expression.substring(0, expression.length() - 1)
+							+ ") and  (startDate BETWEEN :startDate1 AND :endDate1 or  endDate BETWEEN :startDate1 AND :endDate1)")
+					.withExpressionAttributeValues(eav1);
+
 			listHistory = dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
-			
+
 		} else {
 			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-				    .withFilterExpression("functionality in ("+expression.substring(0, expression.length()-1)+") and  (startDate > :startDate1  or endDate > :startDate1 and startDate < :startDate1 )")
-				    .withExpressionAttributeValues(eav1);
-			
+					.withFilterExpression("functionality in (" + expression.substring(0, expression.length() - 1)
+							+ ") and  (startDate > :startDate1  or endDate > :startDate1 and startDate < :startDate1 )")
+					.withExpressionAttributeValues(eav1);
+
 			listHistory = dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
 
 		}
 
-		
 		return listHistory;
 	}
 
@@ -180,12 +173,11 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			Map<String, AttributeValue> eav1 = new HashMap<>();
 			eav1.put(":functionality1", new AttributeValue().withS(pn.getValue()));
 			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-				    .withFilterExpression("functionality =:functionality1 and  attribute_not_exists(endDate) ")
-				    .withExpressionAttributeValues(eav1);
-			
+					.withFilterExpression("functionality =:functionality1 and  attribute_not_exists(endDate) ")
+					.withExpressionAttributeValues(eav1);
+
 			List<DowntimeLogs> logs = dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
 
-	
 			if (logs != null && !logs.isEmpty() && PnFunctionalityStatus.KO.equals(logs.get(0).getStatus())) {
 				PnDowntimeEntry incident = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(logs.get(0));
 				openIncidents.add(incident);
@@ -225,7 +217,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	@Override
 	public List<DowntimeLogs> findAllByEndDateIsNotNullAndLegalFactIdIsNull() {
 		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-			    .withFilterExpression("attribute_not_exists(legalFactId) and  attribute_exists(endDate) ");
+				.withFilterExpression("attribute_not_exists(legalFactId) and  attribute_exists(endDate) ");
 
 		return dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
 	}

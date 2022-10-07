@@ -1,5 +1,7 @@
 package it.pagopa.pn.downtime;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.OffsetDateTime;
 
 import org.junit.Test;
@@ -64,8 +66,8 @@ public class MessageSQSConsumerTest extends AbstractMock {
 		dt.setFileAvailable(true);
 		dt.setLegalFactId("PN_LEGAL_FACTS-TEST");
 
-//		mockFindFirstByLegalFactId(dt);
-//		mockSaveDowntime(dt);
+		mockFindFirstByLegalFactId(dt);
+		mockSaveDowntime();
 
 		String messageLegalFactId = getMessageLegalFactIdFromResource();
 
@@ -81,9 +83,8 @@ public class MessageSQSConsumerTest extends AbstractMock {
 		mockDowntimeLogsReceiver.receiveStringMessage(messageActsQueue);
 
 		DowntimeLogs dt = mapper.readValue(messageActsQueue, DowntimeLogs.class);
-//		mockSaveDowntime(dt);
+		mockSaveDowntime();
 
-		Assertions.assertTrue(true);
-		// assertThat(legalFactService.generateLegalFact(dt).toString()).contains("legalFactId");
+		assertThat(legalFactService.generateLegalFact(dt).toString()).contains("legalFactId");
 	}
 }

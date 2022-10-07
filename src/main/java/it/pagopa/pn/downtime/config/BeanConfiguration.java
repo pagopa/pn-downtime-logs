@@ -21,9 +21,6 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 @Configuration
 public class BeanConfiguration {
 	
-	@Autowired
-	DynamoDBConfigDev dynamoDBConfigLogDev;
-	
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 	   return new RestTemplate();
