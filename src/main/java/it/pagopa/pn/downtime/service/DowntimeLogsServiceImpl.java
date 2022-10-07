@@ -186,7 +186,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			List<DowntimeLogs> logs = dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
 
 	
-			if (logs != null && !logs.isEmpty() && logs.get(0).getStatus().equals(PnFunctionalityStatus.KO)) {
+			if (logs != null && !logs.isEmpty() && PnFunctionalityStatus.KO.equals(logs.get(0).getStatus())) {
 				PnDowntimeEntry incident = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(logs.get(0));
 				openIncidents.add(incident);
 			}
