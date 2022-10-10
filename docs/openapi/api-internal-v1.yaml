@@ -1,7 +1,9 @@
 openapi: 3.0.3
 info:
+  termsOfService: https://termofservice.it
   title: 'Stato della piattaforma PN'
-  version: v1.0
+  x-summary: 'Stato della piattaforma PN'
+  version: '1.0.0'
   description: >- 
     Queste API permettono:<br/>
     - la visualizzazione dello stato dei servizi di Piattaforma Notifiche 
@@ -23,6 +25,9 @@ servers:
 - url: https://api.dev.pn.pagopa.it
   description: Ambiente di sviluppo
 tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato di PN
   - name: Read
     description: >-
       Lettura dello stato di PN, API pubbliche
@@ -31,6 +36,50 @@ tags:
       Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
 
 paths:
+    ##########################################################################################
+    ###                           API DI STATO RICHIESTE DA AGID                           ###
+    ##########################################################################################
+  "/status":
+    get:
+      summary: healthCheck path
+      description: >-
+        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>
+          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>
+        Il body e lasciato libero quindi utilizziamo quanto già definito per il path 
+        /downtime/status
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/PnStatusResponse"
+              example:
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                openIncidents: []
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/PnStatusResponse"
+              example:
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                openIncidents:
+                  - functionality: NOTIFICATION_CREATE
+                    status: KO
+                    startDate: "2019-08-24T14:15:22Z"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
     ###########################################################################################
     ###                                 LETTURA DELLO STATO                                 ###
     ###########################################################################################
@@ -50,16 +99,16 @@ paths:
             application/json:
               schema:
                   $ref: "#/components/schemas/PnStatusResponse"
-              example: 
-                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
-                openIncidents:
-                  - functionality: NOTIFICATION_CREATE
-                    status: KO
-                    startDate: "2019-08-24T14:15:22Z"
+              example:
+                - functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                  openIncidents:
+                    - functionality: NOTIFICATION_CREATE
+                      status: KO
+                      startDate: "2019-08-24T14:15:22Z"
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -90,7 +139,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -145,7 +194,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '404':
@@ -185,7 +234,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -300,10 +349,10 @@ components:
         - startDate
       properties:
         functionality:
-          title: Funzionalità impattata dal disservizio
+          #title: Funzionalità impattata dal disservizio
           $ref: '#/components/schemas/PnFunctionality'
         status:
-          title: tipicamente KO
+          #title: tipicamente KO
           $ref: '#/components/schemas/PnFunctionalityStatus'
         startDate:
           title: data inizio disservizio
@@ -368,16 +417,18 @@ components:
         filename:
           type: string
         contentLength:
-          type: number
+          type: integer
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          format: int32
+          description: dimensione, in byte, del contenuto.
         url:
           type: string
           description: >-
             URL preautorizzato a cui effettuare una richiesta GET per ottenere il 
             contenuto del documento. Presente solo se il documento è pronto per il download.
         retryAfter:
-          type: number
+          type: integer
+          format: int32
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.
@@ -398,7 +449,7 @@ components:
         - source
       properties:
         status:
-          title: Nuovo stato della funzionalità
+          #title: Nuovo stato della funzionalità
           $ref: '#/components/schemas/PnFunctionalityStatus'
         timestamp:
           title: quando è avvenuto il cambio di stato

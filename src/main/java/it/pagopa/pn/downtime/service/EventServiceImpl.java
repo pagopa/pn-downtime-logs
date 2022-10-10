@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,6 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
-import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
-import it.pagopa.pn.downtime.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,17 +40,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EventServiceImpl implements EventService {
 
-	/** The event repository. */
-	@Autowired
-	EventRepository eventRepository;
-
-	/** The downtime logs service. */
+    /** The downtime logs service. */
 	@Autowired
 	DowntimeLogsService downtimeLogsService;
 
-	/** The downtime logs repository. */
-	@Autowired
-	DowntimeLogsRepository downtimeLogsRepository;
 
 	/** The producer. */
 	@Autowired
@@ -61,9 +53,16 @@ public class EventServiceImpl implements EventService {
 	@Value("${amazon.sqs.end-point.acts-queue}")
 	private String url;
 
-	/** The dynamo DB mapper. */
+	/** The dynamo DB mapper. Log */
 	@Autowired
-	private DynamoDBMapper dynamoDBMapper;
+	@Qualifier("logMapper")
+	private DynamoDBMapper dynamoDBMapperLog;
+	
+	
+	/** The dynamo DB mapper. Event */
+	@Autowired
+	@Qualifier("eventMapper")
+	private DynamoDBMapper dynamoDBMapperEvent;
 
 	/**
 	 * Adds the status change event.
@@ -114,7 +113,7 @@ public class EventServiceImpl implements EventService {
 				.withFilterExpression("functionality = :functionality1").withScanIndexForward(false)
 				.withExpressionAttributeValues(eav1).withLimit(1);
 
-		return dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
+		return dynamoDBMapperLog.queryPage(DowntimeLogs.class, queryExpression);
 	}
 
 	/**
@@ -150,7 +149,7 @@ public class EventServiceImpl implements EventService {
 
 			dt.setEndDate(event.getTimestamp());
 			dt.setEndEventUuid(eventId);
-			downtimeLogsRepository.save(dt);
+			dynamoDBMapperLog.save(dt);
 			producer.sendMessage(dt, url);
 		}
 
@@ -203,7 +202,7 @@ public class EventServiceImpl implements EventService {
 		event.setStatus(status);
 		event.setSourceType(sourceType);
 		event.setSource(source);
-		eventRepository.save(event);
+		dynamoDBMapperEvent.save(event);
 		return event.getUuid();
 	}
 

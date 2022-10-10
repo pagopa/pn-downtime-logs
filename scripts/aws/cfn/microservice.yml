@@ -35,7 +35,6 @@ Parameters:
     Type: String
     Description: 'The S3 bucket from which to fetch the templates used by this stack.'
 
-  
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -43,10 +42,6 @@ Parameters:
   SubnetsIds:
     Type: String
     Description: 'subnets ids comma separated list. Where to deploy the microservice'
-
-  VpcId:
-    Type: String
-    Description: 'VpcId where the microservice is going to be deployed'
   
   EcsDefaultSecurityGroup:
     Type: String
@@ -72,16 +67,166 @@ Parameters:
     Type: String
     Description: 'keep track of used projects commitIds'
 
-Conditions:
+  VpcId:
+    Type: "AWS::EC2::VPC::Id"
+    Description: Id of the VPC to deploy resources into
 
-  Never:
-    !Equals [ "A", "B" ]
+  EventTableName:
+    Type: String
+    Description: Event table name
 
+  LogTableName:
+    Type: String  
+    Description: Log table name
+    
+  EventDynamoTableArn:
+    Type: String  
+    Description: ARN of dynamodb table containing event
+    
+  LogDynamoTableArn:
+    Type: String  
+    Description: ARN of dynamodb table containing log
+
+  SafeStorageBaseUrl:
+    Type: String
+    Description: base url for safe storage requests
+  
+  InternalEventQueueQueueARN:
+    Type: String
+    Description: internal events queue ARN
+  
+  InternalEventQueueQueueURL:
+    Type: String
+    Description: queue url
+  
+  DowntimeLogsSafeStorageEventsQueueURL:
+    Type: String
+    Description: queue url
+
+  DowntimeLogsSafeStorageEventsQueueARN:
+    Type: String
+    Description: queue ARN
+  
+  DowntimeLogsAggregateAlarmQueueURL:
+    Type: String
+    Description: queue url
+
+  DowntimeLogsAggregateAlarmQueueARN:
+    Type: String
+    Description: queue ARN
+  
+  SchedulerLegalfactidActive:
+    Type: String
+    
+  SchedulerLegalfactidTimer:
+    Type: String
+  
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Kinesis stream that receive logs'
+  
 Resources:
 
-  NonResource:
-    Type: Custom::NonResource
-    Condition: Never
+  DowntimeLogsMicroservice:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
+        CpuValue: 1024
+        MemoryAmount: 2GB
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        ContainerImageURI: !Sub '${ContainerImageUri}'
+        ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
+        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SafeStorageBaseUrl}'
+        ContainerEnvEntry3: 'PN_DOWNTIMELOGS_ENABLE_APIKEY=false'
+        ContainerEnvEntry4: 'PN_DOWNTIMELOGS_APIKEY_HEADER=NotApplicable'
+        ContainerEnvEntry5: 'PN_DOWNTIMELOGS_APIKEY_VALUE=NotApplicable'
+        ContainerEnvEntry6: 'PN_DOWNTIMELOGS_DOCUMENT_TYPE=PN_LEGALFACTS'
+        ContainerEnvEntry7: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_TIMER=${SchedulerLegalfactidTimer}'
+        ContainerEnvEntry8: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_ACTIVE=${SchedulerLegalfactidActive}' 
+        ContainerEnvEntry9: !Sub 'PN_DOWNTIMELOGS_DYNAMODB_EVENT_ENDPOINT=${EventTableName}'
+        ContainerEnvEntry10: !Sub 'PN_DOWNTIMELOGS_DYNAMODB_LOG_ENDPOINT=${LogTableName}'
+        ContainerEnvEntry11: !Sub 'PN_DOWNTIMELOGS_SQS_ACTS_ENDPOINT=${InternalEventQueueQueueURL}'        
+        ContainerEnvEntry12: !Sub 'PN_DOWNTIMELOGS_CLOUDWATCH_ENDPOINT=${DowntimeLogsAggregateAlarmQueueURL}'
+        ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'       
+        ContainerEnvEntry15: !Sub 'PN_DOWNTIMELOGS_CORS_ORIGIN_DOMAINS=${CorsAllowedDomains}'
+        MappedPaths: '/downtime/*,/downtime-internal/*,/status'
+        ECSClusterName: !Ref ECSClusterName
+        Subnets: !Ref SubnetsIds
+        VpcId: !Ref VpcId
+        EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
+        LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
+        LoadbalancerRulePriority: !Ref MicroserviceNumber
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
 
+  # Grant operational rights to PN-Downtime-Logs microservice
+  DowntimeLogsMicroserviceTaskPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub '${ProjectName}-downtime-logs-CustomTaskPolicy'
+      Roles:
+        - !GetAtt DowntimeLogsMicroservice.Outputs.TaskRoleName
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:BatchWriteItem
+              - dynamodb:ExecuteTransaction
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:Query
+              - dynamodb:TransactGetItems
+              - dynamodb:TransactWriteItems
+              - dynamodb:UpdateItem              
+            Resource:
+              - !Sub "${EventDynamoTableArn}"
+              - !Sub "${EventDynamoTableArn}/*"
+              - !Sub "${LogDynamoTableArn}"
+              - !Sub "${LogDynamoTableArn}/*"              
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:ChangeMessageVisibilityBatch
+              - sqs:DeleteMessage
+              - sqs:DeleteMessageBatch
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+              - sqs:SendMessage
+              - sqs:SendMessageBatch
+            Resource:
+              - !Ref InternalEventQueueQueueARN
+              - !Ref DowntimeLogsSafeStorageEventsQueueARN
+              - !Ref DowntimeLogsAggregateAlarmQueueARN
 
-  
+  # Api:
+  #   Type: "AWS::CloudFormation::Stack"
+  #   Properties:
+  #     Parameters:
+  #       LogRetentionInDays: !Ref ApiLogRetentionInDays
+  #       NetworkLoadBalancerDomain: !GetAtt Backend.Outputs.NlbDomain
+  #       NetworkLoadBalancerLink: !GetAtt Backend.Outputs.NlbLink
+  #       ProjectName: !Ref ProjectName
+  #     TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/api.yaml
+
+  # Expose PN-Downtime-Logs microservice public API with API-GW for WEB usage
+  DowntimeLogsMicroservicePublicWebAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
+        IntendedUsage: WEB
+        DnsName: !Ref WebApiDnsName
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'downtime'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+

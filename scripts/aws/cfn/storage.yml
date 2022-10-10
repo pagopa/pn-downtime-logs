@@ -19,6 +19,10 @@ Parameters:
   Version:
     Type: String
     Description: 'keep track of used projects commitIds'
+  
+  CdcKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send CDC'
 
 Resources:
 
@@ -30,6 +34,61 @@ Resources:
       Parameters:
         QueueName: !Sub '${ProjectName}-downtime_logs_internal_events'
         DelaySeconds: 1
+
+  Event:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: uuid
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: uuid
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+      KinesisStreamSpecification:
+        StreamArn: !Ref CdcKinesisSourceStreamArn
+      StreamSpecification: 
+        StreamViewType: NEW_IMAGE
+
+  Log:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: functionalityStartYear
+          AttributeType: S
+        - AttributeName: startDate
+          AttributeType: S
+        - AttributeName: endDate
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: DowntimeLogsGSIndex
+          KeySchema:
+            - AttributeName: functionalityStartYear
+              KeyType: HASH
+            - AttributeName: endDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      KeySchema:
+        - AttributeName: functionalityStartYear
+          KeyType: HASH
+        - AttributeName: startDate
+          KeyType: RANGE
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+      KinesisStreamSpecification:
+        StreamArn: !Ref CdcKinesisSourceStreamArn
+      StreamSpecification: 
+        StreamViewType: NEW_IMAGE
 
 Outputs:
   
@@ -43,3 +102,17 @@ Outputs:
   InternalEventQueueQueueARN:
     Value: !GetAtt InternalEventQueueQueue.Outputs.QueueARN
     Description: internal events queue ARN
+
+  EventTableName:
+    Description: Event table name
+    Value: !Ref Event
+  EventDynamoTableArn:
+    Description: ARN of dynamodb table containing event
+    Value: !Sub '${Event.Arn}'
+
+  LogTableName:
+    Description: Log table name
+    Value: !Ref Log
+  LogDynamoTableArn:
+    Description: ARN of dynamodb table containing log
+    Value: !Sub '${Log.Arn}'

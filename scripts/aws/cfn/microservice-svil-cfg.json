@@ -1,5 +1,7 @@
 {
   "Parameters" : {
-    "Foo": "bar"
+    "SafeStorageBaseUrl":"https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev",
+    "SchedulerLegalfactidTimer":"0 /1 * ? * *",
+    "SchedulerLegalfactidActive":"true"
   }
 }
