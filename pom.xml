@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>it.pagopa.pn</groupId>
-    <artifactId>pn-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <relativePath/>
-  </parent>
-  <groupId>it.pagopa.pn.downtime</groupId>
-  <artifactId>pn-downtime-logs</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>pn-downtime-logs</name>
-  <description>Register PN downtime logs</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>it.pagopa.pn</groupId>
+		<artifactId>pn-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath />
+	</parent>
+	<groupId>it.pagopa.pn.downtime</groupId>
+	<artifactId>pn-downtime-logs</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>pn-downtime-logs</name>
+	<description>Register PN downtime logs</description>
 	<properties>
 		<springfox-version>2.8.0</springfox-version>
 		<openapi-generator-maven-plugin-version>5.1.0</openapi-generator-maven-plugin-version>
@@ -29,7 +27,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-		<!-- Import dependency for AWS cloud -->
+			<!-- Import dependency for AWS cloud -->
 			<dependency>
 				<groupId>io.awspring.cloud</groupId>
 				<artifactId>spring-cloud-aws-dependencies</artifactId>
@@ -119,12 +117,21 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.12.0</version><!--$NO-MVN-MAN-VER$ -->
+			<version>3.12.0</version> <!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.openapitools</groupId>
@@ -167,9 +174,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-quartz</artifactId>
-	    </dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-quartz</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
@@ -206,36 +213,37 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>		
+				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
 				<version>${openapi-generator-maven-plugin-version}</version>
-			    <executions>
-			        <execution>
-			            <goals>
-			                <goal>generate</goal>
-			            </goals>
-			            <configuration>
-			            	<generatorName>java</generatorName>
-			                <inputSpec>${basedir}/docs/wsclients/pn-safestorage-v1-api.yaml</inputSpec>
-			                <library>resttemplate</library>
-			                <output>${project.basedir}/target/generated-sources/</output>
-			                <apiPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.api</apiPackage>
-			                <modelPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.model</modelPackage>
-			                <invokerPackage>${project.groupId}.${project.artifactId}.restclient.safestorage</invokerPackage>
-			
-			                <generateApiTests>false</generateApiTests>
-			                <generateModelTests>false</generateModelTests>
-			                <generateApiDocumentation>false</generateApiDocumentation>
-			                <generateModelDocumentation>false</generateModelDocumentation>
-			                <configOptions>
-			                    <dateLibrary>java8</dateLibrary>
-			                </configOptions>
-			            </configuration>
-			        </execution>
-			    </executions>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<generatorName>java</generatorName>
+							<inputSpec>${basedir}/docs/wsclients/pn-safestorage-v1-api.yaml</inputSpec>
+							<library>resttemplate</library>
+							<output>${project.basedir}/target/generated-sources/</output>
+							<apiPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.api</apiPackage>
+							<modelPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.model</modelPackage>
+							<invokerPackage>${project.groupId}.${project.artifactId}.restclient.safestorage</invokerPackage>
+
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<generateApiDocumentation>false</generateApiDocumentation>
+							<generateModelDocumentation>false</generateModelDocumentation>
+							<configOptions>
+								<dateLibrary>java8</dateLibrary>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
