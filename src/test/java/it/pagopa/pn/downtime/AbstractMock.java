@@ -111,6 +111,15 @@ public abstract class AbstractMock {
 	protected final String eventsUrl = "/downtime-internal/v1/events";
 	protected final String legalFactIdUrl = "/downtime/v1/legal-facts/";
 
+
+	protected void mockSaveDowntime() {
+		Mockito.doNothing().when(mockDynamoDBMapperLog).save(Mockito.any(DowntimeLogs.class));
+	}
+
+	protected void mockSaveEvent() {
+		Mockito.doNothing().when(mockDynamoDBMapperEvent).save(Mockito.any(Event.class));
+	}
+	
 	protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
 		Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
 	}
@@ -144,32 +153,14 @@ public abstract class AbstractMock {
 	protected void mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
 		downtimeLogsList
-				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
-						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
+				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-01-18T04:56:07.000+00:00"),
+						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00")));
 		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
-
 	}
 
-	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
-		ScanResultPage<DowntimeLogs> scanPageDowntime = new ScanResultPage<>();
-		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
-		listDowntimeLogs.add(dt);
-		scanPageDowntime.setResults(listDowntimeLogs);
-		Mockito.when(mockDynamoDBMapperLog.scanPage(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any()))
-				.thenReturn(scanPageDowntime);
-	}
-
-	protected void mockSaveDowntime() {
-		Mockito.doNothing().when(mockDynamoDBMapperLog).save(Mockito.any(DowntimeLogs.class));
-	}
-
-	protected void mockSaveEvent() {
-		Mockito.doNothing().when(mockDynamoDBMapperEvent).save(Mockito.any(Event.class));
-	}
-	
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndStartDateAfter() {
 		List<DowntimeLogs> listDowntime = new ArrayList<>();
@@ -273,7 +264,25 @@ public abstract class AbstractMock {
 		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
 				.thenReturn(response);
 	}
-
+	
+	protected static LinkedMultiValueMap<String, String> getMockHistoryStatus(OffsetDateTime fromTime,
+			OffsetDateTime toTime, List<PnFunctionality> functionality, String page, String size)
+			throws JsonProcessingException {
+		LinkedMultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
+		String fromTimeString = fromTime != null ? fromTime.toString() : "";
+		String toTimeString = toTime != null ? toTime.toString() : "";
+		if (functionality != null) {
+			String functionalityString = Arrays.toString(functionality.toArray()).replace('[', ' ').replace(']', ' ')
+					.trim();
+			requestParams.add("functionality", functionalityString);
+		}
+		requestParams.add("fromTime", fromTimeString);
+		requestParams.add("toTime", toTimeString);
+		requestParams.add("page", page);
+		requestParams.add("size", size);
+		return requestParams;
+	}
+	
 	@SuppressWarnings("unchecked")
 	protected void mockHistoryStatus(RestTemplate client) throws IOException {
 		String mock = getStringFromResourse(historyStatus);
@@ -282,6 +291,15 @@ public abstract class AbstractMock {
 				.thenReturn(response);
 	}
 
+	protected void mockHistory_BADREQUEST(RestTemplate client) {
+		DowntimeLogsService serviceDowntime = Mockito.mock(DowntimeLogsService.class);
+
+		Mockito.when(
+				serviceDowntime.getStatusHistory(ArgumentMatchers.isNull(), ArgumentMatchers.any(OffsetDateTime.class),
+						ArgumentMatchers.isNull(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+				.thenThrow(new RuntimeException("The starting date is required."));
+	}
+	
 	protected void mockLegalFactId(RestTemplate client) {
 		DownloadLegalFactDto downloadLegalFactDto = new DownloadLegalFactDto();
 		downloadLegalFactDto.setUrl("http://localhost:9090");
@@ -312,6 +330,15 @@ public abstract class AbstractMock {
 						"403 Forbidden: [{\"resultDescription\": \"Unauthorized\", \"errorList\": [\"client is not allowed to read doc type PROVA\"], \"resultCode\": \"403.00\"}]"));
 	}
 
+	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
+		ScanResultPage<DowntimeLogs> scanPageDowntime = new ScanResultPage<>();
+		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
+		listDowntimeLogs.add(dt);
+		scanPageDowntime.setResults(listDowntimeLogs);
+		Mockito.when(mockDynamoDBMapperLog.scanPage(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any()))
+				.thenReturn(scanPageDowntime);
+	}
+	
 	@SuppressWarnings("unchecked")
 	protected void mockAddStatusChange_KO(RestTemplate client) {
 		String mock = "";
@@ -333,33 +360,6 @@ public abstract class AbstractMock {
 		ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
 		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),
 				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
-	}
-
-	protected void mockHistory_BADREQUEST(RestTemplate client) {
-		DowntimeLogsService serviceDowntime = Mockito.mock(DowntimeLogsService.class);
-
-		Mockito.when(
-				serviceDowntime.getStatusHistory(ArgumentMatchers.isNull(), ArgumentMatchers.any(OffsetDateTime.class),
-						ArgumentMatchers.isNull(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
-				.thenThrow(new RuntimeException("The starting date is required."));
-	}
-
-	protected static LinkedMultiValueMap<String, String> getMockHistoryStatus(OffsetDateTime fromTime,
-			OffsetDateTime toTime, List<PnFunctionality> functionality, String page, String size)
-			throws JsonProcessingException {
-		LinkedMultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
-		String fromTimeString = fromTime != null ? fromTime.toString() : "";
-		String toTimeString = toTime != null ? toTime.toString() : "";
-		if (functionality != null) {
-			String functionalityString = Arrays.toString(functionality.toArray()).replace('[', ' ').replace(']', ' ')
-					.trim();
-			requestParams.add("functionality", functionalityString);
-		}
-		requestParams.add("fromTime", fromTimeString);
-		requestParams.add("toTime", toTimeString);
-		requestParams.add("page", page);
-		requestParams.add("size", size);
-		return requestParams;
 	}
 
 	protected static String getPnStatusUpdateEvent(OffsetDateTime timestamp, List<PnFunctionality> functionality,
@@ -389,15 +389,11 @@ public abstract class AbstractMock {
 		downtimeLogs.setFileAvailable(false);
 		return downtimeLogs;
 	}
-
+	
 	private static String getStringFromResourse(Resource resource) throws IOException {
 		return StreamUtils.copyToString(resource.getInputStream(), Charset.defaultCharset());
 	}
-
-	protected void before() {
-		service = new DowntimeLogsServiceImpl();
-	}
-
+	
 	protected String getMessageCloudwatchFromResource() throws JsonParseException, JsonMappingException, IOException {
 		return StreamUtils.copyToString(mockMessageCloudwatch.getInputStream(), Charset.defaultCharset());
 	}
@@ -408,5 +404,9 @@ public abstract class AbstractMock {
 
 	protected String getMessageActsQueueFromResource() throws JsonParseException, JsonMappingException, IOException {
 		return StreamUtils.copyToString(mockMessageActsQueue.getInputStream(), Charset.defaultCharset());
+	}
+
+	protected void before() {
+		service = new DowntimeLogsServiceImpl();
 	}
 }

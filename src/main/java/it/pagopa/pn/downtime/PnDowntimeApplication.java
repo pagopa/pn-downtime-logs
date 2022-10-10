@@ -7,7 +7,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-@EnableConfigurationProperties
 @EnableSwagger2
 public class PnDowntimeApplication {
 
