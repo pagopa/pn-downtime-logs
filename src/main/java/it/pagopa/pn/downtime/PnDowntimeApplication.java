@@ -11,6 +11,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class PnDowntimeApplication {
 
 	public static void main(String[] args) {
+		System.out.println("Start downtimelogs application");
 		SpringApplication.run(PnDowntimeApplication.class, args);
 	}
 

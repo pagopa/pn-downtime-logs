@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +52,7 @@ public class CloudwatchReceiver {
 	 */
 	@SqsListener(value = "${amazon.sqs.end-point.cloudwatch}", deletionPolicy = SqsMessageDeletionPolicy.ALWAYS)
 	public void receiveMessage(final String message) throws InterruptedException, ExecutionException,
-			NoSuchAlgorithmException, IOException, TemplateException, JSONException {
+			NoSuchAlgorithmException, IOException, TemplateException {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
 		log.info("message received in CloudWatch queue {}", message);
 
