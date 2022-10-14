@@ -28,14 +28,14 @@ public class DynamoDBConfigProd {
 	@Primary
 	public AmazonDynamoDB amazonDynamoDBLog() {
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-east-1"))
+				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-south-1"))
 				.build();
 	}
 	
 	@Bean(name = "event")
 	public AmazonDynamoDB amazonDynamoDBEvent() {
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointEvent, "us-east-1"))
+				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointEvent, "us-south-1"))
 				.build();
 	}
 
