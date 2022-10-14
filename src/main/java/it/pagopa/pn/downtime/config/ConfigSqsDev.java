@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 @Profile("dev")
-
 public class ConfigSqsDev {
 
 	@Value("${amazon.sqs.region.static}")

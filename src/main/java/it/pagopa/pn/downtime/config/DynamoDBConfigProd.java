@@ -15,6 +15,12 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 @EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
 @Profile({"!dev", "!svil"})
 public class DynamoDBConfigProd {
+	
+	public DynamoDBConfigProd(AwsConfig props) {
+		this.props = props;
+	}
+
+	private final AwsConfig props;
 
 	@Value("${amazon.dynamodb.log.endpoint}")
 	private String amazonDynamoDBEndpointLog;
@@ -27,15 +33,17 @@ public class DynamoDBConfigProd {
 	@Bean(name = "log")
 	@Primary
 	public AmazonDynamoDB amazonDynamoDBLog() {
+		System.out.println("test" + props.getEndpointUrl().concat("/").concat(amazonDynamoDBEndpointLog));
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-south-1"))
+				.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl().concat("/").concat(amazonDynamoDBEndpointLog), props.getRegionCode()))
 				.build();
 	}
 	
 	@Bean(name = "event")
 	public AmazonDynamoDB amazonDynamoDBEvent() {
+		System.out.println("test" + props.getEndpointUrl().concat("/").concat(amazonDynamoDBEndpointEvent));
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointEvent, "us-south-1"))
+				.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl().concat("/").concat(amazonDynamoDBEndpointEvent), props.getRegionCode()))
 				.build();
 	}
 
