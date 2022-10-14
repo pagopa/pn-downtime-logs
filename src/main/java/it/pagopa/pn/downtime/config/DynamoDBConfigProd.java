@@ -2,7 +2,6 @@ package it.pagopa.pn.downtime.config;
 
 import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -13,13 +12,15 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 
 @Configuration
-@ConfigurationProperties("aws")
 @EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
 @Profile({"!dev", "!svil"})
 public class DynamoDBConfigProd {
 	
-	private String regionCode;
-	private String endpointUrl;
+	public DynamoDBConfigProd(AwsConfig props) {
+		this.props = props;
+	}
+
+	private final AwsConfig props;
 
 	@Value("${amazon.dynamodb.log.endpoint}")
 	private String amazonDynamoDBEndpointLog;
@@ -32,17 +33,17 @@ public class DynamoDBConfigProd {
 	@Bean(name = "log")
 	@Primary
 	public AmazonDynamoDB amazonDynamoDBLog() {
-		System.out.println("test" + endpointUrl.concat(amazonDynamoDBEndpointLog));
+		System.out.println("test" + props.getEndpointUrl().concat(amazonDynamoDBEndpointLog));
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(endpointUrl.concat(amazonDynamoDBEndpointLog), regionCode))
+				.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl().concat(amazonDynamoDBEndpointLog), props.getRegionCode()))
 				.build();
 	}
 	
 	@Bean(name = "event")
 	public AmazonDynamoDB amazonDynamoDBEvent() {
-		System.out.println("test" + endpointUrl.concat(amazonDynamoDBEndpointEvent));
+		System.out.println("test" + props.getEndpointUrl().concat(amazonDynamoDBEndpointEvent));
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(endpointUrl.concat(amazonDynamoDBEndpointEvent), regionCode))
+				.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl().concat(amazonDynamoDBEndpointEvent), props.getRegionCode()))
 				.build();
 	}
 
