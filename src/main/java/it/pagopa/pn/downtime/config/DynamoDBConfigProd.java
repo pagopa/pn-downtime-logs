@@ -2,6 +2,7 @@ package it.pagopa.pn.downtime.config;
 
 import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -12,9 +13,13 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 
 @Configuration
+@ConfigurationProperties("aws")
 @EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
 @Profile({"!dev", "!svil"})
 public class DynamoDBConfigProd {
+	
+	private String regionCode;
+	private String endpointUrl;
 
 	@Value("${amazon.dynamodb.log.endpoint}")
 	private String amazonDynamoDBEndpointLog;
@@ -27,15 +32,17 @@ public class DynamoDBConfigProd {
 	@Bean(name = "log")
 	@Primary
 	public AmazonDynamoDB amazonDynamoDBLog() {
+		System.out.println("test" + endpointUrl.concat(amazonDynamoDBEndpointLog));
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-south-1"))
+				.withEndpointConfiguration(new EndpointConfiguration(endpointUrl.concat(amazonDynamoDBEndpointLog), regionCode))
 				.build();
 	}
 	
 	@Bean(name = "event")
 	public AmazonDynamoDB amazonDynamoDBEvent() {
+		System.out.println("test" + endpointUrl.concat(amazonDynamoDBEndpointEvent));
 		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointEvent, "us-south-1"))
+				.withEndpointConfiguration(new EndpointConfiguration(endpointUrl.concat(amazonDynamoDBEndpointEvent), regionCode))
 				.build();
 	}
 
