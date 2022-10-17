@@ -27,6 +27,7 @@ public class DynamoDBConfigProd {
 	@Bean(name = "log")
 	@Primary
 	public AmazonDynamoDB amazonDynamoDBLog() {
+		System.out.println("test11");
 		return AmazonDynamoDBClientBuilder.standard()
 				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-east-1"))
 				.build();
@@ -34,6 +35,7 @@ public class DynamoDBConfigProd {
 	
 	@Bean(name = "event")
 	public AmazonDynamoDB amazonDynamoDBEvent() {
+		System.out.println("test11");
 		return AmazonDynamoDBClientBuilder.standard()
 				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointEvent, "us-east-1"))
 				.build();
