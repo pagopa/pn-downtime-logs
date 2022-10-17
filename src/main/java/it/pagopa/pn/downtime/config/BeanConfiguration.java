@@ -1,5 +1,9 @@
 package it.pagopa.pn.downtime.config;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -26,6 +30,19 @@ public class BeanConfiguration {
 	   return new RestTemplate();
 	}
 	
+	@Bean
+	public RestTemplate simpleRestTemplate() {
+		//TODO: START -  to delete when deploying in dev environment, this is just for local test purposes
+		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+
+			@Override
+		    public boolean verify(String hostname, SSLSession session) {
+		        return true;
+		    }
+		});
+		//END
+		return new RestTemplate();
+	}
 
 	@Bean(name = "logMapper")
 	@Primary

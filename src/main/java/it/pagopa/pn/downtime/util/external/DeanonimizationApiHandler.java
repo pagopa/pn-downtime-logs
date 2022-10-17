@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -36,9 +35,8 @@ public class DeanonimizationApiHandler {
 	 * @return
 	 * @throws DowntimeException
 	 */
-	@Cacheable(cacheNames="Cluster", cacheManager = "cacheManager10Hour")
 	public String getUniqueIdentifierForPerson(RecipientTypes recipientType, String taxId) throws DowntimeException {
-		String url = String.format(getUniqueIdURL, recipientType.getValue());
+		String url = String.format(getUniqueIdURL, recipientType.toString());
 		HttpEntity<String> request =  new HttpEntity<>(taxId);
 		String response = client.postForObject(url, request, String.class);
 		if(StringUtils.isBlank(response) || "null".equalsIgnoreCase(response)) {

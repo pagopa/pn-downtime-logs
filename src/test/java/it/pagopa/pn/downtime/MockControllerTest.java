@@ -44,13 +44,19 @@ public class MockControllerTest extends AbstractMock {
 
 	public void callCheckOptions(String url, String callApi) throws Exception {
 		MockHttpServletResponse response;
-		if (!url.equals(legalFactIdUrl)) {
-			response = mvc.perform(options(url).accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
-		} else {
+		if (url.equals(legalFactIdUrl)) {
 			mockLegalFactId(client);
-			response = mvc.perform(options(legalFactIdUrl.concat("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S"))).andReturn()
-					.getResponse();
+			response = mvc.perform(options(legalFactIdUrl.concat("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S")))
+					.andReturn().getResponse();
+		} else if (url.equals(eventsUrl)) {
+			response = mvc.perform(options(url).accept(MediaType.APPLICATION_JSON).header("Auth", fakeHeader))
+					.andReturn().getResponse();
+
+		} else {
+			response = mvc.perform(options(url).accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
+
 		}
+
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getHeader("Allow")).contains(callApi);
 	}
@@ -77,6 +83,7 @@ public class MockControllerTest extends AbstractMock {
 
 	@Test
 	public void callCheckOptionsEvents() throws Exception {
+		mockUniqueIdentifierForPerson();
 		callCheckOptions(eventsUrl, "POST");
 	}
 

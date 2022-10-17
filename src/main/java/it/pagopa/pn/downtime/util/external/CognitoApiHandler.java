@@ -1,12 +1,11 @@
 package it.pagopa.pn.downtime.util.external;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,7 @@ public class CognitoApiHandler {
 	 * @throws DowntimeException 
 	 * @throws JSONException 
 	 * */
-	public String getUserIdentifier(String accessToken) throws DowntimeException, JSONException {
+	public String getUserIdentifier(String accessToken) throws DowntimeException {
 		String url = String.format(cognitoUserUrl, cognitoRegion);
 		JSONObject requestBody = new JSONObject();
 		requestBody.put(Constants.COG_ACTOKEN, accessToken);
@@ -64,7 +63,7 @@ public class CognitoApiHandler {
 	 * @return The user identifier
 	 * @throws JSONException 
 	 * */
-	private String getUserUniqueIdentifier(String userAttributes) throws DowntimeException, JSONException {
+	private String getUserUniqueIdentifier(String userAttributes) throws DowntimeException {
 		JSONArray attributes = new JSONObject(userAttributes).getJSONArray("UserAttributes");
 		for(int objIndex = 0; objIndex <attributes.length(); objIndex++) {
 			JSONObject currentAttribute = attributes.getJSONObject(objIndex);

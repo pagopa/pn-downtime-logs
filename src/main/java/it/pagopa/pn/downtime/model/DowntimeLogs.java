@@ -98,16 +98,17 @@ public class DowntimeLogs implements Serializable {
 	public String getLegalFactId() {
 		return legalFactId;
 	}
-
-	@DynamoDBAttribute
-	public String getUuid() {
-		return uuid;
-	}
 	
 	@DynamoDBAttribute
 	public Boolean getFileAvailable() {
 		return fileAvailable;
 	}
+	
+	@DynamoDBAttribute
+	public String getUuid() {
+		return uuid;
+	}
+	
 	public void setEndDate(OffsetDateTime endDate) {
 		this.endDate = endDate;
 	}
@@ -132,12 +133,13 @@ public class DowntimeLogs implements Serializable {
 		this.legalFactId = legalFactId;
 	}
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
 
 	public void setFileAvailable(Boolean fileAvailable) {
 		this.fileAvailable = fileAvailable;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 }

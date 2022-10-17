@@ -158,7 +158,6 @@ public class MockDowntimeLogsController extends AbstractMock {
 
 	@Test
 	public void test_CheckLegalFactIdIsNull() {
-
 		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
 		listDowntimeLogs
 				.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
@@ -171,7 +170,6 @@ public class MockDowntimeLogsController extends AbstractMock {
 	@Test
 	public void test_CheckLegalFactId() throws Exception {
 		mockLegalFactId(client);
-
 		MockHttpServletResponse response = mvc
 				.perform(get(legalFactIdUrl.concat("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S"))).andReturn()
 				.getResponse();
@@ -191,6 +189,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 
 	@Test
 	public void test_GenerateLegalFact() throws Exception {
+		mockUniqueIdentifierForPerson();
 		mockAddStatusChange_OK(client);
 		DowntimeLogs downtime = getDowntimeLogs("NOTIFICATION_CREATE2022",
 				OffsetDateTime.parse("2022-08-28T08:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, "EVENT",
@@ -205,6 +204,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	 */
 	@Test
 	public void test_CheckAddStatusChangeKOWithEndDate() throws Exception {
+		mockUniqueIdentifierForPerson();
 		mockAddStatusChange_KO(client);
 		mockFindByFunctionalityAndStartDateLessThanEqualWithEndDate();
 		mockSaveEvent();
@@ -216,7 +216,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
-				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK").header("Auth", fakeHeader)).andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
 
@@ -225,6 +225,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	 */
 	@Test
 	public void test_CheckAddStatusChangeKONoEndDate() throws Exception {
+		mockUniqueIdentifierForPerson();
 		mockAddStatusChange_KO(client);
 		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
 		mockSaveEvent();
@@ -235,11 +236,12 @@ public class MockDowntimeLogsController extends AbstractMock {
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
-				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK").header("Auth", fakeHeader)).andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	public void test_CheckAddStatusChange() throws Exception {
+		mockUniqueIdentifierForPerson();
 		mockAddStatusChange_OK(client);
 
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
@@ -248,7 +250,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
-				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK").header("Auth", fakeHeader)).andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
 
@@ -257,6 +259,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	 */
 	@Test
 	public void test_CheckAddStatusChangeOK() throws Exception {
+		mockUniqueIdentifierForPerson();
 		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
 		mockSaveEvent();
 		mockSaveDowntime();
@@ -269,6 +272,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	 */
 	@Test
 	public void test_CheckAddStatusChangeOKAfterYear() throws Exception {
+		mockUniqueIdentifierForPerson();
 		mockFindNothing();
 		mockSaveEvent();
 		mockSaveDowntime();
@@ -281,6 +285,21 @@ public class MockDowntimeLogsController extends AbstractMock {
 	 */
 	@Test
 	public void test_CheckAddStatusChangeOKError() throws Exception {
+		mockUniqueIdentifierForPerson();
+		mockAddStatusChange_OK(client);
+		mockFindByFunctionalityAndStartDateLessThanEqualWithEndDate();
+		List<PnFunctionality> pnFunctionality = new ArrayList<>();
+		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
+		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
+				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
+		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK").header("Auth", fakeHeader)).andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+	}
+
+	@Test
+	public void test_CheckAddStatusChangeAuthError() throws Exception {
+		mockUniqueIdentifierForPerson();
 		mockAddStatusChange_OK(client);
 		mockFindByFunctionalityAndStartDateLessThanEqualWithEndDate();
 		List<PnFunctionality> pnFunctionality = new ArrayList<>();
@@ -289,9 +308,24 @@ public class MockDowntimeLogsController extends AbstractMock {
 				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
 	}
-
+	
+	@Test
+	public void test_CheckAddStatusChangeTaxIdError() throws Exception {
+		mockUniqueIdentifierForPerson();
+		mockAddStatusChange_OK(client);
+		mockTaxCodeForPersonResponseNull();
+		mockFindByFunctionalityAndStartDateLessThanEqualWithEndDate();
+		List<PnFunctionality> pnFunctionality = new ArrayList<>();
+		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
+		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
+				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
+		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+	}
+	
 	@Test
 	public void test_CloudwatchMapper() {
 		Alarm alarm = new Alarm();
