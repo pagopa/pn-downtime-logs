@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 @Configuration
 @EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
