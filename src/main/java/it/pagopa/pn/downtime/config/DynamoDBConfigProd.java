@@ -33,18 +33,26 @@ public class DynamoDBConfigProd {
 	@Bean(name = "log")
 	@Primary
 	public AmazonDynamoDB amazonDynamoDBLog() {
-		System.out.println("test" + props.getEndpointUrl().concat("/").concat(amazonDynamoDBEndpointLog));
-		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl().concat("/").concat(amazonDynamoDBEndpointLog), props.getRegionCode()))
-				.build();
+		if (StringUtils.isNotBlank(props.getEndpointUrl()) && StringUtils.isNotBlank(props.getRegionCode())){
+			return AmazonDynamoDBClientBuilder.standard()
+					.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl(), props.getRegionCode()))
+					.build();
+		} else {	
+			return AmazonDynamoDBClientBuilder.standard()
+					.build();
+		}
 	}
 	
 	@Bean(name = "event")
 	public AmazonDynamoDB amazonDynamoDBEvent() {
-		System.out.println("test" + props.getEndpointUrl().concat("/").concat(amazonDynamoDBEndpointEvent));
-		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl().concat("/").concat(amazonDynamoDBEndpointEvent), props.getRegionCode()))
-				.build();
+		if (StringUtils.isNotBlank(props.getEndpointUrl()) && StringUtils.isNotBlank(props.getRegionCode())){
+			return AmazonDynamoDBClientBuilder.standard()
+					.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl(), props.getRegionCode()))
+					.build();
+		} else {	
+			return AmazonDynamoDBClientBuilder.standard()
+					.build();
+		}
 	}
 
 }
