@@ -18,6 +18,12 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 @EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
 @Profile("dev")
 public class DynamoDBConfigDev {
+	
+	public DynamoDBConfigDev(AwsConfig props) {
+		this.props = props;
+	}
+	
+	private final AwsConfig props;
 
 	@Value("${amazon.dynamodb.log.endpoint}")
 	private String amazonDynamoDBEndpointLog;

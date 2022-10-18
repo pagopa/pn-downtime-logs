@@ -10,11 +10,18 @@ import org.springframework.context.annotation.Profile;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 @Configuration
 @EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
-@Profile({"!dev", "!svil"})
+@Profile({"!dev & !svil"})
 public class DynamoDBConfigProd {
+	
+	public DynamoDBConfigProd(AwsConfig props) {
+		this.props = props;
+	}
+
+	private final AwsConfig props;
 
 	@Value("${amazon.dynamodb.log.endpoint}")
 	private String amazonDynamoDBEndpointLog;
@@ -27,18 +34,26 @@ public class DynamoDBConfigProd {
 	@Bean(name = "log")
 	@Primary
 	public AmazonDynamoDB amazonDynamoDBLog() {
-		System.out.println("test11");
-		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointLog, "us-east-1"))
-				.build();
+		if (StringUtils.isNotBlank(props.getEndpointUrl()) && StringUtils.isNotBlank(props.getRegionCode())){
+			return AmazonDynamoDBClientBuilder.standard()
+					.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl(), props.getRegionCode()))
+					.build();
+		} else {	
+			return AmazonDynamoDBClientBuilder.standard()
+					.build();
+		}
 	}
 	
 	@Bean(name = "event")
 	public AmazonDynamoDB amazonDynamoDBEvent() {
-		System.out.println("test11");
-		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(new EndpointConfiguration(amazonDynamoDBEndpointEvent, "us-east-1"))
-				.build();
+		if (StringUtils.isNotBlank(props.getEndpointUrl()) && StringUtils.isNotBlank(props.getRegionCode())){
+			return AmazonDynamoDBClientBuilder.standard()
+					.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl(), props.getRegionCode()))
+					.build();
+		} else {	
+			return AmazonDynamoDBClientBuilder.standard()
+					.build();
+		}
 	}
 
 }
