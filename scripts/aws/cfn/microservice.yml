@@ -182,7 +182,8 @@ Resources:
               - dynamodb:Query
               - dynamodb:TransactGetItems
               - dynamodb:TransactWriteItems
-              - dynamodb:UpdateItem              
+              - dynamodb:UpdateItem
+              - dynamodb:Scan
             Resource:
               - !Sub "${EventDynamoTableArn}"
               - !Sub "${EventDynamoTableArn}/*"
