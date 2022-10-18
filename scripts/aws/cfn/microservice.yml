@@ -173,16 +173,7 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - dynamodb:BatchGetItem
-              - dynamodb:BatchWriteItem
-              - dynamodb:ExecuteTransaction
-              - dynamodb:GetItem
-              - dynamodb:PutItem
-              - dynamodb:DeleteItem
-              - dynamodb:Query
-              - dynamodb:TransactGetItems
-              - dynamodb:TransactWriteItems
-              - dynamodb:UpdateItem              
+              - dynamodb:*
             Resource:
               - !Sub "${EventDynamoTableArn}"
               - !Sub "${EventDynamoTableArn}/*"
