@@ -38,6 +38,7 @@ Resources:
   Event:
     Type: "AWS::DynamoDB::Table"
     Properties:
+      TableName: Downtime-Event
       AttributeDefinitions:
         - AttributeName: uuid
           AttributeType: S
@@ -58,6 +59,7 @@ Resources:
   Log:
     Type: "AWS::DynamoDB::Table"
     Properties:
+      TableName: Downtime-DowntimeLogs
       AttributeDefinitions:
         - AttributeName: functionalityStartYear
           AttributeType: S
