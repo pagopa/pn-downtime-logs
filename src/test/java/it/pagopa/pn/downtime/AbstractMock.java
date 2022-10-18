@@ -20,7 +20,6 @@ import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
@@ -74,12 +73,8 @@ public abstract class AbstractMock {
 	RestTemplate client;
 
 	@MockBean
-	@Qualifier("logMapper")
-	private DynamoDBMapper mockDynamoDBMapperLog;
-	
-	@MockBean
-	@Qualifier("eventMapper")
-	private DynamoDBMapper mockDynamoDBMapperEvent;
+	private DynamoDBMapper mockDynamoDBMapper;
+
 	
 	@MockBean
 	SimpleMessageListenerContainer simpleMessageListenerContainer;
@@ -125,7 +120,7 @@ public abstract class AbstractMock {
 				getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-05-10T10:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_VISUALIZZATION, "EVENT_START", "akdoe-50403", null));
 
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
@@ -134,7 +129,7 @@ public abstract class AbstractMock {
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(DowntimeLogsService downtimeLogsService,
 			List<DowntimeLogs> downtimeLogsList) {
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
@@ -146,7 +141,7 @@ public abstract class AbstractMock {
 		downtimeLogsList
 				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
@@ -158,16 +153,16 @@ public abstract class AbstractMock {
 		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
 		listDowntimeLogs.add(dt);
 		scanPageDowntime.setResults(listDowntimeLogs);
-		Mockito.when(mockDynamoDBMapperLog.scanPage(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any()))
+		Mockito.when(mockDynamoDBMapper.scanPage(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any()))
 				.thenReturn(scanPageDowntime);
 	}
 
 	protected void mockSaveDowntime() {
-		Mockito.doNothing().when(mockDynamoDBMapperLog).save(Mockito.any(DowntimeLogs.class));
+		Mockito.doNothing().when(mockDynamoDBMapper).save(Mockito.any(DowntimeLogs.class));
 	}
 
 	protected void mockSaveEvent() {
-		Mockito.doNothing().when(mockDynamoDBMapperEvent).save(Mockito.any(Event.class));
+		Mockito.doNothing().when(mockDynamoDBMapper).save(Mockito.any(Event.class));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -182,7 +177,7 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_CREATE2022",
 				OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_CREATE,
 				"PAGO-PA-EVENT-C", "10DJAKDF", OffsetDateTime.parse("2022-01-25T10:56:07.000+00:00")));
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntime))));
@@ -200,7 +195,7 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022",
 				OffsetDateTime.parse("2022-01-23T02:56:07.000+00:00"), PnFunctionality.NOTIFICATION_WORKFLOW,
 				"PAGO-PA-EVENT", "123", OffsetDateTime.parse("2022-01-30T04:56:07.000+00:00")));
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntime))));
@@ -210,7 +205,7 @@ public abstract class AbstractMock {
 	protected void mockFindByFunctionalityAndEndDateIsNull(DowntimeLogs downtimeLogs) {
 		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
 		listDowntimeLogs.add(downtimeLogs);
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntimeLogs))));
@@ -225,7 +220,7 @@ public abstract class AbstractMock {
 
 		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
 		queryResult.setResults(list);
-		Mockito.when(mockDynamoDBMapperLog.queryPage(Mockito.eq(DowntimeLogs.class),
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
 
 	}
@@ -238,7 +233,7 @@ public abstract class AbstractMock {
 
 		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
 		queryResult.setResults(list);
-		Mockito.when(mockDynamoDBMapperLog.queryPage(Mockito.eq(DowntimeLogs.class),
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
 
 	}
@@ -254,7 +249,7 @@ public abstract class AbstractMock {
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
 		QueryResultPage<DowntimeLogs> queryResult2 = new QueryResultPage<>();
 		queryResult2.setResults(downtimeLogsList2);
-		Mockito.when(mockDynamoDBMapperLog.queryPage(Mockito.eq(DowntimeLogs.class),
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult1, queryResult2);
 	}
 

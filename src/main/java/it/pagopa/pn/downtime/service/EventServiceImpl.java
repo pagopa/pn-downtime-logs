@@ -53,16 +53,10 @@ public class EventServiceImpl implements EventService {
 	@Value("${amazon.sqs.end-point.acts-queue}")
 	private String url;
 
-	/** The dynamo DB mapper. Log */
+	/** The dynamo DB mapper. */
 	@Autowired
-	@Qualifier("logMapper")
-	private DynamoDBMapper dynamoDBMapperLog;
+	private DynamoDBMapper dynamoDBMapper;
 	
-	
-	/** The dynamo DB mapper. Event */
-	@Autowired
-	@Qualifier("eventMapper")
-	private DynamoDBMapper dynamoDBMapperEvent;
 
 	/**
 	 * Adds the status change event.
@@ -113,7 +107,7 @@ public class EventServiceImpl implements EventService {
 				.withFilterExpression("functionality = :functionality1").withScanIndexForward(false)
 				.withExpressionAttributeValues(eav1).withLimit(1);
 
-		return dynamoDBMapperLog.queryPage(DowntimeLogs.class, queryExpression);
+		return dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
 	}
 
 	/**
@@ -149,7 +143,7 @@ public class EventServiceImpl implements EventService {
 
 			dt.setEndDate(event.getTimestamp());
 			dt.setEndEventUuid(eventId);
-			dynamoDBMapperLog.save(dt);
+			dynamoDBMapper.save(dt);
 			producer.sendMessage(dt, url);
 		}
 
@@ -202,7 +196,7 @@ public class EventServiceImpl implements EventService {
 		event.setStatus(status);
 		event.setSourceType(sourceType);
 		event.setSource(source);
-		dynamoDBMapperEvent.save(event);
+		dynamoDBMapper.save(event);
 		return event.getUuid();
 	}
 
