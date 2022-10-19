@@ -37,7 +37,7 @@ public class MockControllerTest extends AbstractMock {
 	public void callCheckHealtcheck() throws Exception {
 		// when
 		MockHttpServletResponse response = mvc
-				.perform(get("/healtcheck").accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
+				.perform(get("/healthcheck").accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
 		// then
 				assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
