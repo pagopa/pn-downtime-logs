@@ -1,0 +1,8 @@
+{
+  "UserAttributes": [
+    {
+      "Name": "custom:log_identifier",
+      "Value": "TEST"
+    }
+  ]
+}

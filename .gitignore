@@ -34,3 +34,4 @@ build/
 .history
 .vscode
 target
+/bin/
