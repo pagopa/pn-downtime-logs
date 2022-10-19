@@ -11,7 +11,7 @@ import it.pagopa.pn.downtime.pn_downtime_logs.api.HealtcheckApi;
 public class HeathCheckController implements HealtcheckApi{
 	
 	@Override
-    public ResponseEntity<Void> healtcheck() {
+    public ResponseEntity<Void> healthcheck() {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
