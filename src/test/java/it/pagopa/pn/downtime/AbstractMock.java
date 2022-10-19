@@ -72,7 +72,7 @@ public abstract class AbstractMock {
 
 	@Autowired
 	MockMvc mvc;
-	
+
 	@Mock
 	DeanonimizationApiHandler deanonimizationApiHandler;
 	@Autowired
@@ -83,7 +83,7 @@ public abstract class AbstractMock {
 
 	@MockBean
 	private DynamoDBMapper mockDynamoDBMapper;
-	
+
 	@MockBean
 	@Qualifier("simpleRestTemplate")
 	RestTemplate clientSimpleRestTemplate;
@@ -108,6 +108,8 @@ public abstract class AbstractMock {
 	private Resource mockMessageActsQueue;
 	@Value("classpath:data/authresponse.json")
 	private Resource authResponse;
+	@Value("classpath:data/authResponseNull.json")
+	private Resource authResponseNull;
 
 	public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(),
 			MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
@@ -130,15 +132,26 @@ public abstract class AbstractMock {
 				.thenReturn(getStringFromResourse(authResponse));
 	}
 
-	@SuppressWarnings("unchecked")
-	protected void mockTaxCodeForPersonResponseNull() throws DowntimeException {
-		Mockito.when(clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class))).thenReturn(null);
-	}
-
 	protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
 		Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
 	}
-
+	@SuppressWarnings("unchecked")
+    protected void mockMissingUniqueIdentifierForPerson() throws RestClientException, IOException {
+        String userAttributes = getStringFromResourse(authResponseNull);
+        // The first return is used to simulate authentication
+        Mockito.when(
+                clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+                .thenReturn(userAttributes);
+    }
+	
+    @SuppressWarnings("unchecked")
+	protected void mockTaxCodeForPersonResponseNull() throws DowntimeException, RestClientException, IOException {
+        String response = null;
+        Mockito.when(
+                clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+                .thenReturn(getStringFromResourse(authResponse), response);
+    }
+    
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndStartDateBetween() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
@@ -176,7 +189,6 @@ public abstract class AbstractMock {
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
 	}
 
-
 	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
 		ScanResultPage<DowntimeLogs> scanPageDowntime = new ScanResultPage<>();
 		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
@@ -193,7 +205,7 @@ public abstract class AbstractMock {
 	protected void mockSaveEvent() {
 		Mockito.doNothing().when(mockDynamoDBMapper).save(Mockito.any(Event.class));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndStartDateAfter() {
 		List<DowntimeLogs> listDowntime = new ArrayList<>();
@@ -362,7 +374,6 @@ public abstract class AbstractMock {
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
 						"403 Forbidden: [{\"resultDescription\": \"Unauthorized\", \"errorList\": [\"client is not allowed to read doc type PROVA\"], \"resultCode\": \"403.00\"}]"));
 	}
-
 
 	@SuppressWarnings("unchecked")
 	protected void mockAddStatusChange_KO(RestTemplate client) {
