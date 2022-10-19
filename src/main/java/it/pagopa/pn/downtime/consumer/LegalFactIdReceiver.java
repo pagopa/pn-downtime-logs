@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -27,8 +26,7 @@ public class LegalFactIdReceiver {
 	
 	/** The dynamo DB mapper. Log */
 	@Autowired
-	@Qualifier("logMapper")
-	private DynamoDBMapper dynamoDBMapperLog;
+	private DynamoDBMapper dynamoDBMapper;
 
 	@Autowired
 	ObjectMapper mapper;
@@ -48,11 +46,11 @@ public class LegalFactIdReceiver {
 			    .withFilterExpression("legalFactId =:legalFact1")
 			    .withExpressionAttributeValues(eav1).withLimit(1);
 		
-		List<DowntimeLogs> logs = dynamoDBMapperLog.scanPage(DowntimeLogs.class, scanExpression).getResults();
+		List<DowntimeLogs> logs = dynamoDBMapper.scanPage(DowntimeLogs.class, scanExpression).getResults();
 	
 		if (logs != null && !logs.isEmpty()) {
 			logs.get(0).setFileAvailable(true);
-			dynamoDBMapperLog.save(logs.get(0));
+			dynamoDBMapper.save(logs.get(0));
 		}
 	  }
 	}

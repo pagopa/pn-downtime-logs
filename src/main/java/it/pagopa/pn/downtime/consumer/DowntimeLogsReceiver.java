@@ -29,8 +29,7 @@ public class DowntimeLogsReceiver {
 	
 	/** The dynamo DB mapper. Log */
 	@Autowired
-	@Qualifier("logMapper")
-	private DynamoDBMapper dynamoDBMapperLog;
+	private DynamoDBMapper dynamoDBMapper;
 	
 	/**
 	 * Receive string message from a sqs queue which will be used for the legal fact generation .
@@ -44,6 +43,6 @@ public class DowntimeLogsReceiver {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
 		log.info("message received in Acts queue {}", downtimeLog.toString());
 		downtimeLog = legalFactService.generateLegalFact(downtimeLog);
-		dynamoDBMapperLog.save(downtimeLog);
+		dynamoDBMapper.save(downtimeLog);
 		}
 	}

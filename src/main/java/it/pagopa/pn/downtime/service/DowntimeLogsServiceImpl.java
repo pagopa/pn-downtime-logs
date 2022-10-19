@@ -46,8 +46,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
 	/** The dynamo DB mapper. Log */
 	@Autowired
-	@Qualifier("logMapper")
-	private DynamoDBMapper dynamoDBMapperLog;
+	private DynamoDBMapper dynamoDBMapper;
 
 	/** The downtime logs mapper. */
 	@Autowired
@@ -145,7 +144,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 							+ ") and  (startDate BETWEEN :startDate1 AND :endDate1 or  endDate BETWEEN :startDate1 AND :endDate1)")
 					.withExpressionAttributeValues(eav1);
 
-			listHistory = dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
+			listHistory = dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
 
 		} else {
 			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
@@ -153,7 +152,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 							+ ") and  (startDate > :startDate1  or endDate > :startDate1 and startDate < :startDate1 )")
 					.withExpressionAttributeValues(eav1);
 
-			listHistory = dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
+			listHistory = dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
 
 		}
 
@@ -176,7 +175,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 					.withFilterExpression("functionality =:functionality1 and  attribute_not_exists(endDate) ")
 					.withExpressionAttributeValues(eav1);
 
-			List<DowntimeLogs> logs = dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
+			List<DowntimeLogs> logs = dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
 
 			if (logs != null && !logs.isEmpty() && PnFunctionalityStatus.KO.equals(logs.get(0).getStatus())) {
 				PnDowntimeEntry incident = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(logs.get(0));
@@ -211,7 +210,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		downtimeLogs.setFunctionality(functionality);
 		downtimeLogs.setUuid(uuid);
 		downtimeLogs.setFileAvailable(false);
-		dynamoDBMapperLog.save(downtimeLogs);
+		dynamoDBMapper.save(downtimeLogs);
 	}
 
 	@Override
@@ -219,6 +218,6 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
 				.withFilterExpression("attribute_not_exists(legalFactId) and  attribute_exists(endDate) ");
 
-		return dynamoDBMapperLog.parallelScan(DowntimeLogs.class, scanExpression, 3);
+		return dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
 	}
 }

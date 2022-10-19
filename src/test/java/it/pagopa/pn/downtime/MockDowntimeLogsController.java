@@ -313,7 +313,6 @@ public class MockDowntimeLogsController extends AbstractMock {
 	
 	@Test
 	public void test_CheckAddStatusChangeTaxIdError() throws Exception {
-		mockUniqueIdentifierForPerson();
 		mockAddStatusChange_OK(client);
 		mockTaxCodeForPersonResponseNull();
 		mockFindByFunctionalityAndStartDateLessThanEqualWithEndDate();
@@ -322,9 +321,23 @@ public class MockDowntimeLogsController extends AbstractMock {
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
 				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
-				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK").header("Auth", fakeHeader)).andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
 	}
+	
+	@Test
+    public void test_CheckAddStatusChangeMissingUIAttributes() throws Exception {
+        mockAddStatusChange_OK(client);
+        mockMissingUniqueIdentifierForPerson();
+        mockFindByFunctionalityAndStartDateLessThanEqualWithEndDate();
+        List<PnFunctionality> pnFunctionality = new ArrayList<>();
+        pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
+        String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
+                pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
+        MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
+                .contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK").header("Auth", fakeHeader)).andReturn().getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    }
 	
 	@Test
 	public void test_CloudwatchMapper() {

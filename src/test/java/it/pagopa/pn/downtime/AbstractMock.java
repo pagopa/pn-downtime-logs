@@ -72,7 +72,7 @@ public abstract class AbstractMock {
 
 	@Autowired
 	MockMvc mvc;
-	
+
 	@Mock
 	DeanonimizationApiHandler deanonimizationApiHandler;
 	@Autowired
@@ -82,16 +82,11 @@ public abstract class AbstractMock {
 	RestTemplate client;
 
 	@MockBean
+	private DynamoDBMapper mockDynamoDBMapper;
+
+	@MockBean
 	@Qualifier("simpleRestTemplate")
 	RestTemplate clientSimpleRestTemplate;
-
-	@MockBean
-	@Qualifier("logMapper")
-	private DynamoDBMapper mockDynamoDBMapperLog;
-
-	@MockBean
-	@Qualifier("eventMapper")
-	private DynamoDBMapper mockDynamoDBMapperEvent;
 
 	@MockBean
 	SimpleMessageListenerContainer simpleMessageListenerContainer;
@@ -113,6 +108,8 @@ public abstract class AbstractMock {
 	private Resource mockMessageActsQueue;
 	@Value("classpath:data/authresponse.json")
 	private Resource authResponse;
+	@Value("classpath:data/authResponseNull.json")
+	private Resource authResponseNull;
 
 	public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(),
 			MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
@@ -135,23 +132,26 @@ public abstract class AbstractMock {
 				.thenReturn(getStringFromResourse(authResponse));
 	}
 
-	@SuppressWarnings("unchecked")
-	protected void mockTaxCodeForPersonResponseNull() throws DowntimeException {
-		Mockito.when(clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class))).thenReturn(null);
-	}
-
-	protected void mockSaveDowntime() {
-		Mockito.doNothing().when(mockDynamoDBMapperLog).save(Mockito.any(DowntimeLogs.class));
-	}
-
-	protected void mockSaveEvent() {
-		Mockito.doNothing().when(mockDynamoDBMapperEvent).save(Mockito.any(Event.class));
-	}
-
 	protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
 		Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
 	}
-
+	@SuppressWarnings("unchecked")
+    protected void mockMissingUniqueIdentifierForPerson() throws RestClientException, IOException {
+        String userAttributes = getStringFromResourse(authResponseNull);
+        // The first return is used to simulate authentication
+        Mockito.when(
+                clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+                .thenReturn(userAttributes);
+    }
+	
+    @SuppressWarnings("unchecked")
+	protected void mockTaxCodeForPersonResponseNull() throws DowntimeException, RestClientException, IOException {
+        String response = null;
+        Mockito.when(
+                clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+                .thenReturn(getStringFromResourse(authResponse), response);
+    }
+    
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndStartDateBetween() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
@@ -162,7 +162,7 @@ public abstract class AbstractMock {
 				getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-05-10T10:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_VISUALIZZATION, "EVENT_START", "akdoe-50403", null));
 
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
@@ -171,7 +171,7 @@ public abstract class AbstractMock {
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(DowntimeLogsService downtimeLogsService,
 			List<DowntimeLogs> downtimeLogsList) {
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
@@ -180,13 +180,30 @@ public abstract class AbstractMock {
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
-		downtimeLogsList.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022",
-				OffsetDateTime.parse("2022-01-18T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_WORKFLOW,
-				"EVENT_START", "akdoe-50403", OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00")));
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		downtimeLogsList
+				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
+	}
+
+	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
+		ScanResultPage<DowntimeLogs> scanPageDowntime = new ScanResultPage<>();
+		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
+		listDowntimeLogs.add(dt);
+		scanPageDowntime.setResults(listDowntimeLogs);
+		Mockito.when(mockDynamoDBMapper.scanPage(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any()))
+				.thenReturn(scanPageDowntime);
+	}
+
+	protected void mockSaveDowntime() {
+		Mockito.doNothing().when(mockDynamoDBMapper).save(Mockito.any(DowntimeLogs.class));
+	}
+
+	protected void mockSaveEvent() {
+		Mockito.doNothing().when(mockDynamoDBMapper).save(Mockito.any(Event.class));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -201,7 +218,7 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_CREATE2022",
 				OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_CREATE,
 				"PAGO-PA-EVENT-C", "10DJAKDF", OffsetDateTime.parse("2022-01-25T10:56:07.000+00:00")));
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntime))));
@@ -219,7 +236,7 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022",
 				OffsetDateTime.parse("2022-01-23T02:56:07.000+00:00"), PnFunctionality.NOTIFICATION_WORKFLOW,
 				"PAGO-PA-EVENT", "123", OffsetDateTime.parse("2022-01-30T04:56:07.000+00:00")));
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntime))));
@@ -229,7 +246,7 @@ public abstract class AbstractMock {
 	protected void mockFindByFunctionalityAndEndDateIsNull(DowntimeLogs downtimeLogs) {
 		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
 		listDowntimeLogs.add(downtimeLogs);
-		Mockito.when(mockDynamoDBMapperLog.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
 				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntimeLogs))));
@@ -244,7 +261,7 @@ public abstract class AbstractMock {
 
 		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
 		queryResult.setResults(list);
-		Mockito.when(mockDynamoDBMapperLog.queryPage(Mockito.eq(DowntimeLogs.class),
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
 
 	}
@@ -257,7 +274,7 @@ public abstract class AbstractMock {
 
 		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
 		queryResult.setResults(list);
-		Mockito.when(mockDynamoDBMapperLog.queryPage(Mockito.eq(DowntimeLogs.class),
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
 
 	}
@@ -273,7 +290,7 @@ public abstract class AbstractMock {
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
 		QueryResultPage<DowntimeLogs> queryResult2 = new QueryResultPage<>();
 		queryResult2.setResults(downtimeLogsList2);
-		Mockito.when(mockDynamoDBMapperLog.queryPage(Mockito.eq(DowntimeLogs.class),
+		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
 				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult1, queryResult2);
 	}
 
@@ -356,15 +373,6 @@ public abstract class AbstractMock {
 				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<Object>>any()))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
 						"403 Forbidden: [{\"resultDescription\": \"Unauthorized\", \"errorList\": [\"client is not allowed to read doc type PROVA\"], \"resultCode\": \"403.00\"}]"));
-	}
-
-	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
-		ScanResultPage<DowntimeLogs> scanPageDowntime = new ScanResultPage<>();
-		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
-		listDowntimeLogs.add(dt);
-		scanPageDowntime.setResults(listDowntimeLogs);
-		Mockito.when(mockDynamoDBMapperLog.scanPage(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any()))
-				.thenReturn(scanPageDowntime);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -5,7 +5,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,16 +43,12 @@ public class BeanConfiguration {
 		return new RestTemplate();
 	}
 
-	@Bean(name = "logMapper")
+	@Bean
 	@Primary
-	public DynamoDBMapper amazonDBMapperLogs(@Autowired @Qualifier("log") AmazonDynamoDB amazonDynamoDB) {
+	public DynamoDBMapper amazonDBMapperLogs(@Autowired AmazonDynamoDB amazonDynamoDB) {
 		return new DynamoDBMapper(amazonDynamoDB);
 	}
 
-	@Bean(name = "eventMapper")
-	public DynamoDBMapper amazonDBMapperEvent(@Autowired @Qualifier("event") AmazonDynamoDB amazonDynamoDB) {
-		return new DynamoDBMapper(amazonDynamoDB);
-	}
 	
 	@Bean
 	public ObjectMapper getObjectMapper() {
