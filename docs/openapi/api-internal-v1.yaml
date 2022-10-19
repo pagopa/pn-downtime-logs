@@ -40,13 +40,13 @@ paths:
     ###                           API DI STATO RICHIESTE DA AGID                           ###
     ##########################################################################################
   
-  "/healtcheck":
+  "/healthcheck":
     get:
       summary: healthCheck path
       description: health check path per verificare lo stato del micro servizio
       tags:
         - HealthCheck
-      operationId: healtcheck
+      operationId: healthcheck
       responses:
         '200':
           description: Ok
