@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -119,11 +119,13 @@ public class EventServiceImpl implements EventService {
 	 * @param xPagopaPnUid  the x pagopa pn uid
 	 * @param dt            the previous downtime for the given functionality
 	 */
+
 	public void checkCreateDowntime(PnFunctionality functionality, String eventId, PnStatusUpdateEvent event,
 			String xPagopaPnUid, DowntimeLogs dt) {
 		if ((dt != null && event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null
 				&& dt.getEndDate().compareTo(event.getTimestamp()) <= 0)
 				|| (dt == null && event.getStatus().equals(PnFunctionalityStatus.KO))) {
+			
 			downtimeLogsService.saveDowntimeLogs(
 					functionality.getValue().concat(event.getTimestamp().toString().substring(0, 4)),
 					event.getTimestamp(), functionality, eventId, xPagopaPnUid);
@@ -140,7 +142,7 @@ public class EventServiceImpl implements EventService {
 	 */
 	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt) throws IOException {
 		if (dt != null && !event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
-
+			
 			dt.setEndDate(event.getTimestamp());
 			dt.setEndEventUuid(eventId);
 			dynamoDBMapper.save(dt);
@@ -166,8 +168,9 @@ public class EventServiceImpl implements EventService {
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK) && dt.getEndDate() != null) {
 			log.error("Error creating event!");
 		} else {
+			/** Settare l'uuid dell'utente*/
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,
-					event.getStatus(), event.getSourceType(), event.getSource());
+					event.getStatus(), event.getSourceType(), event.getSource(), MDC.get("user_identifier"));
 		}
 
 		checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
@@ -187,7 +190,7 @@ public class EventServiceImpl implements EventService {
 	 * @return the string
 	 */
 	public String saveEvent(OffsetDateTime timestamp, String yearMonth, PnFunctionality functionality,
-			PnFunctionalityStatus status, SourceTypeEnum sourceType, String source) {
+			PnFunctionalityStatus status, SourceTypeEnum sourceType, String source, String uuid) {
 		log.info("addStatusChangeEvent");
 		Event event = new Event();
 		event.setTimestamp(timestamp);
@@ -196,8 +199,9 @@ public class EventServiceImpl implements EventService {
 		event.setStatus(status);
 		event.setSourceType(sourceType);
 		event.setSource(source);
+		event.setUuid(uuid);
 		dynamoDBMapper.save(event);
-		return event.getUuid();
+		return event.getIdEvent();
 	}
 
 }

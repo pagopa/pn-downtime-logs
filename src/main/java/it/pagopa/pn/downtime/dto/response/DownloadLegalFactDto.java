@@ -2,6 +2,7 @@ package it.pagopa.pn.downtime.dto.response;
 
 import java.math.BigDecimal;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import lombok.Setter;
  * @param retryAfter the new retry after
  */
 @Setter
-
+@Getter
 /**
  * Instantiates a new download legal fact dto.
  */

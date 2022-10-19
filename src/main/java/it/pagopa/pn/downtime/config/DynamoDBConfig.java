@@ -22,12 +22,6 @@ public class DynamoDBConfig {
 	}
 
 	private final AwsConfig props;
-
-	@Value("${amazon.dynamodb.log.endpoint}")
-	private String amazonDynamoDBEndpointLog;
-	
-	@Value("${amazon.dynamodb.event.endpoint}")
-	private String amazonDynamoDBEndpointEvent;
 	
 	@Value("${amazon.dynamodb.accesskey}")
 	private String amazonAWSAccessKey;
