@@ -175,7 +175,11 @@
 			<artifactId>jsr305</artifactId>
 			<version>3.0.2</version>
 		</dependency>
-
+		<dependency>
+		    <groupId>it.pagopa.pn</groupId>
+		    <artifactId>pn-commons</artifactId>
+		    <version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
