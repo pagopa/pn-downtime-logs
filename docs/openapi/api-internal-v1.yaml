@@ -39,6 +39,19 @@ paths:
     ##########################################################################################
     ###                           API DI STATO RICHIESTE DA AGID                           ###
     ##########################################################################################
+  
+  "/healtcheck":
+    get:
+      summary: healthCheck path
+      description: health check path per verificare lo stato del micro servizio
+      tags:
+        - HealthCheck
+      operationId: healtcheck
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error  
   "/status":
     get:
       summary: healthCheck path
@@ -48,8 +61,6 @@ paths:
           - status 500 se la piattaforma ha un funzionamento degradato. <br/>
         Il body e lasciato libero quindi utilizziamo quanto già definito per il path 
         /downtime/status
-      tags:
-        - HealthCheck
       operationId: status
       responses:
         '200':
