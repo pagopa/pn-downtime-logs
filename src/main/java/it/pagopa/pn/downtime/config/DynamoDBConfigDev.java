@@ -19,13 +19,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 @Profile("dev")
 public class DynamoDBConfigDev {
 	
-	public DynamoDBConfigDev(AwsConfig props) {
-		this.props = props;
-	}
-	
-	private final AwsConfig props;
-
-	@Value("${amazon.dynamodb.log.endpoint}")
 	private String amazonDynamoDBEndpointLog;
 	
 	@Value("${amazon.dynamodb.event.endpoint}")

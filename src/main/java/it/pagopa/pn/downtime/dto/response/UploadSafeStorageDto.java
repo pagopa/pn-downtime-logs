@@ -1,5 +1,6 @@
 package it.pagopa.pn.downtime.dto.response;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -9,7 +10,7 @@ import lombok.Setter;
  * @param resultCode the new result code
  */
 @Setter
-
+@Getter
 /**
  * Instantiates a new upload safe storage dto.
  */
