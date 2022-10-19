@@ -152,6 +152,7 @@ Resources:
         ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'     
         ContainerEnvEntry14: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
         ContainerEnvEntry15: !Sub 'PN_DOWNTIMELOGS_CORS_ORIGIN_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry16: !Sub 'PN_DOWNTIMELOGS_COGNITO_GET_USER_ENDPOINT=${CognitoUrl}'
         MappedPaths: '/downtime/*,/downtime-internal/*,/status'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
