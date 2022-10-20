@@ -123,6 +123,9 @@ Parameters:
     
   CognitoUrl:
     Type: String    
+
+  EnsureRecipientByUrl:
+    Type: String 
   
   LogsKinesisSourceStreamArn:
     Type: String
@@ -156,6 +159,7 @@ Resources:
         ContainerEnvEntry14: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
         ContainerEnvEntry15: !Sub 'PN_DOWNTIMELOGS_CORS_ORIGIN_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry16: !Sub 'PN_DOWNTIMELOGS_COGNITO_GET_USER_ENDPOINT=${CognitoUrl}'
+        ContainerEnvEntry17: !Sub 'PN_DOWNTIMELOGS_ENSURE_RECIPIENT_BY_EXTERNAL_ID_URL=${EnsureRecipientByUrl}'
         MappedPaths: '/downtime/*,/downtime-internal/*,/status'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds

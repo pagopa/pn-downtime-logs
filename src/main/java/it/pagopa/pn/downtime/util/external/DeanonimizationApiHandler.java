@@ -36,9 +36,8 @@ public class DeanonimizationApiHandler {
 	 * @throws DowntimeException
 	 */
 	public String getUniqueIdentifierForPerson(RecipientTypes recipientType, String taxId) throws DowntimeException {
-		String url = String.format(getUniqueIdURL, recipientType.toString());
 		HttpEntity<String> request =  new HttpEntity<>(taxId);
-		String response = client.postForObject(url, request, String.class);
+		String response = client.postForObject(getUniqueIdURL, request, String.class);
 		if(StringUtils.isBlank(response) || "null".equalsIgnoreCase(response)) {
 			throw new DowntimeException("Anonymized tax id is null");
 		}
