@@ -59,7 +59,7 @@ public class CloudwatchReceiver {
 		MessageCloudwatch messageCloudwatch = mapper.readValue(message, MessageCloudwatch.class);
 		Alarm alarm = mapper.readValue(messageCloudwatch.getMessage(), Alarm.class);
 
-		if (Objects.nonNull(messageCloudwatch) && Objects.nonNull(messageCloudwatch.getMessage())) {
+		if (Objects.nonNull(messageCloudwatch.getMessage())) {
 			PnStatusUpdateEvent pnStatusUpdateEvent = cloudwatchMapper.alarmToPnStatusUpdateEvent(alarm);
 			if (!pnStatusUpdateEvent.getFunctionality().isEmpty()) {
 				List<PnStatusUpdateEvent> listEvent = new ArrayList<>();

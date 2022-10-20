@@ -2,13 +2,11 @@ package it.pagopa.pn.downtime.util.external;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import it.pagopa.pn.downtime.dto.RecipientTypes;
 import it.pagopa.pn.downtime.exceptions.DowntimeException;
 
 
@@ -19,7 +17,6 @@ import it.pagopa.pn.downtime.exceptions.DowntimeException;
 public class DeanonimizationApiHandler {
 
 	@Autowired
-	@Qualifier("simpleRestTemplate")
 	RestTemplate client;
 	
 	@Value("${external.denomination.ensureRecipientByExternalId.url}")
@@ -35,7 +32,7 @@ public class DeanonimizationApiHandler {
 	 * @return
 	 * @throws DowntimeException
 	 */
-	public String getUniqueIdentifierForPerson(RecipientTypes recipientType, String taxId) throws DowntimeException {
+	public String getUniqueIdentifierForPerson(String taxId) throws DowntimeException {
 		HttpEntity<String> request =  new HttpEntity<>(taxId);
 		String response = client.postForObject(getUniqueIdURL, request, String.class);
 		if(StringUtils.isBlank(response) || "null".equalsIgnoreCase(response)) {
