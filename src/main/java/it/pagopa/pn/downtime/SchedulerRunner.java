@@ -21,6 +21,6 @@ public class SchedulerRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-       jobScheduler.startLegalFactIdJob();;
+       jobScheduler.startLegalFactIdJob();
     }
 }

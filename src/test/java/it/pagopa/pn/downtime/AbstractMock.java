@@ -85,10 +85,6 @@ public abstract class AbstractMock {
 	private DynamoDBMapper mockDynamoDBMapper;
 
 	@MockBean
-	@Qualifier("simpleRestTemplate")
-	RestTemplate clientSimpleRestTemplate;
-
-	@MockBean
 	SimpleMessageListenerContainer simpleMessageListenerContainer;
 
 	@Autowired
@@ -128,7 +124,7 @@ public abstract class AbstractMock {
 	protected void mockUniqueIdentifierForPerson() throws RestClientException, IOException {
 		// The first return is used to simulate authentication
 		Mockito.when(
-				clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+				client.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
 				.thenReturn(getStringFromResourse(authResponse));
 	}
 
@@ -140,7 +136,7 @@ public abstract class AbstractMock {
         String userAttributes = getStringFromResourse(authResponseNull);
         // The first return is used to simulate authentication
         Mockito.when(
-                clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+        		client.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
                 .thenReturn(userAttributes);
     }
 	
@@ -148,7 +144,7 @@ public abstract class AbstractMock {
 	protected void mockTaxCodeForPersonResponseNull() throws DowntimeException, RestClientException, IOException {
         String response = null;
         Mockito.when(
-                clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+        		client.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
                 .thenReturn(getStringFromResourse(authResponse), response);
     }
     

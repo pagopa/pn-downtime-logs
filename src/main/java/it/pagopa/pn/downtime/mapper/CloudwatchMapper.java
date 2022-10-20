@@ -46,17 +46,4 @@ public interface CloudwatchMapper {
 		return pnFunctionalityStatus;
 	}
 	
-//	@Named("toTime")
-//	default OffsetDateTime dimensionsToPnFunctionality(String stateChangeTime) {
-//		return OffsetDateTime.parse(stateChangeTime);
-//	}
-	
-//	@Named("dimensions")
-//	default List<PnFunctionality> dimensionsToPnFunctionality(List<Dimensions> dimension) {
-//		List<PnFunctionality> listFunctionality = new ArrayList<>();
-//		for (Dimensions d : dimension) {
-//			listFunctionality.add(d.getValue());
-//		}
-//		return listFunctionality;
-//	}
 }
