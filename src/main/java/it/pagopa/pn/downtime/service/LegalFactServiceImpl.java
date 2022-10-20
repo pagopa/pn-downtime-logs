@@ -1,6 +1,7 @@
 package it.pagopa.pn.downtime.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -119,9 +120,9 @@ public class LegalFactServiceImpl implements LegalFactService {
 		fileApi.setApiClient(api);
 		FileDownloadResponse response = fileApi.getFile(legalFactId, PAGOPA_SAFESTORAGE_HEADER_VALUE, false);	
 		LegalFactDownloadMetadataResponse legalFactResponse = new LegalFactDownloadMetadataResponse();
-		legalFactResponse.setContentLength(Optional.ofNullable(response.getContentLength()).map(contentLength -> contentLength.intValue()).orElse(null));
+		legalFactResponse.setContentLength(Optional.ofNullable(response.getContentLength()).map(BigDecimal::intValue).orElse(null));
 		legalFactResponse.setUrl(response.getDownload().getUrl());
-		legalFactResponse.setRetryAfter(Optional.ofNullable(response.getDownload().getRetryAfter()).map(retry -> retry.intValue()).orElse(null));
+		legalFactResponse.setRetryAfter(Optional.ofNullable(response.getDownload().getRetryAfter()).map(BigDecimal::intValue).orElse(null));
 		log.info("Response: " + legalFactResponse.toString());
 		return legalFactResponse;
 	}

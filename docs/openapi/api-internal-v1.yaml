@@ -70,7 +70,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PnStatusResponse"
               example:
-                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
                 openIncidents: []
         '500':
           description: Internal Server Error
@@ -79,7 +79,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PnStatusResponse"
               example:
-                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
                 openIncidents:
                   - functionality: NOTIFICATION_CREATE
                     status: KO
@@ -111,7 +111,7 @@ paths:
               schema:
                   $ref: "#/components/schemas/PnStatusResponse"
               example:
-                - functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZZATION,NOTIFICATION_WORKFLOW]
+                - functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
                   openIncidents:
                     - functionality: NOTIFICATION_CREATE
                       status: KO
@@ -390,17 +390,17 @@ components:
       description: >-
         - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
 
-        - __NOTIFICATION_VISUALIZZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
+        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
 
         - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
       type: string       
       enum:
         - NOTIFICATION_CREATE
-        - NOTIFICATION_VISUALIZZATION
+        - NOTIFICATION_VISUALIZATION
         - NOTIFICATION_WORKFLOW  
       x-enum-varnames:
         - NOTIFICATION_CREATE
-        - NOTIFICATION_VISUALIZZATION
+        - NOTIFICATION_VISUALIZATION
         - NOTIFICATION_WORKFLOW 
         
     PnFunctionalityStatus:

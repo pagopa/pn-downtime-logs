@@ -69,7 +69,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		List<PnFunctionality> functionality = new ArrayList<>();
 		functionality.add(PnFunctionality.NOTIFICATION_CREATE);
 		functionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
-		functionality.add(PnFunctionality.NOTIFICATION_VISUALIZZATION);
+		functionality.add(PnFunctionality.NOTIFICATION_VISUALIZATION);
 		MockHttpServletResponse response = null;
 		if (!toTime) {
 			response = mvc

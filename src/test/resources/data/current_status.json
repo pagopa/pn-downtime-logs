@@ -1,7 +1,7 @@
 {
   "functionalities": [
     "NOTIFICATION_CREATE",
-    "NOTIFICATION_VISUALIZZATION",
+    "NOTIFICATION_VISUALIZATION",
     "NOTIFICATION_WORKFLOW"
   ],
   "openIncidents": []

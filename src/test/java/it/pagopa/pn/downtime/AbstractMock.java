@@ -85,10 +85,6 @@ public abstract class AbstractMock {
 	private DynamoDBMapper mockDynamoDBMapper;
 
 	@MockBean
-	@Qualifier("simpleRestTemplate")
-	RestTemplate clientSimpleRestTemplate;
-
-	@MockBean
 	SimpleMessageListenerContainer simpleMessageListenerContainer;
 
 	@Autowired
@@ -128,7 +124,7 @@ public abstract class AbstractMock {
 	protected void mockUniqueIdentifierForPerson() throws RestClientException, IOException {
 		// The first return is used to simulate authentication
 		Mockito.when(
-				clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+				client.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
 				.thenReturn(getStringFromResourse(authResponse));
 	}
 
@@ -140,7 +136,7 @@ public abstract class AbstractMock {
         String userAttributes = getStringFromResourse(authResponseNull);
         // The first return is used to simulate authentication
         Mockito.when(
-                clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+        		client.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
                 .thenReturn(userAttributes);
     }
 	
@@ -148,7 +144,7 @@ public abstract class AbstractMock {
 	protected void mockTaxCodeForPersonResponseNull() throws DowntimeException, RestClientException, IOException {
         String response = null;
         Mockito.when(
-                clientSimpleRestTemplate.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
+        		client.postForObject(Mockito.anyString(), Mockito.any(), Mockito.any(Class.class)))
                 .thenReturn(getStringFromResourse(authResponse), response);
     }
     
@@ -160,7 +156,7 @@ public abstract class AbstractMock {
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403", null));
 		downtimeLogsList.add(
 				getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-05-10T10:55:15.995Z"),
-						PnFunctionality.NOTIFICATION_VISUALIZZATION, "EVENT_START", "akdoe-50403", null));
+						PnFunctionality.NOTIFICATION_VISUALIZATION, "EVENT_START", "akdoe-50403", null));
 
 		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt()))
@@ -213,7 +209,7 @@ public abstract class AbstractMock {
 				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-02-24T08:56:07.000+00:00"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "PAGO-PA-EVENT-W", "123", null));
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022",
-				OffsetDateTime.parse("2022-01-28T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_VISUALIZZATION,
+				OffsetDateTime.parse("2022-01-28T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_VISUALIZATION,
 				"PAGO-PA-EVENT-V", "12345", OffsetDateTime.parse("2022-01-30T04:56:07.000+00:00")));
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_CREATE2022",
 				OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_CREATE,

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -126,7 +125,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
 		Map<String, AttributeValue> eav1 = new HashMap<>();
 
-		List<String> values = functionality.stream().map(fu -> fu.getValue()).collect(Collectors.toList());
+		List<String> values = functionality.stream().map(PnFunctionality::getValue).collect(Collectors.toList());
 
 		String expression = "";
 		for (String s : values) {

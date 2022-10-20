@@ -1,17 +1,16 @@
 package it.pagopa.pn.downtime.util.external;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import it.pagopa.pn.downtime.dto.RecipientTypes;
 import it.pagopa.pn.downtime.exceptions.DowntimeException;
 import it.pagopa.pn.downtime.util.Constants;
 
@@ -24,7 +23,6 @@ import it.pagopa.pn.downtime.util.Constants;
 public class CognitoApiHandler {
 
 	@Autowired
-	@Qualifier("simpleRestTemplate")
 	RestTemplate client;
 	
 	@Value("${external.aws.cognito.user.url}")
@@ -50,7 +48,7 @@ public class CognitoApiHandler {
         HttpEntity<String> request = new HttpEntity<>(requestBody.toString(), requestHeaders);
         String response = client.postForObject(cognitoUserUrl, request, String.class);
         String identifier = getUserUniqueIdentifier(response);
-        return deanonimizationHandler.getUniqueIdentifierForPerson(RecipientTypes.PF, identifier);
+        return deanonimizationHandler.getUniqueIdentifierForPerson(identifier);
 	}
 	
 	/**

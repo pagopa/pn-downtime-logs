@@ -27,10 +27,4 @@ public class Alarm {
 	@JsonProperty("StateChangeTime")
 	private OffsetDateTime stateChangeTime;
 
-//	@JsonProperty("OldStateValue")
-//	private String oldStateValue;
-
-//	@JsonProperty("Trigger")
-//	private Trigger trigger;
-
 }
