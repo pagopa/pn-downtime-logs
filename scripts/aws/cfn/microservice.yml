@@ -232,3 +232,29 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
+
+  ## Dashboard
+  DowntimeLogsMicroserviceCloudWatchDashboard:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/microservice-cloudwatch-dashboard.yaml"
+      Parameters:
+        DashboardName: !Sub "${ProjectName}-downtime-logs"
+        DynamoDBTableNames: !Join 
+          - ',' 
+          - - !Ref EventTableName
+            - !Ref LogTableName
+        RestApiStageArns: !Join
+          - ','
+          - - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiStageArn
+        RestApiNames: !Join
+          - ','
+          - - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiName
+        AlarmArns: !Join
+          - ','
+          - - !GetAtt DowntimeLogsMicroservice.Outputs.AutoScalingAlarmArn
+        QueueArns: !Join
+          - ','
+          - - !Ref InternalEventQueueQueueARN
+            - !Ref DowntimeLogsSafeStorageEventsQueueARN
+            - !Ref DowntimeLogsAggregateAlarmQueueARN
