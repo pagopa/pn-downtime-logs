@@ -40,7 +40,7 @@ paths:
     ###                           API DI STATO RICHIESTE DA AGID                           ###
     ##########################################################################################
   
-  "/healthcheck":
+  "/status":
     get:
       summary: healthCheck path
       description: health check path per verificare lo stato del micro servizio
@@ -52,7 +52,7 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error  
-  "/status":
+  "/healthcheck":
     get:
       summary: status path
       description: >-
