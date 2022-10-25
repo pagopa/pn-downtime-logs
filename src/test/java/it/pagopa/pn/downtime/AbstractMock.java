@@ -119,7 +119,8 @@ public abstract class AbstractMock {
 	protected final String historyStatusUrl = "/downtime/v1/history";
 	protected final String eventsUrl = "/downtime-internal/v1/events";
 	protected final String legalFactIdUrl = "/downtime/v1/legal-facts/";
-
+	protected final String healthCheckUrl = "/healthcheck";
+	
 	@SuppressWarnings("unchecked")
 	protected void mockUniqueIdentifierForPerson() throws RestClientException, IOException {
 		// The first return is used to simulate authentication

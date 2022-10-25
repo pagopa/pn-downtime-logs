@@ -164,7 +164,7 @@ Resources:
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
-        HealthCheckPath: /status
+        HealthCheckPath: /healthcheck
         HealthCheckTimeout: 15
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
