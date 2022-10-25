@@ -361,7 +361,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		mockFindByFunctionalityAndEndDateIsNull(
 				getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403", null));
-        MockHttpServletResponse response = mvc.perform(get(statusUrl)).andReturn().getResponse();
+        MockHttpServletResponse response = mvc.perform(get(healthCheckUrl)).andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		assertThat(response.getContentAsString()).contains("functionalities");
@@ -373,7 +373,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		mockCurrentStatusOK(client);
 		DowntimeLogs dt = new DowntimeLogs();
 		mockFindByFunctionalityAndEndDateIsNull(dt);
-        MockHttpServletResponse response = mvc.perform(get(statusUrl)).andReturn().getResponse();
+        MockHttpServletResponse response = mvc.perform(get(healthCheckUrl)).andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentAsString()).contains("functionalities");
