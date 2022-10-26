@@ -40,11 +40,11 @@ Resources:
     Properties:
       TableName: Downtime-Event
       AttributeDefinitions:
-        - AttributeName: uuid
+        - AttributeName: idEvent
           AttributeType: S
       BillingMode: PAY_PER_REQUEST
       KeySchema:
-        - AttributeName: uuid
+        - AttributeName: idEvent
           KeyType: HASH
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
