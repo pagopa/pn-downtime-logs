@@ -3,7 +3,6 @@
     "SafeStorageBaseUrl":"https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev",
     "SchedulerLegalfactidTimer":"0 /1 * ? * *",
     "SchedulerLegalfactidActive":"true",
-    "CognitoUrl":"https://cognito-idp.eu-central-1.amazonaws.com",
-    "EnsureRecipientByUrl":"http://internal-pn-da-Appli-1D88GV5Q5N906-1360713937.eu-south-1.elb.amazonaws.com:8080/datavault-private/v1/recipients/external/PF"
+    "CognitoUrl":"https://cognito-idp.eu-central-1.amazonaws.com"
   }
 }

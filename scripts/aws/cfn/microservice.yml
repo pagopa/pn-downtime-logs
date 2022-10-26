@@ -124,9 +124,6 @@ Parameters:
   CognitoUrl:
     Type: String    
 
-  EnsureRecipientByUrl:
-    Type: String 
-  
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
@@ -156,10 +153,10 @@ Resources:
         ContainerEnvEntry11: !Sub 'PN_DOWNTIMELOGS_SQS_ACTS_ENDPOINT=${InternalEventQueueQueueURL}'        
         ContainerEnvEntry12: !Sub 'PN_DOWNTIMELOGS_CLOUDWATCH_ENDPOINT=${DowntimeLogsAggregateAlarmQueueURL}'
         ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'     
-        ContainerEnvEntry14: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
+        ContainerEnvEntry14: 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
         ContainerEnvEntry15: !Sub 'PN_DOWNTIMELOGS_CORS_ORIGIN_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry16: !Sub 'PN_DOWNTIMELOGS_COGNITO_GET_USER_ENDPOINT=${CognitoUrl}'
-        ContainerEnvEntry17: !Sub 'PN_DOWNTIMELOGS_ENSURE_RECIPIENT_BY_EXTERNAL_ID_URL=${EnsureRecipientByUrl}'
+        ContainerEnvEntry17: 'PN_DOWNTIMELOGS_ENSURE_RECIPIENT_BY_EXTERNAL_ID_URL=http://alb.confidential.pn.internal:8080/datavault-private/v1/recipients/external/PF'
         MappedPaths: '/downtime/*,/downtime-internal/*,/status'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
