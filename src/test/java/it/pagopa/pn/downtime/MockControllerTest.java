@@ -49,7 +49,7 @@ public class MockControllerTest extends AbstractMock {
 			response = mvc.perform(options(legalFactIdUrl.concat("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S")))
 					.andReturn().getResponse();
 		} else if (url.equals(eventsUrl)) {
-			response = mvc.perform(options(url).accept(MediaType.APPLICATION_JSON).header("Auth", fakeHeader))
+			response = mvc.perform(options(url).accept(MediaType.APPLICATION_JSON))
 					.andReturn().getResponse();
 
 		} else {
@@ -83,7 +83,6 @@ public class MockControllerTest extends AbstractMock {
 
 	@Test
 	public void callCheckOptionsEvents() throws Exception {
-		mockUniqueIdentifierForPerson();
 		callCheckOptions(eventsUrl, "POST");
 	}
 

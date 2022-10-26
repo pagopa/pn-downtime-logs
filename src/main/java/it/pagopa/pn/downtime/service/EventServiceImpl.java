@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -170,7 +169,7 @@ public class EventServiceImpl implements EventService {
 		} else {
 			/** Settare l'uuid dell'utente*/
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,
-					event.getStatus(), event.getSourceType(), event.getSource(), MDC.get("user_identifier"));
+					event.getStatus(), event.getSourceType(), event.getSource(), xPagopaPnUid);
 		}
 
 		checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
