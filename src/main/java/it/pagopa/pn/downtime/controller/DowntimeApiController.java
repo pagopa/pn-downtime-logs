@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DowntimeApiController {
 	
-	@Autowired
-	BuildProperties buildProperties;
+//	@Autowired
+//	BuildProperties buildProperties;
 	
 	@RequestMapping(path = "/downtime/v1/status", produces = { "application/json" }, method = RequestMethod.OPTIONS)
 	public ResponseEntity<BodyBuilder> currentStatus() {
@@ -46,10 +46,10 @@ public class DowntimeApiController {
 		return ResponseEntity.ok().allow(HttpMethod.GET, HttpMethod.OPTIONS).build();
 	}
 	
-	@GetMapping(path = "/version", produces = { "application/json" })
-	public ResponseEntity<Object> getVersion(){
-		Map<String, String> mapVersion = new HashMap<>();
-		mapVersion.put("version", buildProperties.getVersion());
-		return ResponseEntity.ok().body(mapVersion);
-	}
+//	@GetMapping(path = "/version", produces = { "application/json" })
+//	public ResponseEntity<Object> getVersion(){
+//		Map<String, String> mapVersion = new HashMap<>();
+//		mapVersion.put("version", buildProperties.getVersion());
+//		return ResponseEntity.ok().body(mapVersion);
+//	}
 }
