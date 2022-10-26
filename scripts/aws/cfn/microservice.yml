@@ -250,6 +250,7 @@ Resources:
         AlarmArns: !Join
           - ','
           - - !GetAtt DowntimeLogsMicroservice.Outputs.AutoScalingAlarmArn
+            - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
         QueueArns: !Join
           - ','
           - - !Ref InternalEventQueueQueueARN
