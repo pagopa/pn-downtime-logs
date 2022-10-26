@@ -35,7 +35,7 @@ Resources:
         QueueName: !Sub '${ProjectName}-downtime_logs_internal_events'
         DelaySeconds: 1
 
-  Event:
+  Event2:
     Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: Downtime-Event
@@ -107,10 +107,10 @@ Outputs:
 
   EventTableName:
     Description: Event table name
-    Value: !Ref Event
+    Value: !Ref Event2
   EventDynamoTableArn:
     Description: ARN of dynamodb table containing event
-    Value: !Sub '${Event.Arn}'
+    Value: !Sub '${Event2.Arn}'
 
   LogTableName:
     Description: Log table name
