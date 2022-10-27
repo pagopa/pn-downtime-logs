@@ -1,6 +1,5 @@
 package it.pagopa.pn.downtime.consumer;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class LegalFactIdReceiver {
 	LegalFactService legalFactService;
 
 	@SqsListener(value = "${amazon.sqs.end-point.legalfact-available}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-	public void receiveLegalFact(final String message) throws IOException {
+	public void receiveLegalFact(final String message) throws Exception {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
 		log.info("message received in Legal Facts queue {}", message);	
 		FileCreatedDto legalFact = mapper.readValue(message, FileCreatedDto.class);
@@ -51,6 +50,9 @@ public class LegalFactIdReceiver {
 		if (logs != null && !logs.isEmpty()) {
 			logs.get(0).setFileAvailable(true);
 			dynamoDBMapper.save(logs.get(0));
+		}else {
+			log.info("No Downtime Found");	
+			throw new Exception();
 		}
 	  }
 	}
