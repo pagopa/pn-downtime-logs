@@ -35,7 +35,7 @@ Resources:
         QueueName: !Sub '${ProjectName}-downtime_logs_internal_events'
         DelaySeconds: 1
 
-  Event2:
+  Event:
     Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: Downtime-Event
@@ -96,21 +96,21 @@ Outputs:
   
   # External channels outputs
   InternalEventQueueQueueName:
-    Value: !GetAtt InternalEventQueueQueue.Outputs.QueueName
+    Value: !GetAtt InternalEventQueue.Outputs.QueueName
     Description: internal events queue name
   InternalEventQueueQueueURL:
-    Value: !GetAtt InternalEventQueueQueue.Outputs.QueueURL
+    Value: !GetAtt InternalEventQueue.Outputs.QueueURL
     Description: internal events queue URL
   InternalEventQueueQueueARN:
-    Value: !GetAtt InternalEventQueueQueue.Outputs.QueueARN
+    Value: !GetAtt InternalEventQueue.Outputs.QueueARN
     Description: internal events queue ARN
 
   EventTableName:
     Description: Event table name
-    Value: !Ref Event2
+    Value: !Ref Event
   EventDynamoTableArn:
     Description: ARN of dynamodb table containing event
-    Value: !Sub '${Event2.Arn}'
+    Value: !Sub '${Event.Arn}'
 
   LogTableName:
     Description: Log table name
