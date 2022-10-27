@@ -145,7 +145,7 @@ Resources:
         ContainerEnvEntry3: 'PN_DOWNTIMELOGS_ENABLE_APIKEY=false'
         ContainerEnvEntry4: 'PN_DOWNTIMELOGS_APIKEY_HEADER=NotApplicable'
         ContainerEnvEntry5: 'PN_DOWNTIMELOGS_APIKEY_VALUE=NotApplicable'
-        ContainerEnvEntry6: 'PN_DOWNTIMELOGS_DOCUMENT_TYPE=PN_LEGAL_FACTS'
+        ContainerEnvEntry6: 'PN_DOWNTIMELOGS_DOCUMENT_TYPE=PN_DOWNTIME_LEGAL_FACTS'
         ContainerEnvEntry7: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_TIMER=${SchedulerLegalfactidTimer}'
         ContainerEnvEntry8: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_ACTIVE=${SchedulerLegalfactidActive}' 
         ContainerEnvEntry9: !Sub 'PN_DOWNTIMELOGS_DYNAMODB_EVENT_ENDPOINT=${EventTableName}'

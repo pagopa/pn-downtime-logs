@@ -47,9 +47,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.awspring.cloud.messaging.listener.SimpleMessageListenerContainer;
-import it.pagopa.pn.downtime.dto.response.DownloadLegalFactDto;
-import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
-import it.pagopa.pn.downtime.dto.response.UploadSafeStorageDto;
 import it.pagopa.pn.downtime.mapper.CloudwatchMapper;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
@@ -57,6 +54,12 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.api.FileDownloadApi;
+import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.api.FileUploadApi;
+import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreationResponse.UploadMethodEnum;
+import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileDownloadInfo;
+import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
@@ -83,7 +86,13 @@ public abstract class AbstractMock {
 
 	@Autowired
 	protected DowntimeLogsServiceImpl service;
-
+	
+	@MockBean
+	private FileDownloadApi fileDownloadApi;
+	
+	@MockBean
+	private FileUploadApi fileUploadApi;
+	
 	@Value("classpath:data/current_status.json")
 	private Resource currentStatus;
 	@Value("classpath:data/current_status500.json")
@@ -293,31 +302,28 @@ public abstract class AbstractMock {
 	}
 
 	protected void mockLegalFactId(RestTemplate client) {
-		DownloadLegalFactDto downloadLegalFactDto = new DownloadLegalFactDto();
+		FileDownloadResponse response = new FileDownloadResponse();
+		
+		FileDownloadInfo downloadLegalFactDto = new FileDownloadInfo();
 		downloadLegalFactDto.setUrl("http://localhost:9090");
 
-		GetLegalFactDto getLegalFactDto = new GetLegalFactDto();
-		getLegalFactDto.setVersionId("tQ74qWG0vAywePcNc");
-		getLegalFactDto.setDocumentType("PN_LEGAL_FACTS");
-		getLegalFactDto.setContentType("application/pdf");
-		getLegalFactDto.setContentLength(new BigDecimal(104697));
-		getLegalFactDto.setDownload(downloadLegalFactDto);
-		getLegalFactDto.setKey("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S");
-		getLegalFactDto.setStatus("PRELOADED");
-		getLegalFactDto.setResultCode("200.00");
-		getLegalFactDto.setRetentionUntil("2033-07-27T00:00:00.000Z");
-		getLegalFactDto.setLifecycleRule("PN_LEGAL_FACTS");
-		getLegalFactDto.setChecksum("cSSf87ZqNi9Dn8lZ1cDJUDNub");
-
-		ResponseEntity<GetLegalFactDto> responseSearch = new ResponseEntity<>(getLegalFactDto, HttpStatus.OK);
-		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),
-				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<GetLegalFactDto>>any()))
-				.thenReturn(responseSearch);
+		response.setVersionId("tQ74qWG0vAywePcNc");
+		response.setDocumentType("PN_DOWNTIME_LEGAL_FACTS");
+		response.setContentType("application/pdf");
+		response.setContentLength(new BigDecimal(104697));
+		response.setChecksum("cSSf87ZqNi9Dn8lZ1cDJUDNub");
+		response.setKey("PN_DOWNTIME_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S");
+		
+		response.setDownload(downloadLegalFactDto);
+		response.setDocumentStatus("PRELOADED");
+		response.setRetentionUntil(OffsetDateTime.parse("2033-07-27T00:00:00.000Z"));
+		
+		Mockito.when(fileDownloadApi.getFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+				.thenReturn(response);
 	}
 
 	protected void mockLegalFactIdError(RestTemplate client) {
-		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),
-				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<Object>>any()))
+		Mockito.when(fileDownloadApi.getFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
 						"403 Forbidden: [{\"resultDescription\": \"Unauthorized\", \"errorList\": [\"client is not allowed to read doc type PROVA\"], \"resultCode\": \"403.00\"}]"));
 	}
@@ -330,15 +336,14 @@ public abstract class AbstractMock {
 	}
 
 	protected void mockAddStatusChange_OK(RestTemplate client) {
-		UploadSafeStorageDto uploadSafeStorageDto = new UploadSafeStorageDto();
-		uploadSafeStorageDto.setUploadMethod("PUT");
-		uploadSafeStorageDto.setKey("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S");
-		uploadSafeStorageDto.setSecret("123930");
-		uploadSafeStorageDto.setResultCode("200.00");
-		uploadSafeStorageDto.setUploadUrl("http://amazon_url");
-		ResponseEntity<UploadSafeStorageDto> responseUpload = new ResponseEntity<>(uploadSafeStorageDto, HttpStatus.OK);
-		Mockito.when(client.exchange(ArgumentMatchers.anyString(), ArgumentMatchers.any(HttpMethod.class),
-				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<UploadSafeStorageDto>>any()))
+		FileCreationResponse fileCreationResponse = new FileCreationResponse();
+		fileCreationResponse.setUploadMethod(UploadMethodEnum.PUT);
+		fileCreationResponse.setKey("PN_DOWNTIME_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S");
+		fileCreationResponse.setSecret("123930");
+		fileCreationResponse.setUploadUrl("http://amazon_url");
+		ResponseEntity<FileCreationResponse> responseUpload = new ResponseEntity<>(fileCreationResponse, HttpStatus.OK);
+		Mockito.when(fileUploadApi.createFileWithHttpInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+				Mockito.any()))
 				.thenReturn(responseUpload);
 		ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
 		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),

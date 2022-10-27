@@ -171,7 +171,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	public void test_CheckLegalFactId() throws Exception {
 		mockLegalFactId(client);
 		MockHttpServletResponse response = mvc
-				.perform(get(legalFactIdUrl.concat("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S"))).andReturn()
+				.perform(get(legalFactIdUrl.concat("PN_DOWNTIME_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S"))).andReturn()
 				.getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentAsString()).contains("url");
@@ -182,7 +182,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	public void test_CheckLegalFactIdNotExists() throws Exception {
 		mockLegalFactIdError(client);
 
-		MockHttpServletResponse response = mvc.perform(get(legalFactIdUrl.concat("PN_LEGAL_FACTS-NOT-EXISTS")))
+		MockHttpServletResponse response = mvc.perform(get(legalFactIdUrl.concat("PN_DOWNTIME_LEGAL_FACTS-NOT-EXISTS")))
 				.andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 	}

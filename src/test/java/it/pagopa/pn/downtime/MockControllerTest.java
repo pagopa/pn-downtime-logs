@@ -46,7 +46,7 @@ public class MockControllerTest extends AbstractMock {
 		MockHttpServletResponse response;
 		if (url.equals(legalFactIdUrl)) {
 			mockLegalFactId(client);
-			response = mvc.perform(options(legalFactIdUrl.concat("PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S")))
+			response = mvc.perform(options(legalFactIdUrl.concat("PN_DOWNTIME_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S")))
 					.andReturn().getResponse();
 		} else if (url.equals(eventsUrl)) {
 			response = mvc.perform(options(url).accept(MediaType.APPLICATION_JSON))
