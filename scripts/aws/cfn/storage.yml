@@ -104,6 +104,9 @@ Outputs:
   InternalEventQueueQueueARN:
     Value: !GetAtt InternalEventQueueQueue.Outputs.QueueARN
     Description: internal events queue ARN
+  InternalEventQueueQueueAlarmARN:
+    Value: !GetAtt InternalEventQueueQueue.Outputs.SqsDLQAlarmArn
+    Description: internal events queue alarm ARN
 
   EventTableName:
     Description: Event table name
