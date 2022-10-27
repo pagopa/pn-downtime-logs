@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>it.pagopa.pn</groupId>
@@ -10,12 +12,13 @@
 	</parent>
 	<groupId>it.pagopa.pn.downtime</groupId>
 	<artifactId>pn-downtime-logs</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>pn-downtime-logs</name>
 	<description>Register PN downtime logs</description>
 	<properties>
 		<springfox-version>2.8.0</springfox-version>
-		<openapi-generator-maven-plugin-version>5.1.0</openapi-generator-maven-plugin-version>
+		<openapi-generator-maven-plugin-version>5.1.0
+		</openapi-generator-maven-plugin-version>
 		<testcontainer-version>1.15.3</testcontainer-version>
 	</properties>
 	<dependencyManagement>
@@ -124,9 +127,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>org.json</groupId>
-		    <artifactId>json</artifactId>
-		    <version>20210307</version>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20210307</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openapitools</groupId>
@@ -175,11 +178,11 @@
 			<artifactId>jsr305</artifactId>
 			<version>3.0.2</version>
 		</dependency>
-		<dependency>
-		    <groupId>it.pagopa.pn</groupId>
-		    <artifactId>pn-commons</artifactId>
-		    <version>0.0.1-SNAPSHOT</version>
-		</dependency>
+        <dependency>
+            <groupId>it.pagopa.pn</groupId>
+            <artifactId>pn-commons</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -212,7 +215,7 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
@@ -224,12 +227,16 @@
 						</goals>
 						<configuration>
 							<generatorName>java</generatorName>
-							<inputSpec>${basedir}/docs/wsclients/pn-safestorage-v1-api.yaml</inputSpec>
+							<inputSpec>${basedir}/docs/wsclients/pn-safestorage-v1-api.yaml
+							</inputSpec>
 							<library>resttemplate</library>
 							<output>${project.basedir}/target/generated-sources/</output>
-							<apiPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.api</apiPackage>
-							<modelPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.model</modelPackage>
-							<invokerPackage>${project.groupId}.${project.artifactId}.restclient.safestorage</invokerPackage>
+							<apiPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.api
+							</apiPackage>
+							<modelPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.model
+							</modelPackage>
+							<invokerPackage>${project.groupId}.${project.artifactId}.restclient.safestorage
+							</invokerPackage>
 
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
@@ -246,10 +253,13 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/docs/openapi/api-internal-v1.yaml</inputSpec>
+							<inputSpec>${project.basedir}/docs/openapi/api-internal-v1.yaml
+							</inputSpec>
 							<generatorName>spring</generatorName>
-							<apiPackage>${project.groupId}.${project.artifactId}.api</apiPackage>
-							<modelPackage>${project.groupId}.${project.artifactId}.model</modelPackage>
+							<apiPackage>${project.groupId}.${project.artifactId}.api
+							</apiPackage>
+							<modelPackage>${project.groupId}.${project.artifactId}.model
+							</modelPackage>
 							<enablePostProcessFile>true</enablePostProcessFile>
 							<configOptions>
 								<serializableModel>true</serializableModel>
@@ -257,7 +267,7 @@
 								<unhandledException>true</unhandledException>
 							</configOptions>
 						</configuration>
-					</execution>					
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>

@@ -145,7 +145,7 @@ Resources:
         ContainerEnvEntry3: 'PN_DOWNTIMELOGS_ENABLE_APIKEY=false'
         ContainerEnvEntry4: 'PN_DOWNTIMELOGS_APIKEY_HEADER=NotApplicable'
         ContainerEnvEntry5: 'PN_DOWNTIMELOGS_APIKEY_VALUE=NotApplicable'
-        ContainerEnvEntry6: 'PN_DOWNTIMELOGS_DOCUMENT_TYPE=PN_LEGALFACTS'
+        ContainerEnvEntry6: 'PN_DOWNTIMELOGS_DOCUMENT_TYPE=PN_DOWNTIME_LEGAL_FACTS'
         ContainerEnvEntry7: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_TIMER=${SchedulerLegalfactidTimer}'
         ContainerEnvEntry8: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_ACTIVE=${SchedulerLegalfactidActive}' 
         ContainerEnvEntry9: !Sub 'PN_DOWNTIMELOGS_DYNAMODB_EVENT_ENDPOINT=${EventTableName}'
@@ -155,13 +155,11 @@ Resources:
         ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'     
         ContainerEnvEntry14: 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
         ContainerEnvEntry15: !Sub 'PN_DOWNTIMELOGS_CORS_ORIGIN_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry16: !Sub 'PN_DOWNTIMELOGS_COGNITO_GET_USER_ENDPOINT=${CognitoUrl}'
-        ContainerEnvEntry17: 'PN_DOWNTIMELOGS_ENSURE_RECIPIENT_BY_EXTERNAL_ID_URL=http://alb.confidential.pn.internal:8080/datavault-private/v1/recipients/external/PF'
-        MappedPaths: '/downtime/*,/downtime-internal/*,/status'
+        MappedPaths: '/downtime/*,/downtime-internal/*,/status, /healthcheck'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
-        HealthCheckPath: /status
+        HealthCheckPath: /healthcheck
         HealthCheckTimeout: 15
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn

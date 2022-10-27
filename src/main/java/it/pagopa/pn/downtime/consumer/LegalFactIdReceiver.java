@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
-import it.pagopa.pn.downtime.dto.response.GetLegalFactDto;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
+import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreatedDto;
 import it.pagopa.pn.downtime.service.LegalFactService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +38,7 @@ public class LegalFactIdReceiver {
 	public void receiveLegalFact(final String message) throws IOException {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
 		log.info("message received in Legal Facts queue {}", message);	
-		GetLegalFactDto legalFact = mapper.readValue(message, GetLegalFactDto.class);
+		FileCreatedDto legalFact = mapper.readValue(message, FileCreatedDto.class);
 		
 		Map<String, AttributeValue> eav1 = new HashMap<>();
 		eav1.put(":legalFact1", new AttributeValue().withS(legalFact.getKey()));

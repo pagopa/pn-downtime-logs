@@ -64,7 +64,7 @@ public class MessageSQSConsumerTest extends AbstractMock {
 				PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403",
 				OffsetDateTime.parse("2022-08-28T09:55:15.995Z"));
 		dt.setFileAvailable(true);
-		dt.setLegalFactId("PN_LEGAL_FACTS-TEST");
+		dt.setLegalFactId("PN_DOWNTIME_LEGAL_FACTS-TEST");
 
 		mockFindFirstByLegalFactId(dt);
 		mockSaveDowntime();

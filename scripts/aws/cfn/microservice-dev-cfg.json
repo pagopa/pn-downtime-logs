@@ -1,8 +1,7 @@
 {
   "Parameters" : {
     "SafeStorageBaseUrl":"https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev",
-    "SchedulerLegalfactidTimer":"0 /1 * ? * *",
-    "SchedulerLegalfactidActive":"true",
-    "CognitoUrl":"https://cognito-idp.eu-central-1.amazonaws.com"
+    "SchedulerLegalfactidTimer":"0 0 6 * * ?",
+    "SchedulerLegalfactidActive":"true"
   }
 }

@@ -81,7 +81,7 @@ paths:
             _ATTACHED_ una volta che un documento viene allegato a una notifica. <br/>
           - _PN_AAR_: Avvisi di Avvenuta Ricezione generati da pn-delivery-push e inviati con
             pn-external-channels. <br/>
-          - _PN_LEGAL_FACTS_: atti opponibili a terzi generati da pn-delivery-push; vanno 
+          - _PN_DOWNTIME_LEGAL_FACTS_: atti opponibili a terzi generati da pn-delivery-push; vanno 
             firmati digitalmente e sottoposti a marcatura temporale. <br/>
           - _PN_EXTERNAL_LEGAL_FACTS_: atti opponibili a terzi generati dai sistemi di
             messaggistica esterni a Piattaforma Notifiche. Sono firmati e marcati esternamente.
@@ -136,7 +136,7 @@ paths:
                       SAVED:
                         storage: PN_AAR
                         allowedStatusTransitions: []
-                  - name: PN_LEGAL_FACTS
+                  - name: PN_DOWNTIME_LEGAL_FACTS
                     informationClassification: 'HC'
                     allowedInitialStatus: [ 'SAVED' ]
                     digitalSignature: true
@@ -144,7 +144,7 @@ paths:
                     checksum: SHA256
                     statuses:
                       SAVED:
-                        storage: PN_LEGAL_FACTS
+                        storage: PN_DOWNTIME_LEGAL_FACTS
                         allowedStatusTransitions: []
                   - name: PN_EXTERNAL_LEGAL_FACTS
                     informationClassification: 'HC'
@@ -154,7 +154,7 @@ paths:
                     checksum: SHA256
                     statuses:
                       SAVED:
-                        storage: PN_LEGAL_FACTS
+                        storage: PN_DOWNTIME_LEGAL_FACTS
                         allowedStatusTransitions: []
                 storageConfigurations:
                   - name: PN_TEMPORARY_DOCUMENT
@@ -163,7 +163,7 @@ paths:
                   - name: PN_NOTIFIED_DOCUMENTS
                     retentionPeriod: '120d'
                     hotPeriod: '120d'
-                  - name: PN_LEGAL_FACTS
+                  - name: PN_DOWNTIME_LEGAL_FACTS
                     retentionPeriod: '10y'
                     hotPeriod: '120d'
                   - name: PN_AAR
@@ -208,8 +208,8 @@ paths:
                   summary: 'pn-delivery-push'
                   value:
                     name: 'pn-delivery-push'
-                    canCreate: [ 'PN_AAR', 'PN_LEGAL_FACTS' ]
-                    canRead: [ 'PN_NOTIFICATION_ATTACHMENTS', 'PN_AAR', 'PN_LEGAL_FACTS', 'PN_EXTERNAL_LEGAL_FACTS' ]
+                    canCreate: [ 'PN_AAR', 'PN_DOWNTIME_LEGAL_FACTS' ]
+                    canRead: [ 'PN_NOTIFICATION_ATTACHMENTS', 'PN_AAR', 'PN_DOWNTIME_LEGAL_FACTS', 'PN_EXTERNAL_LEGAL_FACTS' ]
                     signatureInfo: {}
                     destination:
                       sqsUrl: https://sqs.eu-central-1.amazonaws.com/558518206506/pn-delivery-push-document-saved
