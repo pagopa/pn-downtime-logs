@@ -2,14 +2,14 @@
   "result": [
     {
       "endDate": "2000-01-23T04:56:07.000+00:00",
-      "legalFactId": "PN_LEGAL_FACTS-0002-DHKS-ZK03-9OAG-9OYQ",
+      "legalFactId": "PN_DOWNTIME_LEGAL_FACTS-0002-DHKS-ZK03-9OAG-9OYQ",
       "startDate": "2000-01-23T04:56:07.000+00:00",
       "functionality": "NOTIFICATION_VISUALIZATION",
       "status": "KO"
     },
     {
       "endDate": "2000-01-23T04:56:07.000+00:00",
-      "legalFactId": "PN_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S",
+      "legalFactId": "PN_DOWNTIME_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S",
       "startDate": "2000-01-23T04:56:07.000+00:00",
       "functionality": "NOTIFICATION_CREATE",
       "status": "KO"

@@ -80,11 +80,17 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Autowired
 	private RestTemplate restTemplate;
 	
+	@Autowired
+	private FileDownloadApi fileDownloadApi;
+	
+	@Autowired
+	private FileUploadApi fileUploadApi;
+	
 	/** The Constant PAGOPA_SAFESTORAGE_HEADER. */
 	private static final String PAGOPA_SAFESTORAGE_HEADER = "x-pagopa-safestorage-cx-id";
 	
 	/** The Constant PAGOPA_SAFESTORAGE_HEADER_VALUE. */
-	private static final String PAGOPA_SAFESTORAGE_HEADER_VALUE = "pn-delivery-push";
+	private static final String PAGOPA_SAFESTORAGE_HEADER_VALUE = "pn-downtime-logs";
 	
 	/** The Constant UPLOAD_SAFESTORAGE_HEADER_SECRET. */
 	private static final String UPLOAD_SAFESTORAGE_HEADER_SECRET = "x-amz-meta-secret";
@@ -110,15 +116,14 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Override
 	public LegalFactDownloadMetadataResponse getLegalFact(String legalFactId) {
 		log.info("getLegalFact - Input: " + legalFactId);
-		FileDownloadApi fileApi = new FileDownloadApi();
 		ApiClient api = new ApiClient();
 		api.setBasePath(urlSafeStore);	
 		if (enableApiKey) {
 			//TODO verify authentication
 			api.setApiKey(apiKeyHeaderValue);
 		}
-		fileApi.setApiClient(api);
-		FileDownloadResponse response = fileApi.getFile(legalFactId, PAGOPA_SAFESTORAGE_HEADER_VALUE, false);	
+		fileDownloadApi.setApiClient(api);
+		FileDownloadResponse response = fileDownloadApi.getFile(legalFactId, PAGOPA_SAFESTORAGE_HEADER_VALUE, false);	
 		LegalFactDownloadMetadataResponse legalFactResponse = new LegalFactDownloadMetadataResponse();
 		legalFactResponse.setContentLength(Optional.ofNullable(response.getContentLength()).map(BigDecimal::intValue).orElse(null));
 		legalFactResponse.setUrl(response.getDownload().getUrl());
@@ -137,14 +142,13 @@ public class LegalFactServiceImpl implements LegalFactService {
 	 */
 	public DowntimeLogs reserveUploadFile(byte[] file, DowntimeLogs downtime) throws NoSuchAlgorithmException {
 		log.info("reserveUploadFile");
-		FileUploadApi fileApi = new FileUploadApi();
 		ApiClient api = new ApiClient();
 		api.setBasePath(urlSafeStore);	
 		if (enableApiKey) {
 			//TODO verify authentication
 			api.setApiKey(apiKeyHeaderValue);
 		}
-		fileApi.setApiClient(api);
+		fileUploadApi.setApiClient(api);
 
 		FileCreationRequest fileCreationRequest = new FileCreationRequest();
 		fileCreationRequest.setContentType("application/pdf");
@@ -154,7 +158,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 		digest = MessageDigest.getInstance(SHA256);
 		byte[] hash = digest != null ? digest.digest(file) : null;
 		String checkSum = Base64.getEncoder().encodeToString(hash);
-		ResponseEntity<FileCreationResponse> response = fileApi.createFileWithHttpInfo(PAGOPA_SAFESTORAGE_HEADER_VALUE, checkSum, SHA256, fileCreationRequest);
+		ResponseEntity<FileCreationResponse> response = fileUploadApi.createFileWithHttpInfo(PAGOPA_SAFESTORAGE_HEADER_VALUE, checkSum, SHA256, fileCreationRequest);
 		
 		if (response != null && response.getStatusCodeValue() == 200) {
 			log.info("Reservation made successfully" + response.getBody());
