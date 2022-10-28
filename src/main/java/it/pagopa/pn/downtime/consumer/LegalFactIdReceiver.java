@@ -43,15 +43,16 @@ public class LegalFactIdReceiver {
 		eav1.put(":legalFact1", new AttributeValue().withS(legalFact.getKey()));
 		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
 			    .withFilterExpression("legalFactId =:legalFact1")
-			    .withExpressionAttributeValues(eav1).withLimit(1);
+			    .withExpressionAttributeValues(eav1);
 		
 		List<DowntimeLogs> logs = dynamoDBMapper.scanPage(DowntimeLogs.class, scanExpression).getResults();
 	
 		if (logs != null && !logs.isEmpty()) {
 			logs.get(0).setFileAvailable(true);
+			log.info("Save legalFactId {}", legalFact.getKey());
 			dynamoDBMapper.save(logs.get(0));
 		}else {
-			log.info("No Downtime Found");	
+			log.info("No Downtime Found for legalFactId {}", legalFact.getKey() );	
 			throw new Exception();
 		}
 	  }
