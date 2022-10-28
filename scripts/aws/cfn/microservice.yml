@@ -140,9 +140,6 @@ Parameters:
     Type: String
     Description: 'Kinesis stream that receive logs'
     
-  CorsAllowedDomains:
-    Type: String
-  
 Resources:
 
   DowntimeLogsMicroservice:
