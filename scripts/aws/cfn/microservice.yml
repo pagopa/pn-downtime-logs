@@ -133,9 +133,6 @@ Parameters:
   SchedulerLegalfactidTimer:
     Type: String
     
-  CognitoUrl:
-    Type: String    
-
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
@@ -261,7 +258,7 @@ Resources:
             - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !Ref InternalEventQueueQueueAlarmARN
             - !Ref DowntimeLogsSafeStorageEventsQueueAlarmARN
-            - !Ref DowntimeLogsAggregateAlarmQueueARN
+            - !Ref DowntimeLogsAggregateAlarmQueueAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref InternalEventQueueQueueARN
