@@ -91,15 +91,15 @@ Parameters:
     Type: String
     Description: base url for safe storage requests
   
-  InternalEventQueueQueueARN:
+  InternalEventQueueARN:
     Type: String
     Description: internal events queue ARN
   
-  InternalEventQueueQueueURL:
+  InternalEventQueueURL:
     Type: String
     Description: queue url
   
-  InternalEventQueueQueueAlarmARN:
+  InternalEventQueueAlarmARN:
     Type: String
     Description: internal events queue alarm ARN
 
@@ -159,7 +159,7 @@ Resources:
         ContainerEnvEntry8: !Sub 'PN_DOWNTIMELOGS_SCHEDULER_LEGALFACTID_ACTIVE=${SchedulerLegalfactidActive}' 
         ContainerEnvEntry9: !Sub 'PN_DOWNTIMELOGS_DYNAMODB_EVENT_ENDPOINT=${EventTableName}'
         ContainerEnvEntry10: !Sub 'PN_DOWNTIMELOGS_DYNAMODB_LOG_ENDPOINT=${LogTableName}'
-        ContainerEnvEntry11: !Sub 'PN_DOWNTIMELOGS_SQS_ACTS_ENDPOINT=${InternalEventQueueQueueURL}'        
+        ContainerEnvEntry11: !Sub 'PN_DOWNTIMELOGS_SQS_ACTS_ENDPOINT=${InternalEventQueueURL}'        
         ContainerEnvEntry12: !Sub 'PN_DOWNTIMELOGS_CLOUDWATCH_ENDPOINT=${DowntimeLogsAggregateAlarmQueueURL}'
         ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'     
         ContainerEnvEntry14: 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
@@ -205,7 +205,7 @@ Resources:
               - sqs:SendMessage
               - sqs:SendMessageBatch
             Resource:
-              - !Ref InternalEventQueueQueueARN
+              - !Ref InternalEventQueueARN
               - !Ref DowntimeLogsSafeStorageEventsQueueARN
               - !Ref DowntimeLogsAggregateAlarmQueueARN
 
@@ -256,11 +256,11 @@ Resources:
           - - !GetAtt DowntimeLogsMicroservice.Outputs.AutoScalingAlarmArn
             - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
-            - !Ref InternalEventQueueQueueAlarmARN
+            - !Ref InternalEventQueueAlarmARN
             - !Ref DowntimeLogsSafeStorageEventsQueueAlarmARN
             - !Ref DowntimeLogsAggregateAlarmQueueAlarmARN
         QueueArns: !Join
           - ','
-          - - !Ref InternalEventQueueQueueARN
+          - - !Ref InternalEventQueueARN
             - !Ref DowntimeLogsSafeStorageEventsQueueARN
             - !Ref DowntimeLogsAggregateAlarmQueueARN

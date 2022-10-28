@@ -95,17 +95,17 @@ Resources:
 Outputs:
   
   # External channels outputs
-  InternalEventQueueQueueName:
+  InternalEventQueueName:
     Value: !GetAtt InternalEventQueue.Outputs.QueueName
     Description: internal events queue name
-  InternalEventQueueQueueURL:
+  InternalEventQueueURL:
     Value: !GetAtt InternalEventQueue.Outputs.QueueURL
     Description: internal events queue URL
-  InternalEventQueueQueueARN:
+  InternalEventQueueARN:
     Value: !GetAtt InternalEventQueue.Outputs.QueueARN
     Description: internal events queue ARN
-  InternalEventQueueQueueAlarmARN:
-    Value: !GetAtt InternalEventQueueQueue.Outputs.SqsDLQAlarmArn
+  InternalEventQueueAlarmARN:
+    Value: !GetAtt InternalEventQueue.Outputs.SqsDLQAlarmArn
     Description: internal events queue alarm ARN
 
   EventTableName:
