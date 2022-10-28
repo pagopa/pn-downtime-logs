@@ -99,6 +99,10 @@ Parameters:
     Type: String
     Description: queue url
   
+  InternalEventQueueQueueAlarmARN:
+    Type: String
+    Description: internal events queue alarm ARN
+
   DowntimeLogsSafeStorageEventsQueueURL:
     Type: String
     Description: queue url
@@ -106,7 +110,11 @@ Parameters:
   DowntimeLogsSafeStorageEventsQueueARN:
     Type: String
     Description: queue ARN
-  
+
+  DowntimeLogsSafeStorageEventsQueueAlarmARN:
+    Type: String
+    Description: Events form safe-storage to pn-downtime-logs queue alarm ARN
+
   DowntimeLogsAggregateAlarmQueueURL:
     Type: String
     Description: queue url
@@ -115,22 +123,20 @@ Parameters:
     Type: String
     Description: queue ARN
   
+  DowntimeLogsAggregateAlarmQueueAlarmARN:
+    Type: String
+    Description: alarm queue ARN
+  
   SchedulerLegalfactidActive:
     Type: String
     
   SchedulerLegalfactidTimer:
     Type: String
     
-  CognitoUrl:
-    Type: String    
-
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
     
-  CorsAllowedDomains:
-    Type: String
-  
 Resources:
 
   DowntimeLogsMicroservice:
@@ -227,3 +233,34 @@ Resources:
         ServiceApiPath: 'downtime'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+
+  ## Dashboard
+  DowntimeLogsMicroserviceCloudWatchDashboard:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/microservice-cloudwatch-dashboard.yaml"
+      Parameters:
+        DashboardName: !Sub "${ProjectName}-downtime-logs"
+        DynamoDBTableNames: !Join 
+          - ',' 
+          - - !Ref EventTableName
+            - !Ref LogTableName
+        RestApiStageArns: !Join
+          - ','
+          - - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiStageArn
+        RestApiNames: !Join
+          - ','
+          - - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiName
+        AlarmArns: !Join
+          - ','
+          - - !GetAtt DowntimeLogsMicroservice.Outputs.AutoScalingAlarmArn
+            - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
+            - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
+            - !Ref InternalEventQueueQueueAlarmARN
+            - !Ref DowntimeLogsSafeStorageEventsQueueAlarmARN
+            - !Ref DowntimeLogsAggregateAlarmQueueAlarmARN
+        QueueArns: !Join
+          - ','
+          - - !Ref InternalEventQueueQueueARN
+            - !Ref DowntimeLogsSafeStorageEventsQueueARN
+            - !Ref DowntimeLogsAggregateAlarmQueueARN
