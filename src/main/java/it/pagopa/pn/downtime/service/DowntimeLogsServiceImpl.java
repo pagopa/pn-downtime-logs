@@ -3,6 +3,7 @@ package it.pagopa.pn.downtime.service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 				+ (functionality != null ? functionality.toString() : "") + " page: " + page + " size: " + size);
 
 		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, functionality);
+		listHistoryResults = listHistoryResults.stream().sorted(Comparator.comparing(DowntimeLogs::getStartDate).reversed()).collect(Collectors.toList());
 
 		Page<DowntimeLogs> pageHistory = null;
 
