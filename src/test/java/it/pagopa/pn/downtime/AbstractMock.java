@@ -38,6 +38,7 @@ import org.springframework.web.client.RestTemplate;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedParallelScanList;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -86,13 +87,13 @@ public abstract class AbstractMock {
 
 	@Autowired
 	protected DowntimeLogsServiceImpl service;
-	
+
 	@MockBean
 	private FileDownloadApi fileDownloadApi;
-	
+
 	@MockBean
 	private FileUploadApi fileUploadApi;
-	
+
 	@Value("classpath:data/current_status.json")
 	private Resource currentStatus;
 	@Value("classpath:data/current_status500.json")
@@ -121,7 +122,7 @@ public abstract class AbstractMock {
 	protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
 		Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndStartDateBetween() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
@@ -132,18 +133,26 @@ public abstract class AbstractMock {
 				getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-05-10T10:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_VISUALIZATION, "EVENT_START", "akdoe-50403", null));
 
-		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
-				Mockito.anyInt()))
-				.thenReturn(mock(PaginatedParallelScanList.class,
+		Mockito.when(
+				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
+				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
 	}
 
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(DowntimeLogsService downtimeLogsService,
 			List<DowntimeLogs> downtimeLogsList) {
+		Mockito.when(
+				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
+				.thenReturn(mock(PaginatedQueryList.class,
+						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNullWithParallelScan(
+			DowntimeLogsService downtimeLogsService, List<DowntimeLogs> downtimeLogsList) {
 		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
-				Mockito.anyInt()))
-				.thenReturn(mock(PaginatedParallelScanList.class,
+				Mockito.anyInt())).thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
 	}
 
@@ -153,9 +162,9 @@ public abstract class AbstractMock {
 		downtimeLogsList
 				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
-		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
-				Mockito.anyInt()))
-				.thenReturn(mock(PaginatedParallelScanList.class,
+		Mockito.when(
+				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
+				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
 	}
 
@@ -188,9 +197,9 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_CREATE2022",
 				OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_CREATE,
 				"PAGO-PA-EVENT-C", "10DJAKDF", OffsetDateTime.parse("2022-01-25T10:56:07.000+00:00")));
-		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
-				Mockito.anyInt()))
-				.thenReturn(mock(PaginatedParallelScanList.class,
+		Mockito.when(
+				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
+				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntime))));
 	}
 
@@ -206,9 +215,9 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022",
 				OffsetDateTime.parse("2022-01-23T02:56:07.000+00:00"), PnFunctionality.NOTIFICATION_WORKFLOW,
 				"PAGO-PA-EVENT", "123", OffsetDateTime.parse("2022-01-30T04:56:07.000+00:00")));
-		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
-				Mockito.anyInt()))
-				.thenReturn(mock(PaginatedParallelScanList.class,
+		Mockito.when(
+				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
+				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntime))));
 	}
 
@@ -216,12 +225,21 @@ public abstract class AbstractMock {
 	protected void mockFindByFunctionalityAndEndDateIsNull(DowntimeLogs downtimeLogs) {
 		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
 		listDowntimeLogs.add(downtimeLogs);
-		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
-				Mockito.anyInt()))
-				.thenReturn(mock(PaginatedParallelScanList.class,
+		Mockito.when(
+				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
+				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntimeLogs))));
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	protected void mockFindByFunctionalityAndEndDateIsNullCheck500(DowntimeLogs downtimeLogs) {
+		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
+		listDowntimeLogs.add(downtimeLogs);
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+				Mockito.anyInt())).thenReturn(mock(PaginatedParallelScanList.class,
+						withSettings().defaultAnswer(new ForwardsInvocations(listDowntimeLogs))));
+	}
+	
 	@SuppressWarnings("unchecked")
 	protected void mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate() {
 		List<DowntimeLogs> list = new ArrayList<>();
@@ -303,7 +321,7 @@ public abstract class AbstractMock {
 
 	protected void mockLegalFactId(RestTemplate client) {
 		FileDownloadResponse response = new FileDownloadResponse();
-		
+
 		FileDownloadInfo downloadLegalFactDto = new FileDownloadInfo();
 		downloadLegalFactDto.setUrl("http://localhost:9090");
 
@@ -313,11 +331,11 @@ public abstract class AbstractMock {
 		response.setContentLength(new BigDecimal(104697));
 		response.setChecksum("cSSf87ZqNi9Dn8lZ1cDJUDNub");
 		response.setKey("PN_DOWNTIME_LEGAL_FACTS-0002-L83U-NGPH-WHUF-I87S");
-		
+
 		response.setDownload(downloadLegalFactDto);
 		response.setDocumentStatus("PRELOADED");
 		response.setRetentionUntil(OffsetDateTime.parse("2033-07-27T00:00:00.000Z"));
-		
+
 		Mockito.when(fileDownloadApi.getFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
 				.thenReturn(response);
 	}
@@ -343,8 +361,7 @@ public abstract class AbstractMock {
 		fileCreationResponse.setUploadUrl("http://amazon_url");
 		ResponseEntity<FileCreationResponse> responseUpload = new ResponseEntity<>(fileCreationResponse, HttpStatus.OK);
 		Mockito.when(fileUploadApi.createFileWithHttpInfo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-				Mockito.any()))
-				.thenReturn(responseUpload);
+				Mockito.any())).thenReturn(responseUpload);
 		ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
 		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),
 				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
@@ -375,6 +392,7 @@ public abstract class AbstractMock {
 		downtimeLogs.setUuid(uuid);
 		downtimeLogs.setEndDate(endDate);
 		downtimeLogs.setFileAvailable(false);
+		downtimeLogs.setHistory("1");
 		return downtimeLogs;
 	}
 
