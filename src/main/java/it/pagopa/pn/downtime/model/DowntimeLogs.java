@@ -39,7 +39,10 @@ public class DowntimeLogs implements Serializable {
 	private String endEventUuid;
 	private String legalFactId;
 	private String uuid;
+	private String history;
 	private Boolean fileAvailable;
+	@JsonSerialize(using = OffsetDateTimeSerializer.class)
+	private OffsetDateTime startDateAttribute;
 	
 	@DynamoDBHashKey
 	public String getFunctionalityStartYear() {
@@ -109,6 +112,17 @@ public class DowntimeLogs implements Serializable {
 		return uuid;
 	}
 	
+	@DynamoDBAttribute
+	public String getHistory() {
+		return history;
+	}
+	
+	@DynamoDBAttribute
+	@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+	public OffsetDateTime getStartDateAttribute() {
+		return startDateAttribute;
+	}
+	
 	public void setEndDate(OffsetDateTime endDate) {
 		this.endDate = endDate;
 	}
@@ -142,4 +156,16 @@ public class DowntimeLogs implements Serializable {
 		this.uuid = uuid;
 	}
 
+	public void setHistory(String history) {
+		this.history = history;
+	}
+
+	public void setStartDateAttribute(OffsetDateTime startDateAttribute) {
+		this.startDateAttribute = startDateAttribute;
+	}
+
+
+
+
+	
 }

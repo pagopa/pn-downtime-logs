@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
@@ -50,6 +52,9 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	/** The downtime logs mapper. */
 	@Autowired
 	DowntimeLogsMapper downtimeLogsMapper;
+	
+	@Value("${history.index}")
+	private String historyIndex;
 
 	/**
 	 * Gets the status history.
@@ -70,7 +75,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 				+ (functionality != null ? functionality.toString() : "") + " page: " + page + " size: " + size);
 
 		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, functionality);
-
+		
 		Page<DowntimeLogs> pageHistory = null;
 
 		if (page != null && !page.isEmpty() && size != null && !size.isEmpty()) {
@@ -118,13 +123,13 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			List<PnFunctionality> functionality) {
 
 		List<DowntimeLogs> listHistory = new ArrayList<>();
-
+		String filter = "";
+		
 		if (functionality == null || functionality.isEmpty()) {
 			return listHistory;
 		}
-
+		
 		Map<String, AttributeValue> eav1 = new HashMap<>();
-
 		List<String> values = functionality.stream().map(PnFunctionality::getValue).collect(Collectors.toList());
 
 		String expression = "";
@@ -132,28 +137,25 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			eav1.put(":functionality" + (values.indexOf(s) + 1), new AttributeValue().withS(s));
 			expression = expression.concat(":functionality" + (values.indexOf(s) + 1) + ",");
 		}
-
+		eav1.put(":history1", new AttributeValue().withS("1"));
 		eav1.put(":startDate1", new AttributeValue().withS(fromTime.toString()));
 
 		if (toTime != null) {
-
 			eav1.put(":endDate1", new AttributeValue().withS(toTime.toString()));
-			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-					.withFilterExpression("functionality in (" + expression.substring(0, expression.length() - 1)
-							+ ") and  (startDate BETWEEN :startDate1 AND :endDate1 or  endDate BETWEEN :startDate1 AND :endDate1)")
-					.withExpressionAttributeValues(eav1);
-
-			listHistory = dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
-
+			filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ") and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or  endDate BETWEEN :startDate1 AND :endDate1)";
 		} else {
-			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-					.withFilterExpression("functionality in (" + expression.substring(0, expression.length() - 1)
-							+ ") and  (startDate > :startDate1  or endDate > :startDate1 and startDate < :startDate1 )")
-					.withExpressionAttributeValues(eav1);
-
-			listHistory = dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
-
+			filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ") and  (startDateAttribute > :startDate1  or endDate > :startDate1 and startDateAttribute < :startDate1 )";
 		}
+		
+		DynamoDBQueryExpression<DowntimeLogs> queryExpression = new DynamoDBQueryExpression<DowntimeLogs>()
+				.withIndexName(historyIndex)
+				.withKeyConditionExpression("history =:history1")
+				.withFilterExpression(filter)
+				.withScanIndexForward(false)
+				.withConsistentRead(false)					
+				.withExpressionAttributeValues(eav1);
+
+		listHistory = dynamoDBMapper.query(DowntimeLogs.class, queryExpression);
 
 		return listHistory;
 	}
@@ -204,11 +206,13 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
 		downtimeLogs.setStartDate(startDate);
+		downtimeLogs.setStartDateAttribute(startDate);
 		downtimeLogs.setStatus(PnFunctionalityStatus.KO);
 		downtimeLogs.setStartEventUuid(startEventUuid);
 		downtimeLogs.setFunctionality(functionality);
 		downtimeLogs.setUuid(uuid);
 		downtimeLogs.setFileAvailable(false);
+		downtimeLogs.setHistory("1");
 		dynamoDBMapper.save(downtimeLogs);
 	}
 
