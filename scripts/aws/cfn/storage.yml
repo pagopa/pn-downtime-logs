@@ -77,6 +77,14 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+        - IndexName: invertedIndex
+          KeySchema:
+            - AttributeName: history
+              KeyType: HASH
+            - AttributeName: startDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       KeySchema:
         - AttributeName: functionalityStartYear
           KeyType: HASH
