@@ -67,6 +67,8 @@ Resources:
           AttributeType: S
         - AttributeName: endDate
           AttributeType: S
+        - AttributeName: history
+          AttributeType: S  
       BillingMode: PAY_PER_REQUEST
       GlobalSecondaryIndexes:
         - IndexName: DowntimeLogsGSIndex
@@ -74,6 +76,14 @@ Resources:
             - AttributeName: functionalityStartYear
               KeyType: HASH
             - AttributeName: endDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: invertedIndex
+          KeySchema:
+            - AttributeName: history
+              KeyType: HASH
+            - AttributeName: startDate
               KeyType: RANGE
           Projection:
             ProjectionType: ALL

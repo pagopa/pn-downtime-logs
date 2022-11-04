@@ -162,7 +162,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		listDowntimeLogs
 				.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403", null));
-		mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(service, listDowntimeLogs);
+		mockFindAllByEndDateIsNotNullAndLegalFactIdIsNullWithParallelScan(service, listDowntimeLogs);
 
 		Assertions.assertNotNull(service.findAllByEndDateIsNotNullAndLegalFactIdIsNull());
 	}
@@ -307,7 +307,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 	@Test
 	public void test_CheckStatus500() throws Exception {
 		mockCurrentStatus500(client);
-		mockFindByFunctionalityAndEndDateIsNull(
+		mockFindByFunctionalityAndEndDateIsNullCheck500(
 				getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403", null));
         MockHttpServletResponse response = mvc.perform(get(statusUrl)).andReturn().getResponse();
