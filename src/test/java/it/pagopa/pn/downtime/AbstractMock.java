@@ -392,7 +392,7 @@ public abstract class AbstractMock {
 		downtimeLogs.setUuid(uuid);
 		downtimeLogs.setEndDate(endDate);
 		downtimeLogs.setFileAvailable(false);
-		downtimeLogs.setHistory("1");
+		downtimeLogs.setHistory("downtimeHistory");
 		return downtimeLogs;
 	}
 

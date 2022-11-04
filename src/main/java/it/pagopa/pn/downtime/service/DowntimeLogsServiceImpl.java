@@ -123,37 +123,33 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			List<PnFunctionality> functionality) {
 
 		List<DowntimeLogs> listHistory = new ArrayList<>();
-		String filter = "";
-		
+
 		if (functionality == null || functionality.isEmpty()) {
 			return listHistory;
 		}
-		
-		Map<String, AttributeValue> eav1 = new HashMap<>();
+
+		Map<String, AttributeValue> attributes = new HashMap<>();
 		List<String> values = functionality.stream().map(PnFunctionality::getValue).collect(Collectors.toList());
 
 		String expression = "";
 		for (String s : values) {
-			eav1.put(":functionality" + (values.indexOf(s) + 1), new AttributeValue().withS(s));
+			attributes.put(":functionality" + (values.indexOf(s) + 1), new AttributeValue().withS(s));
 			expression = expression.concat(":functionality" + (values.indexOf(s) + 1) + ",");
 		}
-		eav1.put(":history1", new AttributeValue().withS("1"));
-		eav1.put(":startDate1", new AttributeValue().withS(fromTime.toString()));
-
+		attributes.put(":history1", new AttributeValue().withS("downtimeHistory"));
+		attributes.put(":startDate1", new AttributeValue().withS(fromTime.toString()));
+		String filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ")";
 		if (toTime != null) {
-			eav1.put(":endDate1", new AttributeValue().withS(toTime.toString()));
-			filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ") and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or  endDate BETWEEN :startDate1 AND :endDate1)";
+			attributes.put(":endDate1", new AttributeValue().withS(toTime.toString()));
+			filter = filter.concat(" and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or  endDate BETWEEN :startDate1 AND :endDate1)");
 		} else {
-			filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ") and  (startDateAttribute > :startDate1  or endDate > :startDate1 and startDateAttribute < :startDate1 )";
+			filter = filter.concat(" and  (startDateAttribute > :startDate1  or endDate > :startDate1 and startDateAttribute < :startDate1 )");
 		}
-		
+
 		DynamoDBQueryExpression<DowntimeLogs> queryExpression = new DynamoDBQueryExpression<DowntimeLogs>()
-				.withIndexName(historyIndex)
-				.withKeyConditionExpression("history =:history1")
-				.withFilterExpression(filter)
-				.withScanIndexForward(false)
-				.withConsistentRead(false)					
-				.withExpressionAttributeValues(eav1);
+				.withIndexName(historyIndex).withKeyConditionExpression("history =:history1")
+				.withFilterExpression(filter).withScanIndexForward(false).withConsistentRead(false)
+				.withExpressionAttributeValues(attributes);
 
 		listHistory = dynamoDBMapper.query(DowntimeLogs.class, queryExpression);
 
@@ -212,7 +208,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		downtimeLogs.setFunctionality(functionality);
 		downtimeLogs.setUuid(uuid);
 		downtimeLogs.setFileAvailable(false);
-		downtimeLogs.setHistory("1");
+		downtimeLogs.setHistory("downtimeHistory");
 		dynamoDBMapper.save(downtimeLogs);
 	}
 
