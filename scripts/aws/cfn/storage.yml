@@ -67,6 +67,8 @@ Resources:
           AttributeType: S
         - AttributeName: endDate
           AttributeType: S
+        - AttributeName: history
+          AttributeType: S  
       BillingMode: PAY_PER_REQUEST
       GlobalSecondaryIndexes:
         - IndexName: DowntimeLogsGSIndex
