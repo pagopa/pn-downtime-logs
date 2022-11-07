@@ -68,7 +68,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/PnStatusResponse"
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"
               example:
                 functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
                 openIncidents: []
@@ -77,7 +77,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/PnStatusResponse"
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"
               example:
                 functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
                 openIncidents:
@@ -109,7 +109,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/PnStatusResponse"
+                  $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"
               example:
                 - functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
                   openIncidents:
@@ -146,7 +146,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/PnDowntimeHistoryResponse"
+                  $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnDowntimeHistoryResponse"
         '400':
           description: Bad request
           content:
@@ -182,7 +182,7 @@ paths:
           content:  
             application/json:
               schema:
-                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
               examples:
                 hot:
                   summary: File disponibile
@@ -237,7 +237,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/PnStatusUpdateEvent"
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusUpdateEvent"
         required: true
       responses:
         '204':
@@ -282,7 +282,7 @@ components:
       schema:
         type: array
         items:
-          $ref: '#/components/schemas/PnFunctionality'
+          $ref: './schemas-pn-components-v1.yaml#/components/schemas/PnFunctionality'
     
     queryPage:
       name: page
@@ -300,194 +300,4 @@ components:
       schema:
         type: string
 
-  schemas:
     
-    ###########################################################################################
-    ###                DTO VISUALIZZAZIONE STATO DELLA PIATTAFORMA NOTIFICHE                ###
-    ###########################################################################################
-    PnStatusResponse:
-      title: Stato attuale di PN
-      description: >-
-        Elenco delle funzionalità della piattaforma ed elenco dei disservizi noti e attivi 
-        al momento della richiesta. I disservizi (_openIncidents_) segnalati sono al più uno 
-        per funzionalità; gli attributi _endDate_ e _legalFactId_ non saranno valorizzati.
-      type: object
-      required:
-        - functionalities
-        - openIncidents
-      properties:
-        functionalities:
-          title: elenco funzionalità di PN
-          description: Un array che comprende tutti i possibili valori dell'enum _PnFunctionality_
-          type: array
-          items: 
-            $ref: '#/components/schemas/PnFunctionality'
-        openIncidents:
-          title: elenco disservizi correnti
-          description: Al più uno per funzionalità
-          type: array
-          items: 
-            $ref: '#/components/schemas/PnDowntimeEntry'
-    
-    PnDowntimeHistoryResponse:
-      title: Elenco disservizi con paginazione
-      description: Risposta a una query dello storico dei disservizi
-      type: object
-      required:
-        - result
-      properties:
-        result:
-          title: Elenco di disservizi
-          type: array
-          items: 
-            $ref: '#/components/schemas/PnDowntimeEntry'
-        nextPage:
-          title: prossima pagina di risultati
-          description: >-
-            Se questo attributo non è presente o valorizzato _null_ indica che la query
-            eseguita non presenta ulteriori risultati. <br/>
-            Se questo attributo è valorizzato indica che la query può contenere ulteriori 
-            risultati. La richiesta va rieseguita inserendo nel parametro _page_ il valore 
-            di questo campo.
-          type: string
-
-    PnDowntimeEntry:
-      title: Dati relativi ad un disservizio di PN.
-      type: object
-      required:
-        - functionality
-        - status
-        - startDate
-      properties:
-        functionality:
-          #title: Funzionalità impattata dal disservizio
-          $ref: '#/components/schemas/PnFunctionality'
-        status:
-          #title: tipicamente KO
-          $ref: '#/components/schemas/PnFunctionalityStatus'
-        startDate:
-          title: data inizio disservizio
-          type: string
-          format: date-time
-        endDate:
-          title: data fine disservizio
-          description: >-
-            se il disservizio è ancora attivo questo campo sarà assente o con valore _null_
-          type: string
-          format: date-time
-        legalFactId:
-          title: id dell'atto opponibile a terzi
-          description: >-
-            Se assente o valorizzato _null_ indica che l'atto opponibile a terzi non è ancora
-            disponibile. Questo avviene per i disservizi ancora aperti e per i disservizi 
-            terminati da pochi minuti. <br/>
-            Questo valore è da utilizzare con l'API _getLegalFact_ di questo stesso servizio.
-          type: string
-        fileAvailable:
-          type: boolean
-    PnFunctionality:
-      title: Funzionalità di PN
-      description: >-
-        - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
-
-        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
-
-        - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
-      type: string       
-      enum:
-        - NOTIFICATION_CREATE
-        - NOTIFICATION_VISUALIZATION
-        - NOTIFICATION_WORKFLOW  
-      x-enum-varnames:
-        - NOTIFICATION_CREATE
-        - NOTIFICATION_VISUALIZATION
-        - NOTIFICATION_WORKFLOW 
-        
-    PnFunctionalityStatus:
-      type: string
-      enum:
-        - KO 
-        - OK
-    
-    ############################################################################################
-    ###                         DTO DOWNLOAD ATTI OPPONIBILI A TERZI                         ###
-    ############################################################################################
-    
-    LegalFactDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: >-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET. <br/>
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: integer
-          example: 54092
-          format: int32
-          description: dimensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere il 
-            contenuto del documento. Presente solo se il documento è pronto per il download.
-        retryAfter:
-          type: integer
-          format: int32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
-    
-    ###########################################################################################
-    ###                    DTO MODIFICA STATO DELLA PIATTAFORMA NOTIFICHE                   ###
-    ###########################################################################################
-    
-    PnStatusUpdateEvent:
-      title: Evento di inzio o di termine disservizio
-      description: Ogni disservizio è relativo ad almeno una funzionalità
-      type: object
-      required:
-        - status
-        - timestamp
-        - functionality
-        - sourceType
-        - source
-      properties:
-        status:
-          #title: Nuovo stato della funzionalità
-          $ref: '#/components/schemas/PnFunctionalityStatus'
-        timestamp:
-          title: quando è avvenuto il cambio di stato
-          description: richiesta precisione al millisecondo.
-          type: string
-          format: date-time
-        functionality:
-          title: Elenco funzionalità il cui stato di disponibilità e cambiato
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/PnFunctionality'
-        sourceType:
-          title: tipo fonte dell'evento
-          description: >-
-            Tipologia della fonte dell'evento
-              - __ALARM__ per i disservizi rilevati automaticamente tramite CloudWatch. <br/>
-              - __OPERATOR__ per i disservizi gestiti manualmente. <br/>
-          type: string
-          enum:
-            - ALARM
-            - OPERATOR
-        source:
-          title: identificativo della sorgente dell'evento
-          description: >-
-            - "AlarmDescription" dell'allarme CLoudWatch se _SourceType = ALARM_
-
-            - "uid" dell'operatore che ha effettuato il login se _SourceType = OPERATOR_
-          type: string
-
