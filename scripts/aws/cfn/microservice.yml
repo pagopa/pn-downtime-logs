@@ -233,7 +233,8 @@ Resources:
         ServiceApiPath: 'downtime'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
-
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        
   ## Dashboard
   DowntimeLogsMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
