@@ -27,6 +27,9 @@ components:
           maxLength: 4096
           pattern: '^.{0,1024}$'
           type: string
+        traceId:
+          type: string
+          nullable: false
         errors:
           type: array
           minItems: 0
@@ -34,7 +37,6 @@ components:
             $ref: '#/components/schemas/ProblemError'
       additionalProperties: false
       required:       
-        - type
         - status
         - title
         - errors
