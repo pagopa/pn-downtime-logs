@@ -27,6 +27,7 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
+import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -205,7 +206,8 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			String startEventUuid, String uuid) {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
-		downtimeLogs.setStartDate(startDate);
+		OffsetDateTime newStartDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(startDate);	
+		downtimeLogs.setStartDate(newStartDate);
 		downtimeLogs.setStatus(PnFunctionalityStatus.KO);
 		downtimeLogs.setStartEventUuid(startEventUuid);
 		downtimeLogs.setFunctionality(functionality);

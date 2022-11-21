@@ -22,6 +22,7 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
+import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -142,7 +143,8 @@ public class EventServiceImpl implements EventService {
 	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt) throws IOException {
 		if (dt != null && !event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
 			
-			dt.setEndDate(event.getTimestamp());
+			OffsetDateTime newEndDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
+			dt.setEndDate(newEndDate);
 			dt.setEndEventUuid(eventId);
 			dynamoDBMapper.save(dt);
 			producer.sendMessage(dt, url);
@@ -192,7 +194,8 @@ public class EventServiceImpl implements EventService {
 			PnFunctionalityStatus status, SourceTypeEnum sourceType, String source, String uuid) {
 		log.info("addStatusChangeEvent");
 		Event event = new Event();
-		event.setTimestamp(timestamp);
+		OffsetDateTime newTimestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(timestamp);
+		event.setTimestamp(newTimestamp);
 		event.setYearMonth(yearMonth);
 		event.setFunctionality(functionality);
 		event.setStatus(status);
