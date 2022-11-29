@@ -1,7 +1,6 @@
 package it.pagopa.pn.downtime.util;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -31,14 +30,10 @@ public class DowntimeLogUtil {
 	public static OffsetDateTime getOffsetDateTimeFromGmtTime(OffsetDateTime gmtDate) {
 
 		OffsetDateTime date = null;
-		
+
 		if(gmtDate != null) {
-			
 			ZoneId zone = ZoneId.of("Europe/Paris");
-			Timestamp timestampDate = Timestamp.valueOf(gmtDate.atZoneSameInstant(zone).toLocalDateTime());
-			
-			Date newDate = new Date(timestampDate.getTime());
-			date = newDate.toInstant().atOffset(zone.getRules().getOffset(Instant.now())); 
+			date = gmtDate.toInstant().atOffset(zone.getRules().getOffset(gmtDate.toInstant()));		
 		} 
 		return date;
 	}
