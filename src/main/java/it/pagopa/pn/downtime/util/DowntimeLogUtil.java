@@ -3,9 +3,9 @@ package it.pagopa.pn.downtime.util;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
-import java.util.TimeZone;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,10 +31,14 @@ public class DowntimeLogUtil {
 	public static OffsetDateTime getOffsetDateTimeFromGmtTime(OffsetDateTime gmtDate) {
 
 		OffsetDateTime date = null;
+		
 		if(gmtDate != null) {
-			Timestamp timestampDate = Timestamp.valueOf(gmtDate.atZoneSameInstant(TimeZone.getDefault().toZoneId()).toLocalDateTime());
+			
+			ZoneId zone = ZoneId.of("Europe/Paris");
+			Timestamp timestampDate = Timestamp.valueOf(gmtDate.atZoneSameInstant(zone).toLocalDateTime());
+			
 			Date newDate = new Date(timestampDate.getTime());
-			date = newDate.toInstant().atOffset(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())); 
+			date = newDate.toInstant().atOffset(zone.getRules().getOffset(Instant.now())); 
 		} 
 		return date;
 	}
