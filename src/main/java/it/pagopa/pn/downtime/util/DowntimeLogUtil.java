@@ -29,8 +29,12 @@ public class DowntimeLogUtil {
 
 	public static OffsetDateTime getOffsetDateTimeFromGmtTime(OffsetDateTime gmtDate) {
 
+		log.info("Current date: {}", OffsetDateTime.now());
+		log.info("getOffsetDateTimeFromGmtTime: {}", gmtDate);
 		ZoneId zone = ZoneId.of("Europe/Paris");
-		return gmtDate.toInstant().atOffset(zone.getRules().getOffset(gmtDate.toInstant()));		
+		OffsetDateTime newDate = gmtDate.toInstant().atOffset(zone.getRules().getOffset(gmtDate.toInstant()));
+		log.info("OffsetDataTime - newDate: {}", newDate);
+		return newDate;
 
 	}
 
