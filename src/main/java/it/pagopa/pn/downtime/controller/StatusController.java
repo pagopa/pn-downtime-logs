@@ -5,13 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.pagopa.pn.downtime.pn_downtime_logs.api.StatusApi;
+import it.pagopa.pn.downtime.pn_downtime_logs.api.HealthcheckApi;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 
 @Validated
 @RestController
-public class StatusController implements StatusApi {
+public class StatusController implements HealthcheckApi {
 	
 	@Autowired
 	private DowntimeLogsService downtimeLogsService;

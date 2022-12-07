@@ -5,11 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.pagopa.pn.downtime.pn_downtime_logs.api.HealthcheckApi;
+import it.pagopa.pn.downtime.pn_downtime_logs.api.StatusApi;
 
 @RestController
 @Validated
-public class HeathCheckController implements HealthcheckApi {
+public class HeathCheckController implements StatusApi {
 
 	@Override
 	public ResponseEntity<Void> healthcheck() {
