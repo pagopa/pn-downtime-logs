@@ -5,19 +5,19 @@
 	<parent>
 		<groupId>it.pagopa.pn</groupId>
 		<artifactId>pn-parent</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
 		<relativePath />
 	</parent>
 	<groupId>it.pagopa.pn.downtime</groupId>
 	<artifactId>pn-downtime-logs</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<name>pn-downtime-logs</name>
 	<description>Register PN downtime logs</description>
 	<scm>
 		<connection>${git.conn}</connection>
 		<developerConnection>${git.devConn}</developerConnection>
 		<url>${git.url}</url>
-		<tag>HEAD</tag>
+		<tag>v1.0.1</tag>
 	</scm>
 	<properties>
 		<springfox-version>2.8.0</springfox-version>
@@ -185,7 +185,7 @@
 		<dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 	</dependencies>
 
