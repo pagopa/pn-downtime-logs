@@ -113,11 +113,11 @@ public abstract class AbstractMock {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	protected final String currentStatusUrl = "/downtime/v1/status";
-	protected final String statusUrl = "/status";
+	protected final String statusUrl = "/healthcheck";
 	protected final String historyStatusUrl = "/downtime/v1/history";
 	protected final String eventsUrl = "/downtime-internal/v1/events";
 	protected final String legalFactIdUrl = "/downtime/v1/legal-facts/";
-	protected final String healthCheckUrl = "/healthcheck";
+	protected final String healthCheckUrl = "/status";
 
 	protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
 		Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
