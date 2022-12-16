@@ -103,6 +103,10 @@ Parameters:
     Type: String
     Description: internal events queue alarm ARN
 
+  InternalEventQueueAgeAlarmARN:
+    Type: String
+    Description: internal events queue age alarm ARN
+
   DowntimeLogsSafeStorageEventsQueueURL:
     Type: String
     Description: queue url
@@ -114,6 +118,10 @@ Parameters:
   DowntimeLogsSafeStorageEventsQueueAlarmARN:
     Type: String
     Description: Events form safe-storage to pn-downtime-logs queue alarm ARN
+
+  DowntimeLogsSafeStorageEventsQueueAgeAlarmARN:
+    Type: String
+    Description: Events form safe-storage to pn-downtime-logs queue age alarm ARN
 
   DowntimeLogsAggregateAlarmQueueURL:
     Type: String
@@ -127,6 +135,10 @@ Parameters:
     Type: String
     Description: alarm queue ARN
   
+  DowntimeLogsAggregateAlarmQueueAgeAlarmARN:
+    Type: String
+    Description: age alarm queue ARN
+
   SchedulerLegalfactidActive:
     Type: String
     
@@ -258,8 +270,11 @@ Resources:
             - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !Ref InternalEventQueueAlarmARN
+            - !Ref InternalEventQueueAgeAlarmARN
             - !Ref DowntimeLogsSafeStorageEventsQueueAlarmARN
             - !Ref DowntimeLogsAggregateAlarmQueueAlarmARN
+            - !Ref DowntimeLogsSafeStorageEventsQueueAgeAlarmARN
+            - !Ref DowntimeLogsAggregateAlarmQueueAgeAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref InternalEventQueueARN
