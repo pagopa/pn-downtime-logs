@@ -149,6 +149,9 @@ Parameters:
     Type: String
     Description: 'Kinesis stream that receive logs'
     
+  AlbSecurityGroup:
+    Type: String
+    Description: 'Application load balancer security group'
 Resources:
 
   DowntimeLogsMicroservice:
@@ -186,6 +189,7 @@ Resources:
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        AlbSecurityGroup: !Ref AlbSecurityGroup
 
   # Grant operational rights to PN-Downtime-Logs microservice
   DowntimeLogsMicroserviceTaskPolicy:
