@@ -269,6 +269,7 @@ Resources:
           - - !GetAtt DowntimeLogsMicroservice.Outputs.AutoScalingAlarmArn
             - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref InternalEventQueueAlarmARN
             - !Ref InternalEventQueueAgeAlarmARN
             - !Ref DowntimeLogsSafeStorageEventsQueueAlarmARN
