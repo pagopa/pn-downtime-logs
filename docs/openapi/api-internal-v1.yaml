@@ -52,48 +52,51 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error  
-  "/status":
-    get:
-      summary: healthCheck path
-      description: >-
-        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>
-          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>
-          - status 500 se la piattaforma ha un funzionamento degradato. <br/>
-        Il body e lasciato libero quindi utilizziamo quanto già definito per il path 
-        /downtime/status
-      operationId: status
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/problem+json:
-              schema:
-                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"
-              example:
-                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
-                openIncidents: []
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"
-              example:
-                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
-                openIncidents:
-                  - functionality: NOTIFICATION_CREATE
-                    status: KO
-                    startDate: "2019-08-24T14:15:22Z"
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-
     ###########################################################################################
     ###                                 LETTURA DELLO STATO                                 ###
     ###########################################################################################
+  "/status":                                                                                            # ONLY EXTERNAL
+    get:                                                                                                # ONLY EXTERNAL
+      summary: status path                                                                         # ONLY EXTERNAL
+      description: >-                                                                                   # ONLY EXTERNAL
+        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                     # ONLY EXTERNAL
+          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    # ONLY EXTERNAL
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                           # ONLY EXTERNAL
+        Il body e lasciato libero quindi utilizziamo quanto già definito per il path                    # ONLY EXTERNAL
+        /downtime/status                                                                                # ONLY EXTERNAL
+      tags:                                                                                             # ONLY EXTERNAL  
+        - Read                                                                                          # ONLY EXTERNAL
+  #    security:                                                                                         # ONLY EXTERNAL
+  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
+      operationId: status                                                                               # ONLY EXTERNAL
+      responses:                                                                                        # ONLY EXTERNAL  
+        '200':                                                                                          # ONLY EXTERNAL
+          description: Ok                                                                               # ONLY EXTERNAL
+          content:                                                                                      # ONLY EXTERNAL
+            application/problem+json:                                                                   # ONLY EXTERNAL
+              schema:                                                                                   # ONLY EXTERNAL
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"            # ONLY EXTERNAL
+              example:                                                                                  # ONLY EXTERNAL
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW] # ONLY EXTERNAL
+                openIncidents: []                                                                       # ONLY EXTERNAL
+        '500':                                                                                          # ONLY EXTERNAL  
+          description: Internal Server Error                                                            # ONLY EXTERNAL
+          content:                                                                                      # ONLY EXTERNAL
+            application/problem+json:                                                                   # ONLY EXTERNAL
+              schema:                                                                                   # ONLY EXTERNAL
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"            # ONLY EXTERNAL
+              example:                                                                                  # ONLY EXTERNAL
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW] # ONLY EXTERNAL
+                openIncidents:                                                                          # ONLY EXTERNAL
+                  - functionality: NOTIFICATION_CREATE                                                  # ONLY EXTERNAL
+                    status: KO                                                                          # ONLY EXTERNAL
+                    startDate: "2019-08-24T14:15:22Z"                                                   # ONLY EXTERNAL
+        '400':                                                                                          # ONLY EXTERNAL
+          description: Bad request                                                                      # ONLY EXTERNAL
+          content:                                                                                      # ONLY EXTERNAL    
+            application/problem+json:                                                                   # ONLY EXTERNAL
+              schema:                                                                                   # ONLY EXTERNAL
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                         # ONLY EXTERNAL
   "/downtime/v1/status":
     get:
       summary: Stato attuale
@@ -102,6 +105,8 @@ paths:
         dei disservizi presenti al momento dell'invocazione.
       tags:
         - Read
+ #     security:                                                                                         # ONLY EXTERNAL
+#        - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: currentStatus
       responses:
         '200':
@@ -133,6 +138,8 @@ paths:
         estratti limitandoli a quelli impattanti le funzionalità elencate.
       tags:
         - Read
+ #     security:                                                                                         # ONLY EXTERNAL
+  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: statusHistory
       parameters:
         - $ref: '#/components/parameters/queryFromTime'
@@ -168,6 +175,8 @@ paths:
         attendere.
       tags:
         - Read
+  #    security:                                                                                         # ONLY EXTERNAL
+   #     - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: getLegalFact
       parameters:
         - name: legalFactId
@@ -198,10 +207,6 @@ paths:
                     retryAfter: 7200    
         '204':
           description: Not signed
-          content:
-            application/json:
-              schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '400':
           description: Bad request
           content:
@@ -211,7 +216,7 @@ paths:
         '404':
           description: Not found
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -228,6 +233,8 @@ paths:
         con l'attributo di richiesta _sourceType_.
       tags:
         - Write
+  #    security:                                                                                         # ONLY EXTERNAL
+   #     - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: addStatusChangeEvent
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'
@@ -299,5 +306,11 @@ components:
       description: Size della pagina di risultati a cui il client è interessato
       schema:
         type: string
-
+  securitySchemes:                                      
+    bearerAuth:                                         
+      type: http                                        
+      scheme: Bearer                                  
+      description: JWT                                
+security:                                             
+ - bearerAuth: []                                     
     
