@@ -105,8 +105,8 @@ paths:
         dei disservizi presenti al momento dell'invocazione.
       tags:
         - Read
-#      security:                                                                                         # ONLY EXTERNAL
-#        - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
+      security:                                                                                         # ONLY EXTERNAL
+        - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: currentStatus
       responses:
         '200':
@@ -306,11 +306,11 @@ components:
       description: Size della pagina di risultati a cui il client è interessato
       schema:
         type: string
-#  securitySchemes:           # ONLY EXTERNAL                           
-#    bearerAuth:              # ONLY EXTERNAL                           
-#      type: http             # ONLY EXTERNAL                           
-#      scheme: Bearer         # ONLY EXTERNAL                         
-#      description: JWT       # ONLY EXTERNAL                         
-#security:                    # ONLY EXTERNAL                         
-# - bearerAuth: []            # ONLY EXTERNAL                         
+  securitySchemes:           # ONLY EXTERNAL                           
+    bearerAuth:              # ONLY EXTERNAL                           
+      type: http             # ONLY EXTERNAL                           
+      scheme: Bearer         # ONLY EXTERNAL                         
+      description: JWT       # ONLY EXTERNAL                         
+security:                    # ONLY EXTERNAL                         
+ - bearerAuth: []            # ONLY EXTERNAL                         
     
