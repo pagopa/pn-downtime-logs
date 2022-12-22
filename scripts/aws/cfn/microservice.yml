@@ -190,14 +190,12 @@ Resources:
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         AlbSecurityGroup: !Ref AlbSecurityGroup
+        TaskRoleManagedPolicyArn: !Ref DowntimeLogsMicroserviceTaskManagedPolicy
 
   # Grant operational rights to PN-Downtime-Logs microservice
-  DowntimeLogsMicroserviceTaskPolicy:
-    Type: AWS::IAM::Policy
+  DowntimeLogsMicroserviceTaskManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
     Properties:
-      PolicyName: !Sub '${ProjectName}-downtime-logs-CustomTaskPolicy'
-      Roles:
-        - !GetAtt DowntimeLogsMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
