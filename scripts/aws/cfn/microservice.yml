@@ -2,6 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: 'Example microservice deploy'
 
 Parameters:
+
   ProjectName:
     Type: String
     Description: 'Usually pn can be pnXYZ where XYZ are the feature number, useful to create
@@ -58,7 +59,7 @@ Parameters:
   NetworkLoadBalancerLink:
     Type: String
     Description: 'network load balancer link for API-GW'
-  
+
   AlarmSNSTopicArn:
     Type: String
     Description: ARN of alarm topic
@@ -152,6 +153,8 @@ Parameters:
   AlbSecurityGroup:
     Type: String
     Description: 'Application load balancer security group'
+
+    
 Resources:
 
   DowntimeLogsMicroservice:
@@ -248,7 +251,67 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
-        
+  
+  PublicRestApiExternal:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      FailOnWarnings: true
+      Name: !Sub ${ProjectName}-downtime-logs-public-api   
+
+
+  PublicApiHealthCheckStatusResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt PublicRestApiExternal.RootResourceId
+      PathPart: "status"
+      RestApiId: !Ref PublicRestApiExternal 
+
+  PublicApiHealthCheckStatusMethod:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        Type: HTTP_PROXY
+        ConnectionId: !Ref NetworkLoadBalancerLink
+        ConnectionType: VPC_LINK
+        IntegrationHttpMethod: GET
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestParameters:
+          integration.request.path.proxy: method.request.path.proxy
+        TimeoutInMillis: 29000
+        Uri: !Sub "http://${ApplicationLoadBalancerDomain}:8080/status"
+      OperationName: Proxy to ECS microservices
+      RequestParameters:
+        method.request.path.proxy: true
+      ResourceId: !Ref PublicApiHealthCheckStatusResource
+      RestApiId: !Ref PublicRestApiExternal
+
+
+  PublicRestApiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn:
+      - PublicApiHealthCheckStatusMethod
+    Properties:
+      RestApiId: !Ref PublicRestApiExternal 
+
+  PublicRestApiStage:
+    Type: "AWS::ApiGateway::Stage"
+    Properties:
+      DeploymentId: !Ref PublicRestApiDeployment
+      MethodSettings:
+        - DataTraceEnabled: "false"
+          HttpMethod: "*"
+          MetricsEnabled: "true"
+          ResourcePath: /*
+      RestApiId: !Ref PublicRestApiExternal
+      StageName: unique
+      TracingEnabled: true
+
   ## Dashboard
   DowntimeLogsMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
