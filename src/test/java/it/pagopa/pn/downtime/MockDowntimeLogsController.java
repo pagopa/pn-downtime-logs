@@ -61,7 +61,16 @@ public class MockDowntimeLogsController extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("functionalities");
 		assertThat(response.getContentAsString()).contains("openIncidents");
 	}
-
+	
+	@Test
+	public void callCurrentStatusError() throws Exception {
+		mockStatusError();
+		MockHttpServletResponse response = mvc.perform(get(currentStatusUrl)).andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentAsString()).contains("KO");
+		assertThat(response.getContentAsString()).contains("500");
+	}
+	
 	/** jUnit test for the /historyStatus service */
 
 	public void test_CheckHistoryStatus(boolean toTime) throws Exception {
@@ -87,7 +96,7 @@ public class MockDowntimeLogsController extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("result");
 		assertThat(response.getContentAsString()).contains("functionality");
 	}
-
+	
 	/**
 	 * Two downtimeLogs with startDate between fromDate and toDate
 	 */

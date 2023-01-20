@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -166,23 +167,33 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	public PnStatusResponse currentStatus() {
 		List<PnDowntimeEntry> openIncidents = new ArrayList<>();
 		PnStatusResponse pnStatusResponseEntry = new PnStatusResponse();
-		for (PnFunctionality pn : PnFunctionality.values()) {
-			Map<String, AttributeValue> eav1 = new HashMap<>();
-			eav1.put(":functionality1", new AttributeValue().withS(pn.getValue()));
-			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-					.withFilterExpression("functionality =:functionality1 and  attribute_not_exists(endDate) ")
-					.withExpressionAttributeValues(eav1);
+		try {
+			for (PnFunctionality pn : PnFunctionality.values()) {
+				Map<String, AttributeValue> eav1 = new HashMap<>();
+				eav1.put(":functionality1", new AttributeValue().withS(pn.getValue()));
+				DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+						.withFilterExpression("functionality =:functionality1 and  attribute_not_exists(endDate) ")
+						.withExpressionAttributeValues(eav1);
 
-			List<DowntimeLogs> logs = dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
+				List<DowntimeLogs> logs = dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
 
-			if (logs != null && !logs.isEmpty() && PnFunctionalityStatus.KO.equals(logs.get(0).getStatus())) {
-				PnDowntimeEntry incident = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(logs.get(0));
-				openIncidents.add(incident);
+				if (logs != null && !logs.isEmpty() && PnFunctionalityStatus.KO.equals(logs.get(0).getStatus())) {
+					PnDowntimeEntry incident = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(logs.get(0));
+					openIncidents.add(incident);
+				}
 			}
+			pnStatusResponseEntry.setFunctionalities(Arrays.asList(PnFunctionality.values()));
+			pnStatusResponseEntry.setOpenIncidents(openIncidents);
+			pnStatusResponseEntry.setStatus(HttpStatus.OK.value());
+			pnStatusResponseEntry.setTitle(HttpStatus.OK.toString());
+			pnStatusResponseEntry.setDetail(HttpStatus.OK.toString());
+			log.info("Response: " + pnStatusResponseEntry.toString());
+		} catch (Exception e) {
+			log.error("Error occurred while fetching current status: ", e);
+			pnStatusResponseEntry.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value() );
+			pnStatusResponseEntry.setTitle(PnFunctionalityStatus.KO.toString());
+			pnStatusResponseEntry.setDetail(PnFunctionalityStatus.KO.toString());
 		}
-		pnStatusResponseEntry.setFunctionalities(Arrays.asList(PnFunctionality.values()));
-		pnStatusResponseEntry.setOpenIncidents(openIncidents);
-		log.info("Response: " + pnStatusResponseEntry.toString());
 		return pnStatusResponseEntry;
 	}
 
