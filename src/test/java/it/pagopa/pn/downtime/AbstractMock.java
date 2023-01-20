@@ -220,7 +220,12 @@ public abstract class AbstractMock {
 				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntime))));
 	}
-
+	
+	protected void mockStatusError() {
+		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
+				Mockito.anyInt())).thenThrow(new RuntimeException());
+	}
+	
 	@SuppressWarnings("unchecked")
 	protected void mockFindByFunctionalityAndEndDateIsNull(DowntimeLogs downtimeLogs) {
 		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
