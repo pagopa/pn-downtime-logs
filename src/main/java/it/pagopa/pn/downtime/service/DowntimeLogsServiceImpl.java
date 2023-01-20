@@ -185,14 +185,14 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			pnStatusResponseEntry.setFunctionalities(Arrays.asList(PnFunctionality.values()));
 			pnStatusResponseEntry.setOpenIncidents(openIncidents);
 			pnStatusResponseEntry.setStatus(HttpStatus.OK.value());
-			pnStatusResponseEntry.setTitle(HttpStatus.OK.toString());
-			pnStatusResponseEntry.setDetail(HttpStatus.OK.toString());
+			pnStatusResponseEntry.setTitle(HttpStatus.OK.name());
+			pnStatusResponseEntry.setDetail(HttpStatus.OK.name());
 			log.info("Response: " + pnStatusResponseEntry.toString());
 		} catch (Exception e) {
 			log.error("Error occurred while fetching current status: ", e);
 			pnStatusResponseEntry.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value() );
-			pnStatusResponseEntry.setTitle(PnFunctionalityStatus.KO.toString());
-			pnStatusResponseEntry.setDetail(PnFunctionalityStatus.KO.toString());
+			pnStatusResponseEntry.setTitle(PnFunctionalityStatus.KO.name());
+			pnStatusResponseEntry.setDetail(PnFunctionalityStatus.KO.name());
 		}
 		return pnStatusResponseEntry;
 	}
