@@ -69,9 +69,7 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
 			throws IOException {
-		log.info("addStatusChangeEvent");
 		for (PnStatusUpdateEvent event : pnStatusUpdateEvent) {
-			log.info("Input: " + event.toString());
 			for (PnFunctionality functionality : event.getFunctionality()) {
 
 				OffsetDateTime date = event.getTimestamp();
