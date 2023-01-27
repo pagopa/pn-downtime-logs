@@ -71,6 +71,10 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	@Override
 	public PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
+		
+        log.info("getStatusHistory - Input - fromTime: " + fromTime.toString() + " toTime: "
+                + (toTime != null ? toTime.toString() : "") + " functionality: "
+                + (functionality != null ? functionality.toString() : "") + " page: " + page + " size: " + size);
 
 		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, functionality);
 		

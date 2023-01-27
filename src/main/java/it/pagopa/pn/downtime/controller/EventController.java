@@ -53,19 +53,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 	 */
 	@Override
 	public ResponseEntity<PnStatusResponse> currentStatus() {
-		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWTIME, "currentStatus").build();
-		logEvent.log();
-		PnStatusResponse pnStatusResponse;
-		try {
-			pnStatusResponse = downtimeLogsService.currentStatus();
-			logEvent.generateSuccess().log();
-		} catch (Exception exc) {
-			logEvent.generateFailure("Exception on currentStatus =" + exc.getMessage()).log();
-			throw exc;
-		}
-		return ResponseEntity.ok(pnStatusResponse);
-
+		return ResponseEntity.ok(downtimeLogsService.currentStatus());
 	}
 
 	/**
@@ -83,7 +71,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 			throws IOException {
 		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWTIME,
-				"addStatusChangeEvent - pnStatusUpdateEvent={}", pnStatusUpdateEvent).build();
+				"addStatusChangeEvent - xPagopaPnUid={}, pnStatusUpdateEvent={}", xPagopaPnUid, pnStatusUpdateEvent).build();
 		logEvent.log();
 		try {
 			eventService.addStatusChangeEvent(xPagopaPnUid, pnStatusUpdateEvent);
@@ -104,20 +92,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 	 */
 	@Override
 	public ResponseEntity<LegalFactDownloadMetadataResponse> getLegalFact(String legalFactId) {
-		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-		PnAuditLogEvent logEvent = auditLogBuilder
-				.before(PnAuditLogEventType.AUD_NT_DOWTIME, "getLegalFact - Input: legalFactId={}", legalFactId)
-				.mdcEntry("legalFactId", legalFactId).build();
-		logEvent.log();
-		LegalFactDownloadMetadataResponse legalFactDownloadMetadataResponse;
-		try {
-			legalFactDownloadMetadataResponse = legalFactService.getLegalFact(legalFactId);
-			logEvent.generateSuccess().log();
-		} catch (Exception exc) {
-			logEvent.generateFailure("Exception on getLegalFact =" + exc.getMessage()).log();
-			throw exc;
-		}
-		return ResponseEntity.ok(legalFactDownloadMetadataResponse);
+	    return ResponseEntity.ok(legalFactService.getLegalFact(legalFactId));
 	}
 
 	/**
@@ -133,23 +108,9 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 	@Override
 	public ResponseEntity<PnDowntimeHistoryResponse> statusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
-		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWTIME, "statusHistory - Input: fromTime={}, toTime={}, functionality={}, page ={}, size={}", fromTime.toString(), (toTime != null ? toTime.toString() : ""), (functionality != null ? functionality.toString() : ""), page, size)
-				.build();
-		
-		logEvent.log();
-		PnDowntimeHistoryResponse pnDowntimeHistoryResponse;
-		try {
-			pnDowntimeHistoryResponse = downtimeLogsService.getStatusHistory(fromTime, toTime, functionality, page,
-					size);
-			logEvent.generateSuccess().log();
-		} catch (Exception exc) {
-			logEvent.generateFailure("Exception on statusHistory =" + exc.getMessage()).log();
-			throw exc;
-		}
-		return ResponseEntity.ok(pnDowntimeHistoryResponse);
+		return ResponseEntity.ok(downtimeLogsService.getStatusHistory(fromTime, toTime, functionality, page, size));
 	}
-
+	
 	@Override
 	public Optional<NativeWebRequest> getRequest() {
 		return DowntimeApi.super.getRequest();

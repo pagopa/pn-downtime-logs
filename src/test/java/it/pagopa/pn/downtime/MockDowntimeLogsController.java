@@ -2,6 +2,7 @@ package it.pagopa.pn.downtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -14,6 +15,7 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,6 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import it.pagopa.pn.downtime.model.Alarm;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
@@ -70,7 +74,6 @@ public class MockDowntimeLogsController extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("KO");
 		assertThat(response.getContentAsString()).contains("500");
 	}
-	
 	/** jUnit test for the /historyStatus service */
 
 	public void test_CheckHistoryStatus(boolean toTime) throws Exception {
@@ -225,7 +228,22 @@ public class MockDowntimeLogsController extends AbstractMock {
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
+	
+	@Test
+	public void  mockStatusChangeEventException() throws Exception {
+		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
+		doThrow(JsonProcessingException.class).when(producer).sendMessage(Mockito.any(DowntimeLogs.class), Mockito.anyString());
+		List<PnFunctionality> pnFunctionality = new ArrayList<>();
+		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
+		pnFunctionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
 
+		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
+				pnFunctionality, PnFunctionalityStatus.OK, SourceTypeEnum.ALARM, "ALARM");
+		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
+		assertThat(response.getContentAsString()).contains("500");
+	}
+	
 	/** 
 	 * A KO event arrives and there is other open 
 	 */
