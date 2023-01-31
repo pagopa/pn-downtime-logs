@@ -35,7 +35,7 @@ import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-public class TestSchedulerDowntimeLogs extends AbstractMock{
+public class SchedulerDowntimeLogsTest extends AbstractMock{
 
     @InjectMocks
     private LegalFactIdJob job;  

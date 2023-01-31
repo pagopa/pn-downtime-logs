@@ -43,7 +43,7 @@ import it.pagopa.pn.downtime.service.LegalFactService;
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 
-public class MockDowntimeLogsController extends AbstractMock {
+public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	@Autowired
 	LegalFactService legalFactService;

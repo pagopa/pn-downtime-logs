@@ -31,7 +31,7 @@ import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-class PnDowntimeSqs extends AbstractMock {
+class PnDowntimeSqsTest extends AbstractMock {
 
 	@InjectMocks
 	DowntimeLogsSend downtimeLogsSend;
