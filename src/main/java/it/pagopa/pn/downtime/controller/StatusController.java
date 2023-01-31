@@ -12,7 +12,7 @@ import it.pagopa.pn.downtime.service.DowntimeLogsService;
 @Validated
 @RestController
 public class StatusController implements StatusApi {
-	
+
 	@Autowired
 	private DowntimeLogsService downtimeLogsService;
 
@@ -24,7 +24,5 @@ public class StatusController implements StatusApi {
 		} else
 			return ResponseEntity.ok(openIncidents);
 	}
-	
 
-	
 }

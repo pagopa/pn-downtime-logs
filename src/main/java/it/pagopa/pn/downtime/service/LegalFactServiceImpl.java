@@ -115,7 +115,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 	 */
 	@Override
 	public LegalFactDownloadMetadataResponse getLegalFact(String legalFactId) {
-		log.info("getLegalFact - Input: " + legalFactId);
+        log.info("getLegalFact - Input: " + legalFactId);
 		ApiClient api = new ApiClient();
 		api.setBasePath(urlSafeStore);	
 		if (enableApiKey) {
