@@ -312,6 +312,15 @@ Resources:
       StageName: unique
       TracingEnabled: true
 
+  # Expose API to custom domain
+  APIMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: ''
+      DomainName: !Ref ApiDnsName
+      RestApiId: !Ref PublicRestApiExternal
+      Stage: !Ref PublicRestApiStage
+
   ## Dashboard
   DowntimeLogsMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
