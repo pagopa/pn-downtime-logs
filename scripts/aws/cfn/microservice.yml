@@ -320,7 +320,7 @@ Resources:
   PagoPaMapping:
     Type: 'AWS::ApiGateway::BasePathMapping'
     Properties:
-      DomainName: !Ref MyDomainName
+      DomainName: !Ref PagoPaDomainName
       RestApiId: !Ref PublicRestApiExternal
 
   ## Dashboard
