@@ -312,16 +312,7 @@ Resources:
       StageName: unique
       TracingEnabled: true
 
-  PagoPaDomainName:
-    Type: 'AWS::ApiGateway::DomainName'
-    Properties:
-      DomainName: api.dev.pn.pagopa.it
-      
-  PagoPaMapping:
-    Type: 'AWS::ApiGateway::BasePathMapping'
-    Properties:
-      DomainName: !Ref MyDomainName
-      RestApiId: !Ref PublicRestApiExternal
+
 
   ## Dashboard
   DowntimeLogsMicroserviceCloudWatchDashboard:
