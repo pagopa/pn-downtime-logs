@@ -70,7 +70,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 	public ResponseEntity<Void> addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
 			throws IOException {
 		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWTIME,
+		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
 				"addStatusChangeEvent - xPagopaPnUid={}, pnStatusUpdateEvent={}", xPagopaPnUid, pnStatusUpdateEvent)
 			.mdcEntry("uid",xPagopaPnUid)
 			.build();
