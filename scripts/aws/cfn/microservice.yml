@@ -311,16 +311,11 @@ Resources:
       RestApiId: !Ref PublicRestApiExternal
       StageName: unique
       TracingEnabled: true
-
-  PagoPaDomainName:
-    Type: 'AWS::ApiGateway::DomainName'
-    Properties:
-      DomainName: !Ref ApiDnsName
       
   PagoPaMapping:
     Type: 'AWS::ApiGateway::BasePathMapping'
     Properties:
-      DomainName: !Ref PagoPaDomainName
+      DomainName: !Ref ApiDnsName
       RestApiId: !Ref PublicRestApiExternal
 
   ## Dashboard
