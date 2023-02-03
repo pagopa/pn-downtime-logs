@@ -315,12 +315,12 @@ Resources:
   PagoPaDomainName:
     Type: 'AWS::ApiGateway::DomainName'
     Properties:
-      DomainName: api.dev.pn.pagopa.it
+      DomainName: !Ref ApiDnsName
       
   PagoPaMapping:
     Type: 'AWS::ApiGateway::BasePathMapping'
     Properties:
-      DomainName: !Ref MyDomainName
+      DomainName: !Ref PagoPaDomainName
       RestApiId: !Ref PublicRestApiExternal
 
   ## Dashboard
