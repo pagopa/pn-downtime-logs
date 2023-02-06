@@ -54,7 +54,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	/** The downtime logs mapper. */
 	@Autowired
 	DowntimeLogsMapper downtimeLogsMapper;
-	
+
 	@Value("${history.index}")
 	private String historyIndex;
 
@@ -71,13 +71,13 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	@Override
 	public PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
-		
-        log.info("getStatusHistory - Input - fromTime: " + fromTime.toString() + " toTime: "
-                + (toTime != null ? toTime.toString() : "") + " functionality: "
-                + (functionality != null ? functionality.toString() : "") + " page: " + page + " size: " + size);
+
+		log.info("getStatusHistory - Input - fromTime: " + fromTime.toString() + " toTime: "
+				+ (toTime != null ? toTime.toString() : "") + " functionality: "
+				+ (functionality != null ? functionality.toString() : "") + " page: " + page + " size: " + size);
 
 		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, functionality);
-		
+
 		Page<DowntimeLogs> pageHistory = null;
 
 		if (page != null && !page.isEmpty() && size != null && !size.isEmpty()) {
@@ -143,9 +143,12 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		String filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ")";
 		if (toTime != null) {
 			attributes.put(":endDate1", new AttributeValue().withS(toTime.toString()));
-			filter = filter.concat(" and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or  endDate BETWEEN :startDate1 AND :endDate1)");
+			filter = filter.concat(
+					" and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or endDate BETWEEN :startDate1 AND :endDate1 or (startDateAttribute < :startDate1 and (endDate > :endDate1 or attribute_not_exists(endDate))))");
 		} else {
-			filter = filter.concat(" and  (startDateAttribute > :startDate1  or endDate > :startDate1 and startDateAttribute < :startDate1 )");
+			filter = filter.concat(
+					" and  (startDateAttribute > :startDate1 or endDate > :startDate1 or (startDateAttribute < :startDate1 and attribute_not_exists(endDate)))");
+
 		}
 
 		DynamoDBQueryExpression<DowntimeLogs> queryExpression = new DynamoDBQueryExpression<DowntimeLogs>()
@@ -190,7 +193,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			log.info("Response: " + pnStatusResponseEntry.toString());
 		} catch (Exception e) {
 			log.error("Error occurred while fetching current status: ", e);
-			pnStatusResponseEntry.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value() );
+			pnStatusResponseEntry.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			pnStatusResponseEntry.setTitle(PnFunctionalityStatus.KO.name());
 			pnStatusResponseEntry.setDetail(PnFunctionalityStatus.KO.name());
 		}
@@ -213,7 +216,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			String startEventUuid, String uuid) {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
-		OffsetDateTime newStartDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(startDate);	
+		OffsetDateTime newStartDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(startDate);
 		downtimeLogs.setStartDate(newStartDate);
 		downtimeLogs.setStartDateAttribute(newStartDate);
 		downtimeLogs.setStatus(PnFunctionalityStatus.KO);
