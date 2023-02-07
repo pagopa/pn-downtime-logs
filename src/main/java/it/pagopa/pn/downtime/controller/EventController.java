@@ -72,7 +72,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
 				"addStatusChangeEvent - xPagopaPnUid={}, pnStatusUpdateEvent={}", xPagopaPnUid, pnStatusUpdateEvent)
-			.mdcEntry("uid",xPagopaPnUid)
+			.mdcEntry("uid", xPagopaPnUid.substring(3))
 			.build();
 		logEvent.log();
 		try {
