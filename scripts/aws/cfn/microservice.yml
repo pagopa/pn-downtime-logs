@@ -252,6 +252,15 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
   
+  DowntimeLogsMicroservicePublicWebAPIWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-downtime-logs-web'
+        IntendedUsage: WEB 
+        APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.APIGatewayARN
+
   PublicRestApiExternal:
     Type: "AWS::ApiGateway::RestApi"
     Properties:
@@ -260,7 +269,6 @@ Resources:
           - REGIONAL
       FailOnWarnings: true
       Name: !Sub ${ProjectName}-downtime-logs-public-api   
-
 
   PublicApiHealthCheckStatusResource:
     Type: "AWS::ApiGateway::Resource"
@@ -317,6 +325,15 @@ Resources:
     Properties:
       DomainName: !Ref ApiDnsName
       RestApiId: !Ref PublicRestApiExternal
+
+  DowntimeLogsMicroserviceStatusWebApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-downtime-logs-status'
+        IntendedUsage: B2B 
+        APIGatewayARNs: !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/${PublicRestApiExternal}/stages/${PublicRestApiStage}'
 
   ## Dashboard
   DowntimeLogsMicroserviceCloudWatchDashboard:
