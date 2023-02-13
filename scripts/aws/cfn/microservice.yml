@@ -324,6 +324,7 @@ Resources:
     Type: 'AWS::ApiGateway::BasePathMapping'
     Properties:
       DomainName: !Ref ApiDnsName
+      Stage: !Ref PublicRestApiStage
       RestApiId: !Ref PublicRestApiExternal
 
   DowntimeLogsMicroserviceStatusWebApiWaf:
