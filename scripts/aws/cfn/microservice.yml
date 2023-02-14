@@ -240,6 +240,7 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
         CpuValue: !Ref CpuValue
         MemoryAmount: !Ref MemoryAmount
+        HealthCheckTimeout: !Ref HealthCheckTimeout
         HealthCheckInterval: !Ref HealthCheckInterval
         HealthyThresholdCount: !Ref HealthyThresholdCount
         UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
@@ -271,7 +272,6 @@ Resources:
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
         HealthCheckPath: /healthcheck
-        HealthCheckTimeout: 15
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
