@@ -163,7 +163,7 @@ Parameters:
   HealthCheckTimeout:
     Description: health check timeout seconds
     Type: Number
-    Default: 5
+    Default: 15
   
   HealthyThresholdCount:
     Description: |
@@ -240,7 +240,6 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
         CpuValue: !Ref CpuValue
         MemoryAmount: !Ref MemoryAmount
-        HealthCheckTimeout: !Ref HealthCheckTimeout
         HealthCheckInterval: !Ref HealthCheckInterval
         HealthyThresholdCount: !Ref HealthyThresholdCount
         UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
