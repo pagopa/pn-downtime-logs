@@ -392,10 +392,19 @@ Resources:
     Properties:
       RestApiId: !Ref PublicRestApiExternal 
 
+   # Log Group
+  DowntimeLogsPublicStatusApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 14
+
   PublicRestApiStage:
     Type: "AWS::ApiGateway::Stage"
     Properties:
       DeploymentId: !Ref PublicRestApiDeployment
+      AccessLogSetting:
+        DestinationArn: !GetAtt "DowntimeLogsPublicStatusApiLogGroup.Arn"
+        Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency,"xrayTraceId":"$context.xrayTraceId","errorMessage":"$context.error.messageString","validationErrorString":"$context.error.validationErrorString","integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent"}'
       MethodSettings:
         - DataTraceEnabled: "false"
           HttpMethod: "*"
