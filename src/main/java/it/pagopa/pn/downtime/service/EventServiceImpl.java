@@ -2,6 +2,7 @@ package it.pagopa.pn.downtime.service;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,12 +117,14 @@ public class EventServiceImpl implements EventService {
 	 * @param event         the input event
 	 * @param xPagopaPnUid  the x pagopa pn uid
 	 * @param dt            the previous downtime for the given functionality
+	 * @throws IOException 
 	 */
 
 	public void checkCreateDowntime(PnFunctionality functionality, String eventId, PnStatusUpdateEvent event,
 			String xPagopaPnUid, DowntimeLogs dt) {
+		
 		if ((dt != null && event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null
-				&& dt.getEndDate().compareTo(event.getTimestamp()) <= 0)
+				 && dt.getEndDate().compareTo(event.getTimestamp()) <= 0)
 				|| (dt == null && event.getStatus().equals(PnFunctionalityStatus.KO))) {
 			
 			downtimeLogsService.saveDowntimeLogs(
@@ -129,6 +132,7 @@ public class EventServiceImpl implements EventService {
 					event.getTimestamp(), functionality, eventId, xPagopaPnUid);
 		}
 	}
+
 
 	/**
 	 * Check if the current downtime has to be closed and closes it.
@@ -164,17 +168,23 @@ public class EventServiceImpl implements EventService {
 			PnStatusUpdateEvent event) throws IOException {
 
 		String saveUid = "";
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		OffsetDateTime now = OffsetDateTime.parse(OffsetDateTime.now().format(formatter));
+
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK) && dt.getEndDate() != null) {
 			log.error("Error creating event!");
 		} else {
-			/** Settare l'uuid dell'utente*/
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,
 					event.getStatus(), event.getSourceType(), event.getSource(), xPagopaPnUid);
 		}
-
-		checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
-		checkUpdateDowntime(saveUid, event, dt);
-
+		
+		if (event.getTimestamp().isBefore(now)) {
+			checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
+			checkUpdateDowntime(saveUid, event, dt);
+		} else {
+			throw new IOException("An error occured during elaboration of PnStatusUpdateEvent's date");
+		}
 	}
 
 	/**

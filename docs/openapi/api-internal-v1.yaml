@@ -108,6 +108,9 @@ paths:
 #      security:                                                                                         # ONLY EXTERNAL
 #        - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: currentStatus
+      x-api-permissions:                                                                                
+        - 'api-key-read'                                                                                
+        - 'log-downtime-read'
       responses:
         '200':
           description: OK
@@ -141,6 +144,9 @@ paths:
  #     security:                                                                                         # ONLY EXTERNAL
  #       - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: statusHistory
+      x-api-permissions:                                                                                
+        - 'api-key-read'                                                                                
+        - 'log-downtime-read'
       parameters:
         - $ref: '#/components/parameters/queryFromTime'
         - $ref: '#/components/parameters/queryToTime'
@@ -178,6 +184,9 @@ paths:
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: getLegalFact
+      x-api-permissions:                                                                                
+        - 'api-key-read'                                                                                
+        - 'log-downtime-read'
       parameters:
         - name: legalFactId
           in: path
@@ -236,6 +245,9 @@ paths:
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: addStatusChangeEvent
+      x-api-permissions:                                                                                
+        - 'api-key-write'                                                                                
+        - 'log-downtime-write'
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'
       requestBody:
