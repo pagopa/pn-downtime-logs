@@ -24,6 +24,10 @@ Parameters:
     Type: String
     Description: 'Where to send CDC'
 
+  AlarmSNSTopicName:
+    Type: String
+    Description: 'Topic alarm'
+
 Resources:
 
   ### Queue that receive safe-storage notification to DOWNTIME LOGS ###
@@ -33,6 +37,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
         QueueName: !Sub '${ProjectName}-downtime_logs_internal_events'
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName   
         DelaySeconds: 1
 
   Event:
