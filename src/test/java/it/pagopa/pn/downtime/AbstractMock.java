@@ -80,7 +80,7 @@ public abstract class AbstractMock {
 	RestTemplate client;
 
 	@MockBean
-	private DynamoDBMapper mockDynamoDBMapper;
+	protected DynamoDBMapper mockDynamoDBMapper;
 
 	@MockBean
 	SimpleMessageListenerContainer simpleMessageListenerContainer;

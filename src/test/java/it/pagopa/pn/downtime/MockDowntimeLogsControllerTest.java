@@ -230,6 +230,20 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	}
 	
 	@Test
+	public void test_CheckAddStatusChangeTimestampIsAfter() throws Exception {
+		mockAddStatusChange_KO(client);
+		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
+		List<PnFunctionality> pnFunctionality = new ArrayList<>();
+		pnFunctionality.add(PnFunctionality.NOTIFICATION_CREATE);
+		pnFunctionality.add(PnFunctionality.NOTIFICATION_WORKFLOW);
+		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2099-08-28T08:55:15.995Z"),
+				pnFunctionality, PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
+		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
+		assertThat(response.getContentAsString()).contains("500");
+	}
+	
+	@Test
 	public void  mockStatusChangeEventException() throws Exception {
 		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
 		doThrow(JsonProcessingException.class).when(producer).sendMessage(Mockito.any(DowntimeLogs.class), Mockito.anyString());
