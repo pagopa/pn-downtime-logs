@@ -468,3 +468,6 @@ Resources:
           - - !Ref InternalEventQueueARN
             - !Ref DowntimeLogsSafeStorageEventsQueueARN
             - !Ref DowntimeLogsAggregateAlarmQueueARN
+        LogGroupsNames: !Join
+          - ','
+          - - !Sub '/aws/ecs/${ProjectName}-downtime-logs'            
