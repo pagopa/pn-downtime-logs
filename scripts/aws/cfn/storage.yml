@@ -28,11 +28,17 @@ Parameters:
     Type: String
     Description: 'Topic alarm'
 
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send Logs'
+    
 Resources:
 
   ### Queue that receive safe-storage notification to DOWNTIME LOGS ###
   InternalEventQueue:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -42,6 +48,8 @@ Resources:
 
   Event:
     Type: "AWS::DynamoDB::Table"
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: Downtime-Event
       AttributeDefinitions:
@@ -63,6 +71,8 @@ Resources:
 
   Log:
     Type: "AWS::DynamoDB::Table"
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: Downtime-DowntimeLogs
       AttributeDefinitions:
@@ -107,6 +117,16 @@ Resources:
       StreamSpecification: 
         StreamViewType: NEW_IMAGE
 
+  PnDowntimeLogsLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain 
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub '${ProjectName}-downtime-logs'
+        LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
+
 Outputs:
   
   # External channels outputs
@@ -139,3 +159,7 @@ Outputs:
   LogDynamoTableArn:
     Description: ARN of dynamodb table containing log
     Value: !Sub '${Log.Arn}'
+
+  # Log group exports
+  EcsLogGroup:
+    Value: !GetAtt PnDowntimeLogsLogGroup.Outputs.LogGroupName
