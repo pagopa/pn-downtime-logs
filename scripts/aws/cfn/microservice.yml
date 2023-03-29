@@ -154,6 +154,11 @@ Parameters:
     Type: String
     Description: 'Application load balancer security group'
 
+  # Log group parameters
+  EcsLogGroup:
+    Type: String
+    Description: 'Ecs log group name'
+
   # Heath Check parameters
   HealthCheckInterval:
     Description: Seconds between two health check
@@ -276,9 +281,9 @@ Resources:
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         AlbSecurityGroup: !Ref AlbSecurityGroup
         TaskRoleManagedPolicyArn: !Ref DowntimeLogsMicroserviceTaskManagedPolicy
+        EcsLogGroup: !Ref EcsLogGroup
 
   # Grant operational rights to PN-Downtime-Logs microservice
   DowntimeLogsMicroserviceTaskManagedPolicy:
@@ -463,3 +468,6 @@ Resources:
           - - !Ref InternalEventQueueARN
             - !Ref DowntimeLogsSafeStorageEventsQueueARN
             - !Ref DowntimeLogsAggregateAlarmQueueARN
+        LogGroupsNames: !Join
+          - ','
+          - - !Sub '/aws/ecs/${ProjectName}-downtime-logs'            
