@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Rule;
 import org.mockito.ArgumentMatchers;
@@ -39,7 +40,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedParallelScanList;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
-import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,8 +62,9 @@ import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileC
 import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
+import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
-import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
+import it.pagopa.pn.downtime.service.impl.DowntimeLogsServiceImpl;
 
 public abstract class AbstractMock {
 
@@ -75,12 +76,16 @@ public abstract class AbstractMock {
 
 	@Autowired
 	CloudwatchMapper cloudwatchMapper;
+
 	@MockBean
 	@Qualifier("restTemplate")
 	RestTemplate client;
 
 	@MockBean
 	protected DynamoDBMapper mockDynamoDBMapper;
+
+	@MockBean
+	protected DowntimeLogsRepository mockDowntimeLogsRepository;
 
 	@MockBean
 	SimpleMessageListenerContainer simpleMessageListenerContainer;
@@ -124,7 +129,7 @@ public abstract class AbstractMock {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void mockFindAllByFunctionalityInAndStartDateBetween() {
+	protected void mockFindByFunctionalityInAndStartDateBetween() {
 		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
 		downtimeLogsList
 				.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
@@ -133,8 +138,8 @@ public abstract class AbstractMock {
 				getDowntimeLogs("NOTIFICATION_VISUALIZZATION2022", OffsetDateTime.parse("2022-05-10T10:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_VISUALIZATION, "EVENT_START", "akdoe-50403", null));
 
-		Mockito.when(
-				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
+		Mockito.when(mockDynamoDBMapper.query(ArgumentMatchers.eq(DowntimeLogs.class),
+				ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any()))
 				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
 	}
@@ -142,8 +147,8 @@ public abstract class AbstractMock {
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNull(DowntimeLogsService downtimeLogsService,
 			List<DowntimeLogs> downtimeLogsList) {
-		Mockito.when(
-				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
+		Mockito.when(mockDynamoDBMapper.query(ArgumentMatchers.eq(DowntimeLogs.class),
+				ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any()))
 				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
 	}
@@ -152,27 +157,26 @@ public abstract class AbstractMock {
 	protected void mockFindAllByEndDateIsNotNullAndLegalFactIdIsNullWithParallelScan(
 			DowntimeLogsService downtimeLogsService, List<DowntimeLogs> downtimeLogsList) {
 		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
-				Mockito.anyInt())).thenReturn(mock(PaginatedParallelScanList.class,
+				Mockito.anyInt()))
+				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
 	}
 
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore() {
-		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
-		downtimeLogsList
-				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
+		List<DowntimeLogs> downtimeLogsList = List
+				.of(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
+
 		Mockito.when(
 				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
 				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(downtimeLogsList))));
 	}
 
-	protected void mockFindFirstByLegalFactId(DowntimeLogs dt) {
+	protected void mockFindFirstByLegalFactId(DowntimeLogs downtimeLogs) {
 		ScanResultPage<DowntimeLogs> scanPageDowntime = new ScanResultPage<>();
-		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
-		listDowntimeLogs.add(dt);
-		scanPageDowntime.setResults(listDowntimeLogs);
+		scanPageDowntime.setResults(List.of(downtimeLogs));
 		Mockito.when(mockDynamoDBMapper.scanPage(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any()))
 				.thenReturn(scanPageDowntime);
 	}
@@ -188,6 +192,7 @@ public abstract class AbstractMock {
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndStartDateAfter() {
 		List<DowntimeLogs> listDowntime = new ArrayList<>();
+
 		listDowntime
 				.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-02-24T08:56:07.000+00:00"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "PAGO-PA-EVENT-W", "123", null));
@@ -197,6 +202,7 @@ public abstract class AbstractMock {
 		listDowntime.add(getDowntimeLogs("NOTIFICATION_CREATE2022",
 				OffsetDateTime.parse("2022-01-25T04:56:07.000+00:00"), PnFunctionality.NOTIFICATION_CREATE,
 				"PAGO-PA-EVENT-C", "10DJAKDF", OffsetDateTime.parse("2022-01-25T10:56:07.000+00:00")));
+
 		Mockito.when(
 				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
 				.thenReturn(mock(PaginatedQueryList.class,
@@ -220,57 +226,122 @@ public abstract class AbstractMock {
 				.thenReturn(mock(PaginatedQueryList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntime))));
 	}
-	
+
 	protected void mockStatusError() {
 		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
 				Mockito.anyInt())).thenThrow(new RuntimeException());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected void mockFindByFunctionalityAndEndDateIsNull(DowntimeLogs downtimeLogs) {
-		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
-		listDowntimeLogs.add(downtimeLogs);
 		Mockito.when(
 				mockDynamoDBMapper.query(Mockito.eq(DowntimeLogs.class), Mockito.any(DynamoDBQueryExpression.class)))
 				.thenReturn(mock(PaginatedQueryList.class,
-						withSettings().defaultAnswer(new ForwardsInvocations(listDowntimeLogs))));
+						withSettings().defaultAnswer(new ForwardsInvocations(List.of(downtimeLogs)))));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected void mockFindByFunctionalityAndEndDateIsNullCheck500(DowntimeLogs downtimeLogs) {
 		List<DowntimeLogs> listDowntimeLogs = new ArrayList<>();
 		listDowntimeLogs.add(downtimeLogs);
 		Mockito.when(mockDynamoDBMapper.parallelScan(ArgumentMatchers.<Class<DowntimeLogs>>any(), Mockito.any(),
-				Mockito.anyInt())).thenReturn(mock(PaginatedParallelScanList.class,
+				Mockito.anyInt()))
+				.thenReturn(mock(PaginatedParallelScanList.class,
 						withSettings().defaultAnswer(new ForwardsInvocations(listDowntimeLogs))));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected void mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate() {
-		List<DowntimeLogs> list = new ArrayList<>();
-		list.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
-				PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
+		Mockito.when(mockDowntimeLogsRepository.findOpenDowntimeLogsFuture(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(Optional.empty());
 
-		QueryResultPage<DowntimeLogs> queryResult = new QueryResultPage<>();
-		queryResult.setResults(list);
-		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
-				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult);
+		Mockito.when(mockDowntimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(
+				ArgumentMatchers.any(OffsetDateTime.class), ArgumentMatchers.any(PnFunctionality.class),
+				ArgumentMatchers.any(OffsetDateTime.class))).thenReturn(Optional.empty());
+
+		Optional<DowntimeLogs> optionalDowntimeLogs = Optional
+				.of(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
+
+		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogs(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(Optional.empty(), optionalDowntimeLogs);
 
 	}
-
-	@SuppressWarnings("unchecked")
-	protected void mockFindNothing() {
-		List<DowntimeLogs> downtimeLogsList1 = null;
-		QueryResultPage<DowntimeLogs> queryResult1 = new QueryResultPage<>();
-		queryResult1.setResults(downtimeLogsList1);
-		List<DowntimeLogs> downtimeLogsList2 = new ArrayList<>();
-		downtimeLogsList2
-				.add(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
+	
+	protected void mockFindOpenDowntimeFuture() {
+		Optional<DowntimeLogs> optionalDowntimeLogs = Optional
+				.of(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
-		QueryResultPage<DowntimeLogs> queryResult2 = new QueryResultPage<>();
-		queryResult2.setResults(downtimeLogsList2);
-		Mockito.when(mockDynamoDBMapper.queryPage(Mockito.eq(DowntimeLogs.class),
-				Mockito.any(DynamoDBQueryExpression.class))).thenReturn(queryResult1, queryResult2);
+		
+		Mockito.when(mockDowntimeLogsRepository.findOpenDowntimeLogsFuture(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(optionalDowntimeLogs);
+	}
+	
+	protected void mockFindDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists() {
+		Optional<DowntimeLogs> optionalDowntimeLogs = Optional
+				.of(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
+		
+		Mockito.when(mockDowntimeLogsRepository.findOpenDowntimeLogsFuture(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(Optional.empty());
+
+		Mockito.when(mockDowntimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(
+				ArgumentMatchers.any(OffsetDateTime.class), ArgumentMatchers.any(PnFunctionality.class),
+				ArgumentMatchers.any(OffsetDateTime.class))).thenReturn(optionalDowntimeLogs);
+	}
+	@SuppressWarnings("unchecked")
+	protected void mockFindDowntimeBeforeOneYear() {
+		Mockito.when(mockDowntimeLogsRepository.findOpenDowntimeLogsFuture(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(Optional.empty());
+
+		Mockito.when(mockDowntimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(
+				ArgumentMatchers.any(OffsetDateTime.class), ArgumentMatchers.any(PnFunctionality.class),
+				ArgumentMatchers.any(OffsetDateTime.class))).thenReturn(Optional.empty());
+
+		Optional<DowntimeLogs> optionalDowntimeLogs = Optional
+				.of(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2021-09-28T08:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
+
+		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogs(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(Optional.empty(), optionalDowntimeLogs);
+	}
+
+	protected void mockAddStatusChangeOKError() {
+		Mockito.when(mockDowntimeLogsRepository.findOpenDowntimeLogsFuture(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(Optional.empty());
+
+		Mockito.when(mockDowntimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(
+				ArgumentMatchers.any(OffsetDateTime.class), ArgumentMatchers.any(PnFunctionality.class),
+				ArgumentMatchers.any(OffsetDateTime.class))).thenReturn(Optional.empty());
+
+		Optional<DowntimeLogs> optionalDowntimeLogs = Optional.of(getDowntimeLogs("NOTIFICATION_CREATE2022",
+				OffsetDateTime.parse("2022-09-28T08:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, "EVENT",
+				"akdocdfe-50403", OffsetDateTime.parse("2022-09-29T12:55:15.995Z")));
+
+		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogs(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(optionalDowntimeLogs);
+	}
+
+	protected void mockFoundAnyOpenDowntimeLogs() {
+		Mockito.when(mockDowntimeLogsRepository.findOpenDowntimeLogsFuture(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(Optional.empty());
+
+		Mockito.when(mockDowntimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(
+				ArgumentMatchers.any(OffsetDateTime.class), ArgumentMatchers.any(PnFunctionality.class),
+				ArgumentMatchers.any(OffsetDateTime.class))).thenReturn(Optional.empty());
+		
+		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogs(ArgumentMatchers.any(OffsetDateTime.class),
+				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
+				.thenReturn(Optional.empty());
 	}
 
 	@SuppressWarnings("unchecked")

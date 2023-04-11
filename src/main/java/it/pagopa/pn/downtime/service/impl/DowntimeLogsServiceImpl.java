@@ -1,4 +1,4 @@
-package it.pagopa.pn.downtime.service;
+package it.pagopa.pn.downtime.service.impl;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
+import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

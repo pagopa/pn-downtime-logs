@@ -25,7 +25,7 @@ import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.scheduler.LegalFactIdJob;
-import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
+import it.pagopa.pn.downtime.service.impl.DowntimeLogsServiceImpl;
 
 
 

@@ -1,4 +1,4 @@
-package it.pagopa.pn.downtime.service;
+package it.pagopa.pn.downtime.service.impl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,6 +32,7 @@ import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.api.FileUpl
 import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreationRequest;
 import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.downtime.service.LegalFactService;
 import it.pagopa.pn.downtime.util.DocumentComposition;
 import it.pagopa.pn.downtime.util.LegalFactGenerator;
 import lombok.RequiredArgsConstructor;
