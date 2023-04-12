@@ -113,7 +113,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	@Test
 	public void test_CheckHistoryStatusPageEndDateBetween() throws Exception {
 		mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore();
-		//test_CheckHistoryStatus(false);
+		test_CheckHistoryStatus(false);
 	}
 
 	/**

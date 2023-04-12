@@ -164,8 +164,8 @@ public abstract class AbstractMock {
 
 	@SuppressWarnings("unchecked")
 	protected void mockFindAllByFunctionalityInAndEndDateBetweenAndStartDateBefore() {
-		List<DowntimeLogs> downtimeLogsList = List
-				.of(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
+		List<DowntimeLogs> downtimeLogsList = new ArrayList<>();
+		downtimeLogsList.add(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-27T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
 
 		Mockito.when(
