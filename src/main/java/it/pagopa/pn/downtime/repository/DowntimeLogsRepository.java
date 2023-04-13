@@ -114,6 +114,18 @@ public class DowntimeLogsRepository {
 		return queryResultPage != null ? queryResultPage.getResults() : List.of();
 	}
 
+	public Optional<DowntimeLogs> findNextDowntimeLogs(OffsetDateTime date, PnFunctionality functionality, OffsetDateTime eventTimestamp) {
+		DynamoDBQueryExpression<DowntimeLogs> queryExpression = buildDynamoDBQueryExpression(date, functionality,
+				eventTimestamp)
+				.withKeyConditionExpression(
+						"functionalityStartYear =:functionalityStartYearInput and startDate >:startDateInput")
+				.withFilterExpression("functionality = :functionalityInput").withScanIndexForward(true);
+
+		QueryResultPage<DowntimeLogs> queryResultPage = dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
+		List<DowntimeLogs> result = queryResultPage != null ? queryResultPage.getResults() : List.of();
+
+		return (result == null || result.isEmpty()) ? Optional.empty() : Optional.of(result.get(0));
+	}
 	/**
 	 * Builds the DynamoDBQueryExpression object for querying the DowntimeLogs
 	 * table.

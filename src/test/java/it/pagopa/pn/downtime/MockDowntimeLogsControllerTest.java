@@ -318,6 +318,17 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 		test_CheckAddStatusChange();
 	}
 
+	@Test
+	public void test_CheckAddStatusChangeOK_givenFindNextDowntimeLogsResultNotEmpty() throws Exception {
+		mockFindNextDowntimeLogsNotEmpty();
+		
+		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
+				List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
+		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
+				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
+	}
+	
 	/** 
 	 * An OK event arrives and there is a KO event open from the previous year 
 	 */
