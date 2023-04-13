@@ -264,7 +264,7 @@ public abstract class AbstractMock {
 				.of(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
 
-		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogs(ArgumentMatchers.any(OffsetDateTime.class),
+		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogsWithoutEndDate(ArgumentMatchers.any(OffsetDateTime.class),
 				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
 				.thenReturn(Optional.empty(), optionalDowntimeLogs);
 
@@ -307,7 +307,7 @@ public abstract class AbstractMock {
 				.of(getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2021-09-28T08:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT", "akdocdfe-50403", null));
 
-		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogs(ArgumentMatchers.any(OffsetDateTime.class),
+		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogsWithoutEndDate(ArgumentMatchers.any(OffsetDateTime.class),
 				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
 				.thenReturn(Optional.empty(), optionalDowntimeLogs);
 	}
@@ -325,7 +325,7 @@ public abstract class AbstractMock {
 				OffsetDateTime.parse("2022-09-28T08:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, "EVENT",
 				"akdocdfe-50403", OffsetDateTime.parse("2022-09-29T12:55:15.995Z")));
 
-		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogs(ArgumentMatchers.any(OffsetDateTime.class),
+		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogsWithoutEndDate(ArgumentMatchers.any(OffsetDateTime.class),
 				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
 				.thenReturn(optionalDowntimeLogs);
 	}
@@ -339,7 +339,7 @@ public abstract class AbstractMock {
 				ArgumentMatchers.any(OffsetDateTime.class), ArgumentMatchers.any(PnFunctionality.class),
 				ArgumentMatchers.any(OffsetDateTime.class))).thenReturn(Optional.empty());
 		
-		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogs(ArgumentMatchers.any(OffsetDateTime.class),
+		Mockito.when(mockDowntimeLogsRepository.findLastDowntimeLogsWithoutEndDate(ArgumentMatchers.any(OffsetDateTime.class),
 				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))
 				.thenReturn(Optional.empty());
 	}

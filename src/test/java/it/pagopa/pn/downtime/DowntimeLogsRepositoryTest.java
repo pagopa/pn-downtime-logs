@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -51,13 +52,19 @@ class DowntimeLogsRepositoryTest {
 	
 	OffsetDateTime searchParameter = OffsetDateTime.parse("2022-09-27T13:55:15.995Z");
 	
-	@Test
-	void mockFindOpenDowntimeLogsFuture() {
+	QueryResultPage<DowntimeLogs> queryResultPage;
+	
+	@BeforeEach
+	void setUp() {
 		downtimeLogsListExpected = List
 				.of(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-28T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
-		QueryResultPage<DowntimeLogs> queryResultPage = new QueryResultPage<DowntimeLogs>();
+		queryResultPage = new QueryResultPage<DowntimeLogs>();
 		queryResultPage.setResults(downtimeLogsListExpected);
+	}
+	
+	@Test
+	void mockFindOpenDowntimeLogsFuture() {
 		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(queryResultPage);
 		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findOpenDowntimeLogsFuture(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
 		
@@ -68,8 +75,8 @@ class DowntimeLogsRepositoryTest {
 	
 	@Test
 	void  mockFindOpenDowntimeLogsFuture_ReturnEmptyList() {
-		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(null);
-		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findOpenDowntimeLogsFuture(OffsetDateTime.parse("2022-09-27T13:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, OffsetDateTime.parse("2022-09-27T13:55:15.995Z"));
+		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(new QueryResultPage<DowntimeLogs>());
+		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findOpenDowntimeLogsFuture(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
 		
 		assertTrue(resultQuery.isEmpty());
 	}
@@ -79,10 +86,9 @@ class DowntimeLogsRepositoryTest {
 		downtimeLogsListExpected = List
 				.of(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-26T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", OffsetDateTime.parse("2022-09-28T13:55:15.995Z")));
-		QueryResultPage<DowntimeLogs> queryResultPage = new QueryResultPage<DowntimeLogs>();
 		queryResultPage.setResults(downtimeLogsListExpected);
 		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(queryResultPage);
-		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(OffsetDateTime.parse("2022-09-27T13:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, OffsetDateTime.parse("2022-09-27T13:55:15.995Z"));
+		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
 		
 		assertTrue(resultQuery.isPresent());
 		assertNotNull(resultQuery.get().getEndDate());
@@ -91,21 +97,20 @@ class DowntimeLogsRepositoryTest {
 	
 	@Test
 	void  mockFindDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists_ReturnEmptyList() {
-		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(null);
-		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(OffsetDateTime.parse("2022-09-27T13:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, OffsetDateTime.parse("2022-09-27T13:55:15.995Z"));
+		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(new QueryResultPage<DowntimeLogs>());
+		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
 		
 		assertTrue(resultQuery.isEmpty());
 	}
 	
 	@Test
-	void mockFindLastDowntimeLogsWithoutEndDate() {
+	void mockFindLastDowntimeLogsWithoutEndDate_whenGivenDowntimeLogsListNotEmpty() {
 		downtimeLogsListExpected = List
 				.of(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-26T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null));
-		QueryResultPage<DowntimeLogs> queryResultPage = new QueryResultPage<DowntimeLogs>();
 		queryResultPage.setResults(downtimeLogsListExpected);
 		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(queryResultPage);
-		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findLastDowntimeLogs(OffsetDateTime.parse("2022-09-27T13:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, OffsetDateTime.parse("2022-09-27T13:55:15.995Z"));
+		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findLastDowntimeLogsWithoutEndDate(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
 		
 		assertTrue(resultQuery.isPresent());
 		assertNull(resultQuery.get().getEndDate());
@@ -113,11 +118,28 @@ class DowntimeLogsRepositoryTest {
 	}
 	
 	@Test
-	void mockFindLastDowntimeLogs_ReturnEmptyList() {
-		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(null);
-		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findLastDowntimeLogs(OffsetDateTime.parse("2022-09-27T13:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, OffsetDateTime.parse("2022-09-27T13:55:15.995Z"));
+	void mockFindLastDowntimeLogsWithoutEndDate_ReturnEmptyList() {
+		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(new QueryResultPage<DowntimeLogs>());
+		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findLastDowntimeLogsWithoutEndDate(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
 		
 		assertTrue(resultQuery.isEmpty());
+	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	void mockFindLastDowntimeLogs_whenGivenDowntimeLogsListNotEmpty() {
+		downtimeLogsListExpected = List
+				.of(getDowntimeLogs("NOTIFICATION_WORKFLOW2022", OffsetDateTime.parse("2022-09-26T13:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", OffsetDateTime.parse("2022-09-26T18:55:15.995Z")));
+		QueryResultPage<DowntimeLogs> queryResultPage = new QueryResultPage<DowntimeLogs>();
+		queryResultPage.setResults(downtimeLogsListExpected);
+		
+		Mockito.when(mapper.queryPage(ArgumentMatchers.eq(DowntimeLogs.class), ArgumentMatchers.<DynamoDBQueryExpression<DowntimeLogs>>any())).thenReturn(new QueryResultPage<DowntimeLogs>(), queryResultPage);
+		
+		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findLastDowntimeLogsWithoutEndDate(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
+		
+		assertTrue(resultQuery.isPresent());
+		assertNotNull(resultQuery.get().getEndDate());
 	}
 	
 	protected static DowntimeLogs getDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate,

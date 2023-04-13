@@ -59,11 +59,11 @@ paths:
     get:                                                                                                # ONLY EXTERNAL
       summary: status path                                                                         # ONLY EXTERNAL
       description: >-                                                                                   # ONLY EXTERNAL
-        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                     # ONLY EXTERNAL
-          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    # ONLY EXTERNAL
-          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                           # ONLY EXTERNAL
-        Il body e lasciato libero quindi utilizziamo quanto già definito per il path                    # ONLY EXTERNAL
-        /downtime/status                                                                                # ONLY EXTERNAL
+        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                     
+          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                           
+        Il body e lasciato libero quindi utilizziamo quanto già definito per il path                    
+        /downtime/status                                                                                
       tags:                                                                                             # ONLY EXTERNAL  
         - Read                                                                                          # ONLY EXTERNAL
   #    security:                                                                                         # ONLY EXTERNAL

@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
@@ -24,8 +25,9 @@ public class DowntimeLogsRepository {
 	private DynamoDBMapper dynamoDBMapper;
 
 	/**
-	 * Retrieves an instance of DowntimeLogs open in the future relative to specified
-	 * date, for specified date, for the specified functionality and event.
+	 * Retrieves an instance of DowntimeLogs open in the future relative to
+	 * specified date, for specified date, for the specified functionality and
+	 * event.
 	 *
 	 * @param date           an OffsetDateTime object representing the date to
 	 *                       search for open DowntimeLogs in the future
@@ -43,7 +45,7 @@ public class DowntimeLogsRepository {
 				.withKeyConditionExpression(
 						"functionalityStartYear =:functionalityStartYearInput and startDate >=:startDateInput")
 				.withFilterExpression("functionality = :functionalityInput and (attribute_not_exists(endDate))");
-		
+
 		QueryResultPage<DowntimeLogs> queryResultPage = dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
 		List<DowntimeLogs> result = queryResultPage != null ? queryResultPage.getResults() : List.of();
 
@@ -51,7 +53,8 @@ public class DowntimeLogsRepository {
 	}
 
 	/**
-	 * Retrieves an instance of DowntimeLogs between the specified startDate and endDate.
+	 * Retrieves an instance of DowntimeLogs between the specified startDate and
+	 * endDate.
 	 *
 	 * @param date           an OffsetDateTime object representing the date to
 	 *                       search for open DowntimeLogs in the future
@@ -66,8 +69,6 @@ public class DowntimeLogsRepository {
 			PnFunctionality functionality, OffsetDateTime eventTimestamp) {
 		DynamoDBQueryExpression<DowntimeLogs> queryExpression = buildDynamoDBQueryExpression(date, functionality,
 				eventTimestamp)
-				.withKeyConditionExpression(
-						"functionalityStartYear =:functionalityStartYearInput and startDate <=:startDateInput")
 				.withFilterExpression(
 						"functionality = :functionalityInput and endDate > :startDateInput and attribute_exists(endDate)");
 
@@ -78,7 +79,7 @@ public class DowntimeLogsRepository {
 	}
 
 	/**
-	 * Retrieves an instance of DowntimeLogs occurred in the past, regardless of whether it is openbetween the specified startDate and endDate.
+	 * Retrieves an instance of DowntimeLogs occurred in the past.
 	 *
 	 * @param date           an OffsetDateTime object representing the date to
 	 *                       search for open DowntimeLogs in the future
@@ -89,22 +90,33 @@ public class DowntimeLogsRepository {
 	 * @return an Optional<DowntimeLogs> object representing the DowntimeLogs
 	 *         instance found or an empty Optional if none was found
 	 */
-	public Optional<DowntimeLogs> findLastDowntimeLogs(OffsetDateTime date, PnFunctionality functionality,
+	public Optional<DowntimeLogs> findLastDowntimeLogsWithoutEndDate(OffsetDateTime date, PnFunctionality functionality,
 			OffsetDateTime eventTimestamp) {
+
 		DynamoDBQueryExpression<DowntimeLogs> queryExpression = buildDynamoDBQueryExpression(date, functionality,
 				eventTimestamp)
-				.withKeyConditionExpression(
-						"functionalityStartYear =:functionalityStartYearInput and startDate <=:startDateInput")
-				.withFilterExpression("functionality = :functionalityInput");
+				.withFilterExpression("functionality =:functionalityInput and (attribute_not_exists(endDate))");
 
 		QueryResultPage<DowntimeLogs> queryResultPage = dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
-		List<DowntimeLogs> result = queryResultPage != null ? queryResultPage.getResults() : List.of();
+		List<DowntimeLogs> result = (queryResultPage != null && !CollectionUtils.isEmpty(queryResultPage.getResults())) ? queryResultPage.getResults()
+				: findLastDowntimeLogs(date, functionality, eventTimestamp);
 
 		return (result == null || result.isEmpty()) ? Optional.empty() : Optional.of(result.get(0));
 	}
 
+	public List<DowntimeLogs> findLastDowntimeLogs(OffsetDateTime date, PnFunctionality functionality,
+			OffsetDateTime eventTimestamp) {
+		DynamoDBQueryExpression<DowntimeLogs> queryExpression = buildDynamoDBQueryExpression(date, functionality,
+				eventTimestamp).withFilterExpression("functionality =:functionalityInput");
+
+		QueryResultPage<DowntimeLogs> queryResultPage = dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
+
+		return queryResultPage != null ? queryResultPage.getResults() : List.of();
+	}
+
 	/**
-	 * Builds the DynamoDBQueryExpression object for querying the DowntimeLogs table.
+	 * Builds the DynamoDBQueryExpression object for querying the DowntimeLogs
+	 * table.
 	 *
 	 * @param date           an OffsetDateTime object representing the date to
 	 *                       search for open DowntimeLogs in the future
@@ -122,7 +134,9 @@ public class DowntimeLogsRepository {
 		eav.put(":functionalityInput", new AttributeValue().withS(functionality.getValue()));
 		eav.put(":startDateInput", new AttributeValue().withS(eventTimestamp.toString()));
 
-		return new DynamoDBQueryExpression<DowntimeLogs>().withScanIndexForward(false)
-				.withExpressionAttributeValues(eav).withLimit(1);
+		return new DynamoDBQueryExpression<DowntimeLogs>()
+				.withKeyConditionExpression(
+						"functionalityStartYear =:functionalityStartYearInput and startDate <=:startDateInput")
+				.withScanIndexForward(false).withExpressionAttributeValues(eav);
 	}
 }
