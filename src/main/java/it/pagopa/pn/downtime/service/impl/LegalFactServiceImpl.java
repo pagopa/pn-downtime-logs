@@ -162,14 +162,10 @@ public class LegalFactServiceImpl implements LegalFactService {
 		ResponseEntity<FileCreationResponse> response = fileUploadApi
 				.createFileWithHttpInfo(PAGOPA_SAFESTORAGE_HEADER_VALUE, checkSum, SHA256, fileCreationRequest);
 
-		if (response != null && response.getStatusCodeValue() == 200) {
-			if (response.getBody() != null) {
+		if (response != null && response.getBody() != null && response.getStatusCodeValue() == 200) {
 				log.info("Reservation made successfully" + response.getBody());
 				downtime.setLegalFactId(response.getBody().getKey());
 				uploadFile(response.getBody(), checkSum, file);
-			} else {
-				throw new NullPointerException();
-			}
 		} else {
 			log.error("Error during the reservation request");
 		}
