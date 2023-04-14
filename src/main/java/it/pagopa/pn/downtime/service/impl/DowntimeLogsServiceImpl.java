@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -132,8 +132,9 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		}
 
 		Map<String, AttributeValue> attributes = new HashMap<>();
-		List<String> values = functionality.stream().map(PnFunctionality::getValue).collect(Collectors.toList());
-
+		
+		List<String> values = functionality.stream().filter(Objects::nonNull).map(PnFunctionality::getValue).toList();
+		
 		String expression = "";
 		for (String s : values) {
 			attributes.put(":functionality" + (values.indexOf(s) + 1), new AttributeValue().withS(s));
