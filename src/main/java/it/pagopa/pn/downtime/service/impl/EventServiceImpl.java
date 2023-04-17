@@ -1,20 +1,15 @@
-package it.pagopa.pn.downtime.service;
+package it.pagopa.pn.downtime.service.impl;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
@@ -23,6 +18,10 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
+import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
+import it.pagopa.pn.downtime.service.DowntimeLogsService;
+import it.pagopa.pn.downtime.service.EventService;
+import it.pagopa.pn.downtime.util.Constants;
 import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,10 +40,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EventServiceImpl implements EventService {
 
-    /** The downtime logs service. */
+	/** The downtime logs service. */
 	@Autowired
 	DowntimeLogsService downtimeLogsService;
-
 
 	/** The producer. */
 	@Autowired
@@ -57,7 +55,9 @@ public class EventServiceImpl implements EventService {
 	/** The dynamo DB mapper. */
 	@Autowired
 	private DynamoDBMapper dynamoDBMapper;
-	
+
+	@Autowired
+	DowntimeLogsRepository repository;
 
 	/**
 	 * Adds the status change event.
@@ -68,45 +68,69 @@ public class EventServiceImpl implements EventService {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	@Override
-	public Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
+	public void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
 			throws IOException {
+
+		String errorMessages = "";
+
 		for (PnStatusUpdateEvent event : pnStatusUpdateEvent) {
+
 			for (PnFunctionality functionality : event.getFunctionality()) {
 
-				OffsetDateTime date = event.getTimestamp();
-				QueryResultPage<DowntimeLogs> downtimeLogs = resultQuery(date, functionality, event);
+				OffsetDateTime date = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
 
-				DowntimeLogs dt = null;
-
-					if (downtimeLogs != null && downtimeLogs.getResults() != null && !downtimeLogs.getResults().isEmpty()) {
-						dt = downtimeLogs.getResults().get(0);
-					} else {
-						date = event.getTimestamp().minusYears(1);
-						downtimeLogs = resultQuery(date, functionality, event);
-						if (downtimeLogs != null && downtimeLogs.getResults() != null && !downtimeLogs.getResults().isEmpty()) {
-							dt = downtimeLogs.getResults().get(0);
-						}
-					}
-				createEvent(xPagopaPnUid, dt, functionality, event);
+				try {
+					DowntimeLogs dt = resultQuery(date, functionality, event)
+							.orElseGet(() -> resultQuery(date.minusYears(1), functionality, event).isPresent()
+									? resultQuery(date.minusYears(1), functionality, event).get()
+									: null);
+					createEvent(xPagopaPnUid, dt, functionality, event);
+				} catch (IllegalArgumentException e) {
+					errorMessages = errorMessages.concat(e.getMessage());
+				}
 			}
 		}
-		return null;
+		if (!errorMessages.isEmpty()) {
+			throw new IllegalArgumentException(errorMessages);
+		}
 	}
 
-	private QueryResultPage<DowntimeLogs> resultQuery(OffsetDateTime date, PnFunctionality functionality,
+	private Optional<DowntimeLogs> resultQuery(OffsetDateTime date, PnFunctionality functionality,
 			PnStatusUpdateEvent event) {
-		Map<String, AttributeValue> eav1 = new HashMap<>();
-		eav1.put(":startYear1",
-				new AttributeValue().withS(functionality.getValue().concat(date.toString().substring(0, 4))));
-		eav1.put(":functionality1", new AttributeValue().withS(functionality.getValue()));
-		eav1.put(":startDate1", new AttributeValue().withS(event.getTimestamp().toString()));
+		OffsetDateTime eventTimestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
+		Optional<DowntimeLogs> queryResultDowntimeLogs;
+		if (eventTimestamp.isBefore(DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime())) {
+			queryResultDowntimeLogs = repository.findOpenDowntimeLogsFuture(date, functionality, eventTimestamp);
+			checkQueryResultAndThrowIfDowntimeExists(queryResultDowntimeLogs);
 
-		DynamoDBQueryExpression<DowntimeLogs> queryExpression = new DynamoDBQueryExpression<DowntimeLogs>()
-				.withKeyConditionExpression("functionalityStartYear =:startYear1 and startDate <=:startDate1")
-				.withFilterExpression("functionality = :functionality1").withScanIndexForward(false)
-				.withExpressionAttributeValues(eav1).withLimit(1);
+			queryResultDowntimeLogs = repository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(date,
+					functionality, eventTimestamp);
+			checkQueryResultAndThrowIfDowntimeExists(queryResultDowntimeLogs);
+		}
 
-		return dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
+		queryResultDowntimeLogs = repository.findLastDowntimeLogsWithoutEndDate(date, functionality, eventTimestamp);
+
+		if (queryResultDowntimeLogs.isPresent() && !event.getStatus().equals(PnFunctionalityStatus.KO)
+				&& queryResultDowntimeLogs.get().getEndDate() == null) {
+			Optional<DowntimeLogs> nextDowntimeLogs = repository.findNextDowntimeLogs(
+					queryResultDowntimeLogs.get().getStartDate(), functionality,
+					queryResultDowntimeLogs.get().getStartDate());
+			if (nextDowntimeLogs.isPresent() && !eventTimestamp.isBefore(nextDowntimeLogs.get().getStartDate())) {
+				throw new IllegalArgumentException(String.format(Constants.GENERIC_CONFLICT_ERROR_ENGLISH_MESSAGE,
+						nextDowntimeLogs.get().getFunctionality(), nextDowntimeLogs.get().getStartDate(),
+						nextDowntimeLogs.get().getEndDate()));
+			}
+		}
+		return queryResultDowntimeLogs;
+	}
+
+	public void checkQueryResultAndThrowIfDowntimeExists(Optional<DowntimeLogs> queryResultPageDowntimeLogs) {
+		if (queryResultPageDowntimeLogs.isPresent()) {
+			DowntimeLogs resultDowntimeLogs = queryResultPageDowntimeLogs.get();
+			throw new IllegalArgumentException(String.format(Constants.GENERIC_CONFLICT_ERROR_ENGLISH_MESSAGE,
+					resultDowntimeLogs.getFunctionality(), resultDowntimeLogs.getStartDate(),
+					resultDowntimeLogs.getEndDate()));
+		}
 	}
 
 	/**
@@ -117,22 +141,21 @@ public class EventServiceImpl implements EventService {
 	 * @param event         the input event
 	 * @param xPagopaPnUid  the x pagopa pn uid
 	 * @param dt            the previous downtime for the given functionality
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 
 	public void checkCreateDowntime(PnFunctionality functionality, String eventId, PnStatusUpdateEvent event,
 			String xPagopaPnUid, DowntimeLogs dt) {
-		
+
 		if ((dt != null && event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null
-				 && dt.getEndDate().compareTo(event.getTimestamp()) <= 0)
+				&& dt.getEndDate().compareTo(DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp())) <= 0)
 				|| (dt == null && event.getStatus().equals(PnFunctionalityStatus.KO))) {
-			
+
 			downtimeLogsService.saveDowntimeLogs(
 					functionality.getValue().concat(event.getTimestamp().toString().substring(0, 4)),
 					event.getTimestamp(), functionality, eventId, xPagopaPnUid);
 		}
 	}
-
 
 	/**
 	 * Check if the current downtime has to be closed and closes it.
@@ -144,7 +167,7 @@ public class EventServiceImpl implements EventService {
 	 */
 	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt) throws IOException {
 		if (dt != null && !event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
-			
+
 			OffsetDateTime newEndDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
 			dt.setEndDate(newEndDate);
 			dt.setEndEventUuid(eventId);
@@ -168,22 +191,21 @@ public class EventServiceImpl implements EventService {
 			PnStatusUpdateEvent event) throws IOException {
 
 		String saveUid = "";
-		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-		OffsetDateTime now = OffsetDateTime.parse(OffsetDateTime.now().format(formatter));
 
 		if (dt != null && event.getStatus().equals(PnFunctionalityStatus.OK) && dt.getEndDate() != null) {
-			log.error("Error creating event!");
+			log.error(String.format(Constants.GENERIC_CREATING_EVENT_ERROR, functionality.getValue()));
 		} else {
 			saveUid = saveEvent(event.getTimestamp(), event.getTimestamp().toString().substring(0, 7), functionality,
 					event.getStatus(), event.getSourceType(), event.getSource(), xPagopaPnUid);
 		}
-		
-		if (event.getTimestamp().isBefore(now)) {
+
+		OffsetDateTime timestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
+
+		if (timestamp.isBefore(DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime())) {
 			checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
 			checkUpdateDowntime(saveUid, event, dt);
 		} else {
-			throw new IOException("An error occured during elaboration of PnStatusUpdateEvent's date");
+			throw new IOException(Constants.GENERIC_CREATING_FUTURE_EVENT_ERROR);
 		}
 	}
 

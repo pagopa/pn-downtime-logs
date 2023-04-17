@@ -4,43 +4,37 @@ import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class DowntimeLogUtil {
 
-	public static OffsetDateTime getGmtTimeFromOffsetDateTime(OffsetDateTime date) {
+	private DowntimeLogUtil() {}
 
-		OffsetDateTime gmtDate = null;
-
-		log.info("OffsetDataTime: {}", date);
-		if(date != null) {
-			Timestamp timestampDate = Timestamp.valueOf(date.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
-			Date newDate = new Date(timestampDate.getTime());
-			gmtDate = newDate.toInstant().atOffset(ZoneOffset.UTC);
-
+	public static OffsetDateTime getGmtTimeFromOffsetDateTime(OffsetDateTime localDate) {
+		if (localDate == null) {
+			throw new IllegalArgumentException("The localDate parameter cannot be null.");
 		}
-		log.info("GmtDate: {}", gmtDate);
-		return gmtDate;
+		Timestamp timestampDate = Timestamp.valueOf(localDate.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
+		Date gmtDate = new Date(timestampDate.getTime());
+		return gmtDate.toInstant().atOffset(ZoneOffset.UTC);
 	}
-
 
 	public static OffsetDateTime getOffsetDateTimeFromGmtTime(OffsetDateTime gmtDate) {
-
-		log.info("Current date: {}", OffsetDateTime.now());
-		log.info("getOffsetDateTimeFromGmtTime: {}", gmtDate);
-		ZoneId zone = ZoneId.of("Europe/Paris");
-		OffsetDateTime newDate = gmtDate.toInstant().atOffset(zone.getRules().getOffset(gmtDate.toInstant()));
-		log.info("OffsetDataTime - newDate: {}", newDate);
-		return newDate;
-
+		if (gmtDate == null) {
+			throw new IllegalArgumentException("The gmtDate parameter cannot be null.");
+		}
+		return gmtDate.toInstant().atOffset(ZoneId.of("Europe/Paris").getRules().getOffset(gmtDate.toInstant()));
 	}
 
-
+	public static OffsetDateTime getGmtTimeNowFromOffsetDateTime() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		OffsetDateTime now = OffsetDateTime.parse(OffsetDateTime.now().format(formatter));
+		if (now == null || formatter == null) {
+			throw new IllegalArgumentException("The parameter cannot be null.");
+		}
+		Timestamp timestampDate = Timestamp.valueOf(now.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
+		Date newDate = new Date(timestampDate.getTime());
+		return newDate.toInstant().atOffset(ZoneOffset.UTC);
+	}
 }
-
-
-
-

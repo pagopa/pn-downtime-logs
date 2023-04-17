@@ -2,8 +2,6 @@ package it.pagopa.pn.downtime.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.fasterxml.classmate.TypeResolver;
 
@@ -17,7 +15,6 @@ import springfox.documentation.spring.web.plugins.Docket;
 
 @Configuration
 public class SwaggerConfig {
-
 
 	private ApiInfo getApiInfo() {
 		return new ApiInfoBuilder().title("Pn-downtime-logs")

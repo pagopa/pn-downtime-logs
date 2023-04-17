@@ -1,4 +1,4 @@
-package it.pagopa.pn.downtime.service;
+package it.pagopa.pn.downtime.service.impl;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +29,7 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
+import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -131,8 +132,9 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		}
 
 		Map<String, AttributeValue> attributes = new HashMap<>();
-		List<String> values = functionality.stream().map(PnFunctionality::getValue).collect(Collectors.toList());
-
+		
+		List<String> values = functionality.stream().filter(Objects::nonNull).map(PnFunctionality::getValue).toList();
+		
 		String expression = "";
 		for (String s : values) {
 			attributes.put(":functionality" + (values.indexOf(s) + 1), new AttributeValue().withS(s));

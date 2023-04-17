@@ -19,5 +19,5 @@ public interface EventService {
 	 * @return the void
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	Void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent) throws  IOException;
+	void addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent) throws  IOException;
 }
