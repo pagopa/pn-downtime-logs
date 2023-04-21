@@ -107,7 +107,7 @@ public class DowntimeLogsRepository {
 	public List<DowntimeLogs> findLastDowntimeLogs(OffsetDateTime date, PnFunctionality functionality,
 			OffsetDateTime eventTimestamp) {
 		DynamoDBQueryExpression<DowntimeLogs> queryExpression = buildDynamoDBQueryExpression(date, functionality,
-				eventTimestamp).withFilterExpression("functionality =:functionalityInput");
+				eventTimestamp).withFilterExpression("functionality =:functionalityInput").withLimit(1);
 
 		QueryResultPage<DowntimeLogs> queryResultPage = dynamoDBMapper.queryPage(DowntimeLogs.class, queryExpression);
 
@@ -148,7 +148,7 @@ public class DowntimeLogsRepository {
 
 		return new DynamoDBQueryExpression<DowntimeLogs>()
 				.withKeyConditionExpression(
-						"functionalityStartYear =:functionalityStartYearInput and startDate <=:startDateInput")
+						"functionalityStartYear =:functionalityStartYearInput and startDate <:startDateInput")
 				.withScanIndexForward(false).withExpressionAttributeValues(eav);
 	}
 }
