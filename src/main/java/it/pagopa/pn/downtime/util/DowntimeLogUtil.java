@@ -7,16 +7,22 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 public class DowntimeLogUtil {
 
 	private DowntimeLogUtil() {}
 
 	public static OffsetDateTime getGmtTimeFromOffsetDateTime(OffsetDateTime localDate) {
+		log.info("Local date = {} " + localDate);
 		if (localDate == null) {
 			throw new IllegalArgumentException("The localDate parameter cannot be null.");
 		}
-		Timestamp timestampDate = Timestamp.valueOf(localDate.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		OffsetDateTime localDateFormatted = OffsetDateTime.parse(localDate.format(formatter));
+		Timestamp timestampDate = Timestamp.valueOf(localDateFormatted.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
 		Date gmtDate = new Date(timestampDate.getTime());
+		log.info("GMT/UTC date = {} " + gmtDate.toInstant().atOffset(ZoneOffset.UTC));
 		return gmtDate.toInstant().atOffset(ZoneOffset.UTC);
 	}
 
