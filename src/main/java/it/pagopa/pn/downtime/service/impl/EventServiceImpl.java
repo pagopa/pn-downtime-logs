@@ -209,7 +209,7 @@ public class EventServiceImpl implements EventService {
 					event.getStatus(), event.getSourceType(), event.getSource(), xPagopaPnUid);
 		}
 
-		OffsetDateTime timestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
+		OffsetDateTime timestamp = DowntimeLogUtil.getGmtTimeFromLocalDate(event.getTimestamp());
 
 		log.info("PnStatusUpdateEvent's timestamp = {} " + timestamp + " Current date (GMT/UTC) = {} " + DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime());
 		if (timestamp.isBefore(DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime())) {

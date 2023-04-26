@@ -1,9 +1,11 @@
 package it.pagopa.pn.downtime.util;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -42,5 +44,18 @@ public class DowntimeLogUtil {
 		Timestamp timestampDate = Timestamp.valueOf(now.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
 		Date newDate = new Date(timestampDate.getTime());
 		return newDate.toInstant().atOffset(ZoneOffset.UTC);
+	}
+	
+	public static OffsetDateTime getGmtTimeFromLocalDate(OffsetDateTime localDate) {
+		
+		LocalDateTime ldt = localDate.toLocalDateTime();
+
+		ZonedDateTime ldtZoned = ldt.atZone(ZoneId.systemDefault());
+
+		ZonedDateTime utcZoned = ldtZoned.withZoneSameInstant(ZoneId.of("UTC"));
+
+		System.out.println(utcZoned.toLocalTime());
+		
+		return utcZoned.toOffsetDateTime();
 	}
 }
