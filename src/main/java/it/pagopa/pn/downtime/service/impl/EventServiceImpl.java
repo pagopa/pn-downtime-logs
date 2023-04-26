@@ -76,9 +76,13 @@ public class EventServiceImpl implements EventService {
 		for (PnStatusUpdateEvent event : pnStatusUpdateEvent) {
 
 			for (PnFunctionality functionality : event.getFunctionality()) {
-
+				
+				log.info("addStatusChangeEvent - PnStatusUpdateEvent's timestamp before conversion {}= " + event.getTimestamp());
+				
 				OffsetDateTime date = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
-
+				
+				log.info("addStatusChangeEvent - PnStatusUpdateEvent's timestamp (GMT/UTC) {}= " + date);
+				
 				try {
 					DowntimeLogs dt = resultQuery(date, functionality, event)
 							.orElseGet(() -> resultQuery(date.minusYears(1), functionality, event).isPresent()
@@ -97,14 +101,18 @@ public class EventServiceImpl implements EventService {
 
 	private Optional<DowntimeLogs> resultQuery(OffsetDateTime date, PnFunctionality functionality,
 			PnStatusUpdateEvent event) {
+		log.info("resultQuery - PnStatusUpdateEvent's timestamp before conversion {}= " + event.getTimestamp());
+		
 		OffsetDateTime eventTimestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
-
+		
+		log.info("resultQuery - PnStatusUpdateEvent's timestamp (GMT/UTC) {}= " + eventTimestamp);
+		
 		Optional<DowntimeLogs> queryResultDowntimeLogs;
 
 		if (eventTimestamp.isBefore(DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime())) {
-			if(event.getStatus().equals(PnFunctionalityStatus.KO)) {
-			queryResultDowntimeLogs = repository.findOpenDowntimeLogsFuture(date, functionality, eventTimestamp);
-			checkQueryResultAndThrowIfDowntimeExists(queryResultDowntimeLogs);
+			if (event.getStatus().equals(PnFunctionalityStatus.KO)) {
+				queryResultDowntimeLogs = repository.findOpenDowntimeLogsFuture(date, functionality, eventTimestamp);
+				checkQueryResultAndThrowIfDowntimeExists(queryResultDowntimeLogs);
 			}
 			queryResultDowntimeLogs = repository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(date,
 					functionality, eventTimestamp);
@@ -127,13 +135,13 @@ public class EventServiceImpl implements EventService {
 		}
 	}
 
-	public void checkQueryResultNextDowntimeLogsWithStatusOK(
-			Optional<DowntimeLogs> queryResultDowntimeLogs, OffsetDateTime eventTimestamp, PnStatusUpdateEvent event) {
+	public void checkQueryResultNextDowntimeLogsWithStatusOK(Optional<DowntimeLogs> queryResultDowntimeLogs,
+			OffsetDateTime eventTimestamp, PnStatusUpdateEvent event) {
 		if (queryResultDowntimeLogs.isPresent()) {
 			Optional<DowntimeLogs> nextDowntimeLogs = repository.findNextDowntimeLogs(
 					queryResultDowntimeLogs.get().getStartDate(), queryResultDowntimeLogs.get().getFunctionality(),
 					queryResultDowntimeLogs.get().getStartDate());
-			
+
 			if (nextDowntimeLogs.isPresent() && !event.getStatus().equals(PnFunctionalityStatus.KO)
 					&& eventTimestamp.isAfter(nextDowntimeLogs.get().getStartDate())) {
 				throw new IllegalArgumentException(String.format(Constants.GENERIC_CONFLICT_ERROR_ENGLISH_MESSAGE,
@@ -160,7 +168,7 @@ public class EventServiceImpl implements EventService {
 		if ((dt != null && event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null
 				&& dt.getEndDate().compareTo(DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp())) <= 0)
 				|| (dt == null && event.getStatus().equals(PnFunctionalityStatus.KO))) {
-
+			
 			downtimeLogsService.saveDowntimeLogs(
 					functionality.getValue().concat(event.getTimestamp().toString().substring(0, 4)),
 					event.getTimestamp(), functionality, eventId, xPagopaPnUid);
@@ -177,8 +185,13 @@ public class EventServiceImpl implements EventService {
 	 */
 	public void checkUpdateDowntime(String eventId, PnStatusUpdateEvent event, DowntimeLogs dt) throws IOException {
 		if (dt != null && !event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
-
+			
+			log.info("checkUpdateDowntime - PnStatusUpdateEvent timestamp before conversion, downtime startDate, downtime enddate {}=" + event.getTimestamp(), dt.getStartDate(), dt.getEndDate());
+			
 			OffsetDateTime newEndDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
+			
+			log.info("checkUpdateDowntime - PnStatusUpdateEvent timestamp GMT/UTC {}=" + newEndDate);
+			
 			dt.setEndDate(newEndDate);
 			dt.setEndEventUuid(eventId);
 			dynamoDBMapper.save(dt);
@@ -209,9 +222,12 @@ public class EventServiceImpl implements EventService {
 					event.getStatus(), event.getSourceType(), event.getSource(), xPagopaPnUid);
 		}
 
+		log.info("createEvent - PnStatusUpdateEvent timestamp before conversion" + event.getTimestamp());
+		
 		OffsetDateTime timestamp = DowntimeLogUtil.getGmtTimeFromLocalDate(event.getTimestamp());
 
-		log.info("PnStatusUpdateEvent's timestamp = {} " + timestamp + " Current date (GMT/UTC) = {} " + DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime());
+		log.info("createEvent - PnStatusUpdateEvent's timestamp = {} " + timestamp + " Current date (GMT/UTC) = {} "
+				+ DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime());
 		if (timestamp.isBefore(DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime())) {
 			checkCreateDowntime(functionality, saveUid, event, xPagopaPnUid, dt);
 			checkUpdateDowntime(saveUid, event, dt);
@@ -235,7 +251,12 @@ public class EventServiceImpl implements EventService {
 			PnFunctionalityStatus status, SourceTypeEnum sourceType, String source, String uuid) {
 		log.info("addStatusChangeEvent");
 		Event event = new Event();
+		log.info("saveEvent - PnStatusUpdateEvent timestamp before conversion {}=" + event.getTimestamp());
+		
 		OffsetDateTime newTimestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(timestamp);
+		
+		log.info("createEvent - PnStatusUpdateEvent timestamp after conversion in GMT/UTC {}=" + event.getTimestamp());
+		
 		event.setTimestamp(newTimestamp);
 		event.setYearMonth(yearMonth);
 		event.setFunctionality(functionality);
