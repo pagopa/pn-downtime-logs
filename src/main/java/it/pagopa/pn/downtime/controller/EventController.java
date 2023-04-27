@@ -76,8 +76,6 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 				"addStatusChangeEvent - xPagopaPnUid={}, pnStatusUpdateEvent={}", xPagopaPnUid, pnStatusUpdateEvent)
 				.mdcEntry("uid", xPagopaPnUid).build();
 		
-		log.info("AUD_NT_DOWNTIME - Current date (GMT/UTC) = {} " + OffsetDateTime.now());
-		
 		logEvent.log();
 		try {
 			eventService.addStatusChangeEvent(xPagopaPnUid, pnStatusUpdateEvent);
