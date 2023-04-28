@@ -88,7 +88,7 @@ Parameters:
     Type: String  
     Description: ARN of dynamodb table containing log
 
-  SafeStorageBaseUrl:
+  SandboxSafeStorageBaseUrl:
     Type: String
     Description: base url for safe storage requests
   
@@ -259,7 +259,7 @@ Resources:
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SafeStorageBaseUrl}'
+        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
         ContainerEnvEntry3: 'PN_DOWNTIMELOGS_ENABLE_APIKEY=false'
         ContainerEnvEntry4: 'PN_DOWNTIMELOGS_APIKEY_HEADER=NotApplicable'
         ContainerEnvEntry5: 'PN_DOWNTIMELOGS_APIKEY_VALUE=NotApplicable'
