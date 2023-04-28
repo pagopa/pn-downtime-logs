@@ -25,12 +25,14 @@ public class DowntimeLogUtil {
 		if (localDate == null) {
 			throw new IllegalArgumentException("The localDate parameter cannot be null.");
 		}
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-		OffsetDateTime localDateFormatted = OffsetDateTime.parse(localDate.format(formatter));
 		Timestamp timestampDate = Timestamp
-				.valueOf(localDateFormatted.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
+				.valueOf(localDate.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
 		Date gmtDate = new Date(timestampDate.getTime());
-		log.info("GMT/UTC date = {} " + gmtDate.toInstant().atOffset(ZoneOffset.UTC));
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		OffsetDateTime localDateFormatted = OffsetDateTime.parse(gmtDate.toInstant().toString());
+		log.info("GMT/UTC date localDateFormatted with toInstant = {} " + localDateFormatted);
+		localDateFormatted = OffsetDateTime.parse(gmtDate.toString());
+		log.info("GMT/UTC date localDateFormatted with toString = {} " + localDateFormatted);
 		return gmtDate.toInstant().atOffset(ZoneOffset.UTC);
 	}
 
