@@ -20,15 +20,15 @@ public class DowntimeLogUtil {
 		if (localDate == null) {
 			throw new IllegalArgumentException("The localDate parameter cannot be null.");
 		}
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX");
-		OffsetDateTime localDateFormatted = OffsetDateTime.parse(localDate.format(formatter));
-		OffsetDateTime time = OffsetDateTime.of(localDateFormatted.toLocalDateTime(), OffsetDateTime.now().getOffset());
+		OffsetDateTime time = localDate.plusSeconds(1).plusNanos(1);
+		time = OffsetDateTime.of(time.toLocalDateTime(), OffsetDateTime.now().getOffset());
 
-		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-		localDateFormatted = OffsetDateTime.parse(time.format(formatter));
-		log.info("GMT/UTC without formatter: ", time.toInstant().atOffset(ZoneOffset.UTC));
-		log.info("GMT/UTC with formatter: ", localDateFormatted.toInstant().atOffset(ZoneOffset.UTC));
-		return time.toInstant().atOffset(ZoneOffset.UTC);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		time = OffsetDateTime.parse(time.format(formatter));
+		Timestamp timestampDate = Timestamp.valueOf(time.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
+		Date gmtDate = new Date(timestampDate.getTime());
+		log.info("GMT/UTC: ", gmtDate.toInstant().atOffset(ZoneOffset.UTC));
+		return gmtDate.toInstant().atOffset(ZoneOffset.UTC);
 	}
 	
 	public static OffsetDateTime getOffsetDateTimeFromGmtTime(OffsetDateTime gmtDate) {
