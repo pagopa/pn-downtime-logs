@@ -82,15 +82,15 @@ public class EventServiceImpl implements EventService {
 				PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 				
 				PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-						"addStatusChangeEvent - PnStatusUpdateEvent's timestamp of functionality {}= before conversion {}= ", xPagopaPnUid, pnStatusUpdateEvent.get(0).getFunctionality(), event.getTimestamp())
+						"addStatusChangeEvent - PnStatusUpdateEvent's timestamp of functionality {} before conversion {} ", xPagopaPnUid, pnStatusUpdateEvent.get(0).getFunctionality(), event.getTimestamp())
 						.mdcEntry("uid", xPagopaPnUid).build();
 				
 				logEvent.log();
 				
-				OffsetDateTime date = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
+				OffsetDateTime date = DowntimeLogUtil.getGmtTimeFromOffsetDateTimeOffsetDateTime(event.getTimestamp());
 				
 				PnAuditLogEvent logEventAfter = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-						"addStatusChangeEvent - PnStatusUpdateEvent's timestamp of functionality {}= (GMT/UTC) {}= ", pnStatusUpdateEvent.get(0).getFunctionality(), date)
+						"addStatusChangeEvent - PnStatusUpdateEvent's timestamp of functionality {} (GMT/UTC)  with OffsetDateTime {}", pnStatusUpdateEvent.get(0).getFunctionality(), date)
 						.mdcEntry("uid", xPagopaPnUid).build();
 				
 				logEventAfter.log();
@@ -120,10 +120,10 @@ public class EventServiceImpl implements EventService {
 		
 		logEvent.log();
 		
-		OffsetDateTime eventTimestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
+		OffsetDateTime eventTimestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTimeOffsetDateTime(event.getTimestamp());
 		
 		PnAuditLogEvent logEventAfter = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-				"resultQuery - PnStatusUpdateEvent's timestamp (GMT/UTC) {}= ", functionality, eventTimestamp)
+				"resultQuery - PnStatusUpdateEvent's timestamp (GMT/UTC) {} ", functionality, eventTimestamp)
 				.build();
 		
 		logEventAfter.log();
@@ -187,7 +187,7 @@ public class EventServiceImpl implements EventService {
 			String xPagopaPnUid, DowntimeLogs dt) {
 
 		if ((dt != null && event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() != null
-				&& dt.getEndDate().compareTo(DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp())) <= 0)
+				&& dt.getEndDate().compareTo(DowntimeLogUtil.getGmtTimeFromOffsetDateTimeOffsetDateTime(event.getTimestamp())) <= 0)
 				|| (dt == null && event.getStatus().equals(PnFunctionalityStatus.KO))) {
 			
 			downtimeLogsService.saveDowntimeLogs(
@@ -208,15 +208,15 @@ public class EventServiceImpl implements EventService {
 		if (dt != null && !event.getStatus().equals(PnFunctionalityStatus.KO) && dt.getEndDate() == null) {
 			PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 			PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-					"checkUpdateDowntime - PnStatusUpdateEvent timestamp of functionality {}= before conversion {}= ", event.getFunctionality(), event.getTimestamp())
+					"checkUpdateDowntime - PnStatusUpdateEvent timestamp of functionality {} before conversion {} ", event.getFunctionality(), event.getTimestamp())
 					.build();
 			
 			logEvent.log();
 			
-			OffsetDateTime newEndDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
+			OffsetDateTime newEndDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTimeOffsetDateTime(event.getTimestamp());
 			
 			PnAuditLogEvent logEventAfter = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-					"checkUpdateDowntime - PnStatusUpdateEvent timestamp GMT/UTC of functionality {}= before conversion {}= ", event.getFunctionality(), event.getTimestamp())
+					"checkUpdateDowntime - PnStatusUpdateEvent timestamp GMT/UTC of functionality {} before conversion {} ", event.getFunctionality(), event.getTimestamp())
 					.build();
 			
 			logEventAfter.log();
@@ -253,7 +253,7 @@ public class EventServiceImpl implements EventService {
 		
 		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-				"createEvent - PnStatusUpdateEvent timestamp of functionality {}= before conversion {}= ", event.getFunctionality(), event.getTimestamp())
+				"createEvent - PnStatusUpdateEvent timestamp of functionality {} before conversion {} ", event.getFunctionality(), event.getTimestamp())
 				.build();
 		
 		logEvent.log();
@@ -261,7 +261,7 @@ public class EventServiceImpl implements EventService {
 		OffsetDateTime timestamp = DowntimeLogUtil.getGmtTime(event.getTimestamp());
 
 		PnAuditLogEvent logEventAfter = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-				"createEvent - PnStatusUpdateEvent timestamp (GMT/UTC) of functionality {}= before conversion {}= and current date (GMT/UTC) {}=", event.getFunctionality(), timestamp, DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime()).build();
+				"createEvent - PnStatusUpdateEvent timestamp (GMT/UTC) of functionality {} before conversion {} and current date (GMT/UTC) {}", event.getFunctionality(), timestamp, DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime()).build();
 		logEventAfter.log();
 		
 		if (timestamp.isBefore(DowntimeLogUtil.getGmtTimeNowFromOffsetDateTime())) {
@@ -289,14 +289,14 @@ public class EventServiceImpl implements EventService {
 		
 		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-				"saveEvent - PnStatusUpdateEvent timestamp of functionality {}= before conversion {}= ", event.getFunctionality(), event.getTimestamp())
+				"saveEvent - PnStatusUpdateEvent timestamp of functionality {} before conversion {} ", event.getFunctionality(), event.getTimestamp())
 				.build();
 		
 		logEvent.log();
 		
-		OffsetDateTime newTimestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(timestamp);
+		OffsetDateTime newTimestamp = DowntimeLogUtil.getGmtTimeFromOffsetDateTimeOffsetDateTime(timestamp);
 		PnAuditLogEvent logEventAfter = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-				"saveEvent - PnStatusUpdateEvent timestamp of functionality {}= after conversion in GMT/UTC {}= ", event.getFunctionality(), event.getTimestamp())
+				"saveEvent - PnStatusUpdateEvent timestamp of functionality {} after conversion in GMT/UTC {} ", event.getFunctionality(), event.getTimestamp())
 				.build();
 		
 		logEventAfter.log();

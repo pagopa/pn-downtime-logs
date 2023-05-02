@@ -218,7 +218,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			String startEventUuid, String uuid) {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
-		OffsetDateTime newStartDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(startDate);
+		OffsetDateTime newStartDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTimeOffsetDateTime(startDate);
 		downtimeLogs.setStartDate(newStartDate);
 		downtimeLogs.setStartDateAttribute(newStartDate);
 		downtimeLogs.setStatus(PnFunctionalityStatus.KO);
