@@ -26,14 +26,12 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
 import it.pagopa.pn.downtime.service.LegalFactService;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class EventController.
  */
 @Validated
 @RestController
-@Slf4j
 public class EventController implements DowntimeApi, DowntimeInternalApi {
 
 	/** The event service. */

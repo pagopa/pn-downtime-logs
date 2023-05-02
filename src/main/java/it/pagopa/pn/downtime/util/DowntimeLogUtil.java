@@ -1,7 +1,6 @@
 package it.pagopa.pn.downtime.util;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -21,13 +20,14 @@ public class DowntimeLogUtil {
 		if (localDate == null) {
 			throw new IllegalArgumentException("The localDate parameter cannot be null.");
 		}
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX");
 		OffsetDateTime localDateFormatted = OffsetDateTime.parse(localDate.format(formatter));
-		OffsetDateTime time = OffsetDateTime.of(localDateFormatted.toLocalDateTime(), ZoneId.systemDefault().getRules().getOffset(Instant.now()));
-		log.info("GMT/UTC date {} case with OffsetDateTime " + time.toInstant().atOffset(ZoneOffset.UTC));
-		log.info("System default ZoneId: ", ZoneId.systemDefault());
-		log.info("System default ZoneId Rules: ", ZoneId.systemDefault().getRules());
-		log.info("System default ZoneId Offset: ", ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+		OffsetDateTime time = OffsetDateTime.of(localDateFormatted.toLocalDateTime(), OffsetDateTime.now().getOffset());
+
+		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		localDateFormatted = OffsetDateTime.parse(time.format(formatter));
+		log.info("GMT/UTC without formatter: ", time.toInstant().atOffset(ZoneOffset.UTC));
+		log.info("GMT/UTC with formatter: ", localDateFormatted.toInstant().atOffset(ZoneOffset.UTC));
 		return time.toInstant().atOffset(ZoneOffset.UTC);
 	}
 	
