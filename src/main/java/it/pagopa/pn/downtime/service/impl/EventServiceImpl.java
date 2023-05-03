@@ -87,7 +87,7 @@ public class EventServiceImpl implements EventService {
 				
 				logEvent.log();
 				
-				OffsetDateTime date = DowntimeLogUtil.getGmtTimeFromOffsetDateTimeOffsetDateTime(event.getTimestamp());
+                OffsetDateTime date = DowntimeLogUtil.getGmtTime(event.getTimestamp());
 				
 				PnAuditLogEvent logEventAfter = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
 						"addStatusChangeEvent - PnStatusUpdateEvent's timestamp of functionality {} (GMT/UTC)  with OffsetDateTime {}", pnStatusUpdateEvent.get(0).getFunctionality(), date)
