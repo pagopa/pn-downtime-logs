@@ -54,17 +54,28 @@ public class DowntimeLogUtil {
 	}
 
 	public static OffsetDateTime getGmtTime(OffsetDateTime localDate) {
-
-		log.info("getGmtTime - Local date {} ", localDate);
 		if (localDate == null) {
 			throw new IllegalArgumentException("The localDate parameter cannot be null.");
 		}
-		Timestamp timestampDate = Timestamp
-				.valueOf(localDate.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
+        OffsetDateTime newdate = convertToGMT(localDate);
+        log.info("getGmtTime - New date {} ", newdate);
+        log.info("getGmtTime - Local date {} ", localDate);
+        log.info("getGmtTime - Current date {}", OffsetDateTime.now());
+        Timestamp timestampDate = Timestamp.valueOf(localDate.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
 		Date gmtDate = new Date(timestampDate.getTime());
 		
 		OffsetDateTime localDateFormatted = OffsetDateTime.parse(gmtDate.toInstant().toString());
-		log.info("getGmtTime - GMT/UTC date localDateFormatted with toInstant {}, toString {} " + localDateFormatted, gmtDate.toInstant(), gmtDate.toString());
+        log.info("getGmtTime - GMT/UTC date localDateFormatted with toInstant {}, toString {} " + localDateFormatted,
+                gmtDate.toInstant(), gmtDate.toString());
 		return gmtDate.toInstant().atOffset(ZoneOffset.UTC);
 	}
+	
+    public static OffsetDateTime convertToGMT(OffsetDateTime localDate) {
+        log.info("convertToGMT - Local date {} ", localDate);
+        ZoneOffset inputOffset = localDate.getOffset();
+        OffsetDateTime gmtDateTime = localDate.withOffsetSameInstant(ZoneOffset.UTC);
+        log.info("convertToGMT - GMT/UTC date localDateFormatted with toInstant {}, offset {} " + gmtDateTime,
+                inputOffset.toString());
+        return gmtDateTime;
+    }
 }
