@@ -12,23 +12,25 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DowntimeLogUtil {
 
-	private DowntimeLogUtil() {
-	}
-
+	private DowntimeLogUtil() {}
+	
 	public static OffsetDateTime getGmtTimeFromOffsetDateTimeOffsetDateTime(OffsetDateTime localDate) {
 		log.info("Local date = {} " + localDate);
 		if (localDate == null) {
 			throw new IllegalArgumentException("The localDate parameter cannot be null.");
 		}
-		OffsetDateTime time = localDate.plusSeconds(1).plusNanos(1);
-		time = OffsetDateTime.of(time.toLocalDateTime(), OffsetDateTime.now().getOffset());
+		OffsetDateTime time = localDate.toLocalDateTime().atZone(ZoneId.of("Europe/Rome")).toOffsetDateTime();
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		log.info("Date with offset (+02:00): " + time);
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 		time = OffsetDateTime.parse(time.format(formatter));
-		Timestamp timestampDate = Timestamp.valueOf(time.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
-		Date gmtDate = new Date(timestampDate.getTime());
-		log.info("GMT/UTC: ", gmtDate.toInstant().atOffset(ZoneOffset.UTC));
-		return gmtDate.toInstant().atOffset(ZoneOffset.UTC);
+		
+		log.info("Date with offset with formatter (+02:00): " + time);
+		
+		log.info("UTC date: " + time.toInstant().atOffset(ZoneOffset.UTC));
+		
+		return time.toInstant().atOffset(ZoneOffset.UTC);
 	}
 	
 	public static OffsetDateTime getOffsetDateTimeFromGmtTime(OffsetDateTime gmtDate) {
