@@ -21,22 +21,19 @@ import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.service.EventService;
 import lombok.extern.slf4j.Slf4j;
 
-/** The Constant log. */
+
 @Slf4j
 @Component
 public class CloudwatchReceiver {
 
-	/** The mapper. */
 	@Autowired
-	ObjectMapper mapper;
+	private ObjectMapper mapper;
 
-	/** The event service. */
 	@Autowired
-	EventService eventService;
+	private EventService eventService;
 
-	/** The cloudwatch mapper. */
 	@Autowired
-	CloudwatchMapper cloudwatchMapper;
+	private CloudwatchMapper cloudwatchMapper;
 
 	/**
 	 * Receive message from the cloudwatch sqs queue which will be used to register

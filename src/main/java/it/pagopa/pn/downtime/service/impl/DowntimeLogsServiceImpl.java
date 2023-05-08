@@ -34,27 +34,16 @@ import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * The Class DowntimeLogsServiceImpl.
- */
 @Service
-
-/**
- * Instantiates a new downtime logs service impl.
- */
 @RequiredArgsConstructor
-
-/** The Constant log. */
 @Slf4j
 public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
-	/** The dynamo DB mapper. Log */
 	@Autowired
 	private DynamoDBMapper dynamoDBMapper;
 
-	/** The downtime logs mapper. */
 	@Autowired
-	DowntimeLogsMapper downtimeLogsMapper;
+	private DowntimeLogsMapper downtimeLogsMapper;
 
 	@Value("${history.index}")
 	private String historyIndex;
@@ -132,9 +121,9 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		}
 
 		Map<String, AttributeValue> attributes = new HashMap<>();
-		
+
 		List<String> values = functionality.stream().filter(Objects::nonNull).map(PnFunctionality::getValue).toList();
-		
+
 		String expression = "";
 		for (String s : values) {
 			attributes.put(":functionality" + (values.indexOf(s) + 1), new AttributeValue().withS(s));
@@ -192,7 +181,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			pnStatusResponseEntry.setStatus(HttpStatus.OK.value());
 			pnStatusResponseEntry.setTitle(HttpStatus.OK.name());
 			pnStatusResponseEntry.setDetail(HttpStatus.OK.name());
-			log.info("Response: " + pnStatusResponseEntry.toString());
+            log.info("Response: " + pnStatusResponseEntry.toString());
 		} catch (Exception e) {
 			log.error("Error occurred while fetching current status: ", e);
 			pnStatusResponseEntry.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -218,7 +207,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 			String startEventUuid, String uuid) {
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
-		OffsetDateTime newStartDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTimeOffsetDateTime(startDate);
+		OffsetDateTime newStartDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(startDate);
 		downtimeLogs.setStartDate(newStartDate);
 		downtimeLogs.setStartDateAttribute(newStartDate);
 		downtimeLogs.setStatus(PnFunctionalityStatus.KO);

@@ -291,7 +291,6 @@ public abstract class AbstractMock {
 				.thenReturn(Optional.empty());
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void mockFindNextDowntimeLogsNotEmpty() {
 		Mockito.when(mockDowntimeLogsRepository.findOpenDowntimeLogsFuture(ArgumentMatchers.any(OffsetDateTime.class),
 				ArgumentMatchers.any(PnFunctionality.class), ArgumentMatchers.any(OffsetDateTime.class)))

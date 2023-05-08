@@ -17,20 +17,16 @@ import it.pagopa.pn.downtime.service.LegalFactService;
 import lombok.extern.slf4j.Slf4j;
 
 
-/** The Constant log. */
 @Slf4j
 @Component
 public class DowntimeLogsReceiver {
 
-	/** The mapper. */
 	@Autowired
-	ObjectMapper mapper;
+	private ObjectMapper mapper;
 	
-	/** The legal fact service. */
 	@Autowired
-	LegalFactService legalFactService;
+	private LegalFactService legalFactService;
 	
-	/** The dynamo DB mapper. Log */
 	@Autowired
 	private DynamoDBMapper dynamoDBMapper;
 	

@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LegalFactIdReceiver {
 
-	/** The dynamo DB mapper. Log */
 	@Autowired
 	private DynamoDBMapper dynamoDBMapper;
 
@@ -39,6 +38,12 @@ public class LegalFactIdReceiver {
 	@Autowired
 	LegalFactService legalFactService;
 
+	/**
+	 * Receive legal fact.
+	 *
+	 * @param message the message
+	 * @throws JsonProcessingException the json processing exception
+	 */
 	@SqsListener(value = "${amazon.sqs.end-point.legalfact-available}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 	public void receiveLegalFact(final String message) throws JsonProcessingException {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
@@ -65,6 +70,12 @@ public class LegalFactIdReceiver {
 		}
 	}
 	
+	/**
+	 * Update file available.
+	 *
+	 * @param logs the logs
+	 * @param legalFact the legal fact
+	 */
 	private void updateFileAvailable(List<DowntimeLogs> logs, FileCreatedDto legalFact) {
 		if (logs != null && !logs.isEmpty()) {
 			logs.get(0).setFileAvailable(true);
