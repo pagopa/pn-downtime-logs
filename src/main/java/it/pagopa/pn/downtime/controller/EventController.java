@@ -27,22 +27,16 @@ import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
 import it.pagopa.pn.downtime.service.LegalFactService;
 
-/**
- * The Class EventController.
- */
 @Validated
 @RestController
 public class EventController implements DowntimeApi, DowntimeInternalApi {
 
-	/** The event service. */
 	@Autowired
 	private EventService eventService;
 
-	/** The legal fact service. */
 	@Autowired
 	private LegalFactService legalFactService;
 
-	/** The downtime logs service. */
 	@Autowired
 	private DowntimeLogsService downtimeLogsService;
 
@@ -70,8 +64,8 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 	public ResponseEntity<Void> addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
 			throws IOException {
 		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOWNTIME,
-				"addStatusChangeEvent - xPagopaPnUid={}, pnStatusUpdateEvent={}", xPagopaPnUid, pnStatusUpdateEvent)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT,
+                "addStatusChangeEvent - xPagopaPnUid={}, Current date(GMT/UTC)={}", xPagopaPnUid, OffsetDateTime.now())
 				.mdcEntry("uid", xPagopaPnUid).build();
 		
 		logEvent.log();
@@ -79,7 +73,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 			eventService.addStatusChangeEvent(xPagopaPnUid, pnStatusUpdateEvent);
 			logEvent.generateSuccess().log();
 		} catch (IOException exc) {
-			logEvent.generateFailure("Exception on addStatusChangeEvent = " + exc.getMessage()).log();
+			logEvent.generateFailure("Exception on addStatusChangeEvent: " + exc.getMessage()).log();
 			throw exc;
 		}
 		return ResponseEntity.noContent().build();

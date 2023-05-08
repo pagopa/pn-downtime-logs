@@ -7,9 +7,6 @@ import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.pn_downtime_logs.model.LegalFactDownloadMetadataResponse;
 
-/**
- * An interface containing all methods for allergies.
- */
 public interface LegalFactService {
 
 	/**
