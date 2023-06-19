@@ -3,10 +3,11 @@ package it.pagopa.pn.downtime.service;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeHistoryResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusResponse;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeHistoryResponse;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
+
 
 
 public interface DowntimeLogsService {

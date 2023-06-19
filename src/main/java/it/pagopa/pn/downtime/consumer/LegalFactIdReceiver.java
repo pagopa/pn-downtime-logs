@@ -20,13 +20,13 @@ import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileCreatedDto;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreatedDto;
 import it.pagopa.pn.downtime.service.LegalFactService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 
 @Component
-@Slf4j
+@CustomLog
 public class LegalFactIdReceiver {
 
 	@Autowired

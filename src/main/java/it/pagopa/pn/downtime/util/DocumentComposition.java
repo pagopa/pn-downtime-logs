@@ -104,7 +104,6 @@ public class DocumentComposition {
 		StringWriter stringWriter = new StringWriter();
 
 		Template template = freemarker.getTemplate(templateType.name());
-		log.debug("For templateType={} use template={}", templateType, template);
 		template.process(model, stringWriter);
 
 		log.info("Execute templateType={} END", templateType);

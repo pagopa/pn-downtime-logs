@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,24 +15,24 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
 import it.pagopa.pn.downtime.util.Constants;
 import it.pagopa.pn.downtime.util.DowntimeLogUtil;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@CustomLog
 public class EventServiceImpl implements EventService {
 
 	@Autowired
@@ -48,6 +49,9 @@ public class EventServiceImpl implements EventService {
 
 	@Autowired
 	private DowntimeLogsRepository repository;
+	
+	@Value("${amazon.dynamodb.event.endpoint}")
+	private String eventTableName;
 
 	/**
 	 * Adds the status change event.
@@ -240,7 +244,9 @@ public class EventServiceImpl implements EventService {
 		event.setSourceType(sourceType);
 		event.setSource(source);
 		event.setUuid(uuid);
+		log.debug("Inserting data {} in DynamoDB table {}", event.toString(),StringUtils.substringAfterLast(eventTableName, "/"));
 		dynamoDBMapper.save(event);
+		log.info("Inserted data in DynamoDB table {}",StringUtils.substringAfterLast(eventTableName, "/"));
 		return event.getIdEvent();
 	}
 

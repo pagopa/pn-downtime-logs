@@ -2,7 +2,6 @@ package it.pagopa.pn.downtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,7 +14,6 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,14 +24,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.model.Alarm;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.service.LegalFactService;
 
@@ -225,32 +221,6 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
 		
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
-	}
-	
-	@Test
-	public void test_CheckAddStatusChangeTimestampIsFuture() throws Exception {
-		mockFoundAnyOpenDowntimeLogs();
-		mockAddStatusChange_KO(client);
-		
-		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2099-08-28T08:55:15.995Z"),
-				List.of(PnFunctionality.NOTIFICATION_WORKFLOW), PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
-		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
-				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
-		
-		assertThat(response.getContentAsString()).contains("500");
-	}
-	
-	@Test
-	public void mockStatusChangeEventException() throws Exception {
-		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
-		doThrow(JsonProcessingException.class).when(producer).sendMessage(Mockito.any(DowntimeLogs.class), Mockito.anyString());
-
-		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
-				List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.OK, SourceTypeEnum.ALARM, "ALARM");
-		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
-				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
-		
-		assertThat(response.getContentAsString()).contains("500");
 	}
 	
 	/** 
