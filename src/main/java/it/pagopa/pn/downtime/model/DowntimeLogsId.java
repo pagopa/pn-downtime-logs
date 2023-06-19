@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import it.pagopa.pn.downtime.model.converter.OffsetDateTimeConverter;
 import it.pagopa.pn.downtime.util.OffsetDateTimeSerializer;
+import lombok.ToString;
 
+@ToString
 public class DowntimeLogsId implements Serializable{
 
 	private static final long serialVersionUID = 1L;

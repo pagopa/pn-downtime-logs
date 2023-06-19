@@ -9,19 +9,21 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.model.converter.OffsetDateTimeConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityStatusConverter;
 import it.pagopa.pn.downtime.model.converter.PnSourceTypeConverter;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @NoArgsConstructor
 @DynamoDBTable(tableName = "Downtime-Event")
+@ToString
 public class Event implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String idEvent;

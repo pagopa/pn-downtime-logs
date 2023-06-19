@@ -15,8 +15,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
+
 
 @Component
 public class DowntimeLogsRepository {

@@ -27,9 +27,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 
 import io.awspring.cloud.messaging.listener.SimpleMessageListenerContainer;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

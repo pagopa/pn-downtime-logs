@@ -13,11 +13,11 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.model.converter.OffsetDateTimeConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityConverter;
 import it.pagopa.pn.downtime.model.converter.PnFunctionalityStatusConverter;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.util.OffsetDateTimeSerializer;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

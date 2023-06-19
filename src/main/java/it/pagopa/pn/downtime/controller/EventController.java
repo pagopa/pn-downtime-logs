@@ -16,13 +16,13 @@ import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.downtime.pn_downtime_logs.api.DowntimeApi;
-import it.pagopa.pn.downtime.pn_downtime_logs.api.DowntimeInternalApi;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.LegalFactDownloadMetadataResponse;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeHistoryResponse;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeApi;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeInternalApi;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeHistoryResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
 import it.pagopa.pn.downtime.service.LegalFactService;
@@ -61,8 +61,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 	 * @throws TemplateException        the template exception
 	 */
 	@Override
-	public ResponseEntity<Void> addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent)
-			throws IOException {
+	public ResponseEntity<Void> addStatusChangeEvent(String xPagopaPnUid, List<PnStatusUpdateEvent> pnStatusUpdateEvent) {
 		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT,
                 "addStatusChangeEvent - xPagopaPnUid={}, Current date(GMT/UTC)={}", xPagopaPnUid, OffsetDateTime.now())
@@ -74,7 +73,6 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 			logEvent.generateSuccess().log();
 		} catch (IOException exc) {
 			logEvent.generateFailure("Exception on addStatusChangeEvent: " + exc.getMessage()).log();
-			throw exc;
 		}
 		return ResponseEntity.noContent().build();
 	}
