@@ -235,6 +235,9 @@ Parameters:
     Type: Number
     Description: maximum autoscaling number of tasks   
     
+  LogAlarmStrategy:
+    Type: String
+    Default: 'FATAL'
   PublicApiCacheClusterSize:
     Type: Number
     Default: 0.5
@@ -292,6 +295,7 @@ Resources:
         AlbSecurityGroup: !Ref AlbSecurityGroup
         TaskRoleManagedPolicyArn: !Ref DowntimeLogsMicroserviceTaskManagedPolicy
         EcsLogGroup: !Ref EcsLogGroup
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Grant operational rights to PN-Downtime-Logs microservice
   DowntimeLogsMicroserviceTaskManagedPolicy:
