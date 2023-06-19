@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -22,21 +23,21 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeEntry;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeHistoryResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusResponse;
 import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeEntry;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnDowntimeHistoryResponse;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.util.DowntimeLogUtil;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@CustomLog
 public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
 	@Autowired
@@ -48,6 +49,8 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	@Value("${history.index}")
 	private String historyIndex;
 
+	@Value("${amazon.dynamodb.log.endpoint}")
+	private String downtimeLogsTableName;
 	/**
 	 * Gets the status history.
 	 *
@@ -61,7 +64,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	@Override
 	public PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
 			List<PnFunctionality> functionality, String page, String size) {
-
+		
 		log.info("getStatusHistory - Input - fromTime: " + fromTime.toString() + " toTime: "
 				+ (toTime != null ? toTime.toString() : "") + " functionality: "
 				+ (functionality != null ? functionality.toString() : "") + " page: " + page + " size: " + size);
@@ -205,6 +208,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	@Override
 	public void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate, PnFunctionality functionality,
 			String startEventUuid, String uuid) {
+		
 		DowntimeLogs downtimeLogs = new DowntimeLogs();
 		downtimeLogs.setFunctionalityStartYear(functionalityStartYear);
 		OffsetDateTime newStartDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(startDate);
@@ -216,7 +220,9 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		downtimeLogs.setUuid(uuid);
 		downtimeLogs.setFileAvailable(false);
 		downtimeLogs.setHistory("downtimeHistory");
+		log.debug("Inserting data {} in DynamoDB table {}", downtimeLogs.toString(), StringUtils.substringAfterLast(downtimeLogsTableName, "/"));
 		dynamoDBMapper.save(downtimeLogs);
+		log.info("Inserted data in DynamoDB table {}", StringUtils.substringAfterLast(downtimeLogsTableName, "/"));
 	}
 
 	@Override

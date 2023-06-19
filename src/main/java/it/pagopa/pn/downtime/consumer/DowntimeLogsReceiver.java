@@ -14,11 +14,12 @@ import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.service.LegalFactService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 
 
-@Slf4j
+
 @Component
+@CustomLog
 public class DowntimeLogsReceiver {
 
 	@Autowired

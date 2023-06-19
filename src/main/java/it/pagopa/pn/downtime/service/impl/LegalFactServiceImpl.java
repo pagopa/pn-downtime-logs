@@ -24,32 +24,23 @@ import org.springframework.web.util.UriComponentsBuilder;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import freemarker.template.Version;
+import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.api.FileDownloadApi;
+import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.api.FileUploadApi;
+import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.client.ApiClient;
+import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileCreationRequest;
+import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileCreationResponse;
+import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileDownloadResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.LegalFactDownloadMetadataResponse;
-import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.ApiClient;
-import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.api.FileDownloadApi;
-import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.api.FileUploadApi;
-import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreationRequest;
-import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.downtime.service.LegalFactService;
 import it.pagopa.pn.downtime.util.DocumentComposition;
 import it.pagopa.pn.downtime.util.LegalFactGenerator;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-/**
- * The Class LegalFactServiceImpl.
- */
 @Service
-
-/**
- * Instantiates a new legal fact service impl.
- */
 @RequiredArgsConstructor
-
-/** The Constant log. */
-@Slf4j
+@CustomLog
 public class LegalFactServiceImpl implements LegalFactService {
 
 	/** The url safe store. */
@@ -85,6 +76,9 @@ public class LegalFactServiceImpl implements LegalFactService {
 
 	@Autowired
 	private FileUploadApi fileUploadApi;
+	
+	@Autowired
+	private ApiClient api;
 
 	/** The Constant PAGOPA_SAFESTORAGE_HEADER. */
 	private static final String PAGOPA_SAFESTORAGE_HEADER = "x-pagopa-safestorage-cx-id";
@@ -117,7 +111,6 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Override
 	public LegalFactDownloadMetadataResponse getLegalFact(String legalFactId) {
 		log.info("getLegalFact - Input: " + legalFactId);
-		ApiClient api = new ApiClient();
 		api.setBasePath(urlSafeStore);
 		if (enableApiKey) {
 			api.setApiKey(apiKeyHeaderValue);
@@ -144,7 +137,6 @@ public class LegalFactServiceImpl implements LegalFactService {
 	 */
 	public DowntimeLogs reserveUploadFile(byte[] file, DowntimeLogs downtime) throws NoSuchAlgorithmException {
 		log.info("reserveUploadFile");
-		ApiClient api = new ApiClient();
 		api.setBasePath(urlSafeStore);
 		if (enableApiKey) {
 			api.setApiKey(apiKeyHeaderValue);
@@ -170,7 +162,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 				uploadFile(fileCreationResponse, checkSum, file);
 			}
 		} else {
-			log.error("Error during the reservation request");
+			log.fatal("Error during the reservation request");
 		}
 		return downtime;
 	}
@@ -185,7 +177,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 	 * @param file      the generated pdf of the legal fact
 	 */
 	public void uploadFile(FileCreationResponse uploadDto, String checkSum, byte[] file) {
-		log.info("uploadFile");
+		log.info("uploadFile for LegalFactId = {}", uploadDto.getKey());
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setContentType(MediaType.APPLICATION_PDF);
 		List<MediaType> acceptedTypes = new ArrayList<>();

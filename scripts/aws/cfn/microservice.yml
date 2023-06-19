@@ -238,6 +238,14 @@ Parameters:
   LogAlarmStrategy:
     Type: String
     Default: 'FATAL'
+  PublicApiCacheClusterSize:
+    Type: Number
+    Default: 0.5
+
+  PublicApiCacheTtl:
+    Type: Number
+    Default: 300
+    
 Resources:
 
   DowntimeLogsMicroservice:
@@ -420,9 +428,13 @@ Resources:
           MetricsEnabled: "true"
           ResourcePath: /*
           LoggingLevel: 'INFO'
+          CacheTtlInSeconds: !Ref PublicApiCacheTtl
+          CachingEnabled: true
       RestApiId: !Ref PublicRestApiExternal
       StageName: unique
       TracingEnabled: true
+      CacheClusterEnabled: true
+      CacheClusterSize: !Ref PublicApiCacheClusterSize
       
   PagoPaMapping:
     Type: 'AWS::ApiGateway::BasePathMapping'

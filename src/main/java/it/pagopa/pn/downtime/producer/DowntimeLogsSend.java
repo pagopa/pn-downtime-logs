@@ -1,7 +1,6 @@
 package it.pagopa.pn.downtime.producer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -13,16 +12,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
+import lombok.CustomLog;
 
-
-/**
- * The Class DowntimeLogsSend.
- */
 @Service
+@CustomLog
 public class DowntimeLogsSend {
-	
-	/** The Constant LOGGER. */
-	private static final Logger LOGGER = LoggerFactory.getLogger(DowntimeLogsSend.class);
 
     /** The amazon SQS. */
     @Autowired
@@ -45,10 +39,11 @@ public class DowntimeLogsSend {
 	 * @throws JsonProcessingException the json processing exception
 	 */
 	public void sendMessage(DowntimeLogs downtimeLogs, String url) throws JsonProcessingException {
+		log.debug("Inserting data {} in SQS {}", downtimeLogs.toString(), StringUtils.substringAfterLast(url, "/"));
 		SendMessageRequest sendMessageRequest = null;
             sendMessageRequest = new SendMessageRequest().withQueueUrl(url)
                     .withMessageBody(objectMapper.writeValueAsString(downtimeLogs));
             amazonSQS.sendMessage(sendMessageRequest);
-            LOGGER.info("Event has been published in SQS.");
+            log.info("Inserted data in SQS {}",  StringUtils.substringAfterLast(url, "/"));
 	}
 }
