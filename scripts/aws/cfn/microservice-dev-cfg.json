@@ -5,6 +5,6 @@
     "MinTasksNumber": "2",
     "MaxTasksNumber": "5",
     "AutoscalingThreshold": "16000",
-    "HealthyThresholdCount": "1"
+    "HealthyThresholdCount": "2"
   }
 }
