@@ -2,6 +2,9 @@
   "Parameters" : {
     "SchedulerLegalfactidTimer":"0 0 6 * * ?",
     "SchedulerLegalfactidActive":"true",
-    "MaxTasksNumber": "1"
+    "MinTasksNumber": "2",
+    "MaxTasksNumber": "5",
+    "AutoscalingThreshold": "16000",
+    "HealthyThresholdCount": 1
   }
 }
