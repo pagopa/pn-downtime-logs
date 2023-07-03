@@ -24,19 +24,36 @@ Parameters:
     Type: String
     Description: 'Where to send CDC'
 
+  AlarmSNSTopicName:
+    Type: String
+    Description: 'Topic alarm'
+
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send Logs'
+    
+  LogRetention:
+    Type: Number
+    Default: 14
+
 Resources:
 
   ### Queue that receive safe-storage notification to DOWNTIME LOGS ###
   InternalEventQueue:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
         QueueName: !Sub '${ProjectName}-downtime_logs_internal_events'
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName   
         DelaySeconds: 1
 
   Event:
     Type: "AWS::DynamoDB::Table"
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: Downtime-Event
       AttributeDefinitions:
@@ -48,9 +65,6 @@ Resources:
           KeyType: HASH
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
-      SSESpecification:
-        SSEEnabled: true
-        SSEType: KMS
       KinesisStreamSpecification:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification: 
@@ -58,6 +72,8 @@ Resources:
 
   Log:
     Type: "AWS::DynamoDB::Table"
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: Downtime-DowntimeLogs
       AttributeDefinitions:
@@ -94,13 +110,21 @@ Resources:
           KeyType: RANGE
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
-      SSESpecification:
-        SSEEnabled: true
-        SSEType: KMS
       KinesisStreamSpecification:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification: 
         StreamViewType: NEW_IMAGE
+
+  PnDowntimeLogsLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain 
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub '${ProjectName}-downtime-logs'
+        LogGroupRetention: !Ref LogRetention
+        LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
 
 Outputs:
   
@@ -117,6 +141,9 @@ Outputs:
   InternalEventQueueAlarmARN:
     Value: !GetAtt InternalEventQueue.Outputs.SqsDLQAlarmArn
     Description: internal events queue alarm ARN
+  InternalEventQueueAgeAlarmARN:
+    Value: !GetAtt InternalEventQueue.Outputs.SqsAgeAlarmArn
+    Description: internal events queue age alarm ARN
 
   EventTableName:
     Description: Event table name
@@ -131,3 +158,7 @@ Outputs:
   LogDynamoTableArn:
     Description: ARN of dynamodb table containing log
     Value: !Sub '${Log.Arn}'
+
+  # Log group exports
+  EcsLogGroup:
+    Value: !GetAtt PnDowntimeLogsLogGroup.Outputs.LogGroupName

@@ -21,11 +21,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.scheduler.LegalFactIdJob;
-import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
+import it.pagopa.pn.downtime.service.impl.DowntimeLogsServiceImpl;
 
 
 
@@ -35,7 +35,7 @@ import it.pagopa.pn.downtime.service.DowntimeLogsServiceImpl;
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-public class TestSchedulerDowntimeLogs extends AbstractMock{
+public class SchedulerDowntimeLogsTest extends AbstractMock{
 
     @InjectMocks
     private LegalFactIdJob job;  

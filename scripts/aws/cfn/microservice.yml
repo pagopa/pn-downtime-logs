@@ -2,6 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: 'Example microservice deploy'
 
 Parameters:
+
   ProjectName:
     Type: String
     Description: 'Usually pn can be pnXYZ where XYZ are the feature number, useful to create
@@ -58,7 +59,7 @@ Parameters:
   NetworkLoadBalancerLink:
     Type: String
     Description: 'network load balancer link for API-GW'
-  
+
   AlarmSNSTopicArn:
     Type: String
     Description: ARN of alarm topic
@@ -87,7 +88,7 @@ Parameters:
     Type: String  
     Description: ARN of dynamodb table containing log
 
-  SafeStorageBaseUrl:
+  SandboxSafeStorageBaseUrl:
     Type: String
     Description: base url for safe storage requests
   
@@ -103,6 +104,10 @@ Parameters:
     Type: String
     Description: internal events queue alarm ARN
 
+  InternalEventQueueAgeAlarmARN:
+    Type: String
+    Description: internal events queue age alarm ARN
+
   DowntimeLogsSafeStorageEventsQueueURL:
     Type: String
     Description: queue url
@@ -114,6 +119,10 @@ Parameters:
   DowntimeLogsSafeStorageEventsQueueAlarmARN:
     Type: String
     Description: Events form safe-storage to pn-downtime-logs queue alarm ARN
+
+  DowntimeLogsSafeStorageEventsQueueAgeAlarmARN:
+    Type: String
+    Description: Events form safe-storage to pn-downtime-logs queue age alarm ARN
 
   DowntimeLogsAggregateAlarmQueueURL:
     Type: String
@@ -127,6 +136,10 @@ Parameters:
     Type: String
     Description: alarm queue ARN
   
+  DowntimeLogsAggregateAlarmQueueAgeAlarmARN:
+    Type: String
+    Description: age alarm queue ARN
+
   SchedulerLegalfactidActive:
     Type: String
     
@@ -137,6 +150,102 @@ Parameters:
     Type: String
     Description: 'Kinesis stream that receive logs'
     
+  AlbSecurityGroup:
+    Type: String
+    Description: 'Application load balancer security group'
+
+  # Log group parameters
+  EcsLogGroup:
+    Type: String
+    Description: 'Ecs log group name'
+
+  # Heath Check parameters
+  HealthCheckInterval:
+    Description: Seconds between two health check
+    Type: Number
+    Default: 60
+
+  HealthCheckTimeout:
+    Description: health check timeout seconds
+    Type: Number
+    Default: 15
+  
+  HealthyThresholdCount:
+    Description: |
+      The number of consecutive health checks successes required before considering 
+      an unhealthy target healthy. 
+    Type: Number
+    Default: 5
+  
+  UnhealthyThresholdCount:
+    Description: |
+      The number of consecutive health check failures required before considering a target unhealthy. 
+    Type: Number
+    Default: 2
+
+  # Instance parameters
+  # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
+  # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
+  # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
+  # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
+  # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
+  CpuValue:
+    Type: Number
+    Default: 1024
+    Description: Fargate virtual CPU quantity 1024 equals one vCPU
+
+  # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
+  # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
+  # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
+  # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
+  # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
+  MemoryAmount:
+    Type: String
+    Default: 2GB
+    Description: memory amount reserved to the task pod.
+    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
+
+  # Autoscaling parameters
+  AutoscalingCheckPeriod:
+    Default: 60
+    Type: Number
+    Description: minimum autoscaling number of tasks\
+
+  AutoscalingDataPointN:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingDataPointM:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingThreshold:
+    Default: 70
+    Type: String
+  
+  MinTasksNumber:
+    Default: 1
+    Type: Number
+    Description: minimum autoscaling number of tasks
+
+  MaxTasksNumber:
+    Default: 6
+    Type: Number
+    Description: maximum autoscaling number of tasks   
+    
+  LogAlarmStrategy:
+    Type: String
+    Default: 'FATAL'
+  PublicApiCacheClusterSize:
+    Type: Number
+    Default: 0.5
+
+  PublicApiCacheTtl:
+    Type: Number
+    Default: 300
+    
 Resources:
 
   DowntimeLogsMicroservice:
@@ -145,12 +254,23 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
-        CpuValue: 1024
-        MemoryAmount: 2GB
+        CpuValue: !Ref CpuValue
+        MemoryAmount: !Ref MemoryAmount
+        HealthCheckTimeout: !Ref HealthCheckTimeout
+        HealthCheckInterval: !Ref HealthCheckInterval
+        HealthyThresholdCount: !Ref HealthyThresholdCount
+        UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
+        AutoscalingStrategy: REST-API
+        AutoscalingThreshold: !Ref AutoscalingThreshold
+        AutoscalingCheckPeriod: !Ref AutoscalingCheckPeriod
+        MinTasksNumber: !Ref MinTasksNumber
+        MaxTasksNumber: !Ref MaxTasksNumber
+        AutoscalingDataPointN: !Ref AutoscalingDataPointN
+        AutoscalingDataPointM: !Ref AutoscalingDataPointM
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SafeStorageBaseUrl}'
+        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
         ContainerEnvEntry3: 'PN_DOWNTIMELOGS_ENABLE_APIKEY=false'
         ContainerEnvEntry4: 'PN_DOWNTIMELOGS_APIKEY_HEADER=NotApplicable'
         ContainerEnvEntry5: 'PN_DOWNTIMELOGS_APIKEY_VALUE=NotApplicable'
@@ -164,24 +284,23 @@ Resources:
         ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'     
         ContainerEnvEntry14: 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
         ContainerEnvEntry15: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        MappedPaths: '/downtime/*,/downtime-internal/*,/status, /healthcheck'
+        MappedPaths: '/downtime/*,/downtime-internal/*,/status'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
         HealthCheckPath: /healthcheck
-        HealthCheckTimeout: 15
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        AlbSecurityGroup: !Ref AlbSecurityGroup
+        TaskRoleManagedPolicyArn: !Ref DowntimeLogsMicroserviceTaskManagedPolicy
+        EcsLogGroup: !Ref EcsLogGroup
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Grant operational rights to PN-Downtime-Logs microservice
-  DowntimeLogsMicroserviceTaskPolicy:
-    Type: AWS::IAM::Policy
+  DowntimeLogsMicroserviceTaskManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
     Properties:
-      PolicyName: !Sub '${ProjectName}-downtime-logs-CustomTaskPolicy'
-      Roles:
-        - !GetAtt DowntimeLogsMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -234,7 +353,105 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
-        
+  
+  DowntimeLogsMicroservicePublicWebAPIWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-downtime-logs-web'
+        IntendedUsage: WEB 
+        APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.APIGatewayARN
+
+  PublicRestApiExternal:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      FailOnWarnings: true
+      Name: !Sub ${ProjectName}-downtime-logs-public-api   
+
+  PublicApiHealthCheckStatusResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt PublicRestApiExternal.RootResourceId
+      PathPart: "status"
+      RestApiId: !Ref PublicRestApiExternal 
+
+  PublicApiHealthCheckStatusMethod:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        Type: HTTP_PROXY
+        ConnectionId: !Ref NetworkLoadBalancerLink
+        ConnectionType: VPC_LINK
+        IntegrationHttpMethod: GET
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestParameters:
+          integration.request.path.proxy: method.request.path.proxy
+        TimeoutInMillis: 29000
+        Uri: !Sub "http://${ApplicationLoadBalancerDomain}:8080/status"
+      OperationName: Proxy to ECS microservices
+      RequestParameters:
+        method.request.path.proxy: true
+      ResourceId: !Ref PublicApiHealthCheckStatusResource
+      RestApiId: !Ref PublicRestApiExternal
+
+
+  PublicRestApiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn:
+      - PublicApiHealthCheckStatusMethod
+    Properties:
+      RestApiId: !Ref PublicRestApiExternal 
+
+   # Log Group
+  DowntimeLogsPublicStatusApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 14
+
+  PublicRestApiStage:
+    Type: "AWS::ApiGateway::Stage"
+    Properties:
+      DeploymentId: !Ref PublicRestApiDeployment
+      AccessLogSetting:
+        DestinationArn: !GetAtt "DowntimeLogsPublicStatusApiLogGroup.Arn"
+        Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency,"xrayTraceId":"$context.xrayTraceId","errorMessage":"$context.error.message","validationError":"$context.error.validationErrorString","integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent"}'
+      MethodSettings:
+        - DataTraceEnabled: "false"
+          HttpMethod: "*"
+          MetricsEnabled: "true"
+          ResourcePath: /*
+          LoggingLevel: 'INFO'
+          CacheTtlInSeconds: !Ref PublicApiCacheTtl
+          CachingEnabled: true
+      RestApiId: !Ref PublicRestApiExternal
+      StageName: unique
+      TracingEnabled: true
+      CacheClusterEnabled: true
+      CacheClusterSize: !Ref PublicApiCacheClusterSize
+      
+  PagoPaMapping:
+    Type: 'AWS::ApiGateway::BasePathMapping'
+    Properties:
+      DomainName: !Ref ApiDnsName
+      Stage: !Ref PublicRestApiStage
+      RestApiId: !Ref PublicRestApiExternal
+
+  DowntimeLogsMicroserviceStatusWebApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-downtime-logs-status'
+        IntendedUsage: B2B 
+        APIGatewayARNs: !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/${PublicRestApiExternal}/stages/${PublicRestApiStage}'
+
   ## Dashboard
   DowntimeLogsMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
@@ -254,14 +471,20 @@ Resources:
           - - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ','
-          - - !GetAtt DowntimeLogsMicroservice.Outputs.AutoScalingAlarmArn
-            - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
+          - - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref InternalEventQueueAlarmARN
+            - !Ref InternalEventQueueAgeAlarmARN
             - !Ref DowntimeLogsSafeStorageEventsQueueAlarmARN
             - !Ref DowntimeLogsAggregateAlarmQueueAlarmARN
+            - !Ref DowntimeLogsSafeStorageEventsQueueAgeAlarmARN
+            - !Ref DowntimeLogsAggregateAlarmQueueAgeAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref InternalEventQueueARN
             - !Ref DowntimeLogsSafeStorageEventsQueueARN
             - !Ref DowntimeLogsAggregateAlarmQueueARN
+        LogGroupsNames: !Join
+          - ','
+          - - !Sub '/aws/ecs/${ProjectName}-downtime-logs'            

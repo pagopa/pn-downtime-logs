@@ -5,14 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.pagopa.pn.downtime.pn_downtime_logs.api.StatusApi;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.api.StatusApi;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusResponse;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 
 @Validated
 @RestController
 public class StatusController implements StatusApi {
-	
+
 	@Autowired
 	private DowntimeLogsService downtimeLogsService;
 
@@ -24,7 +24,5 @@ public class StatusController implements StatusApi {
 		} else
 			return ResponseEntity.ok(openIncidents);
 	}
-	
 
-	
 }

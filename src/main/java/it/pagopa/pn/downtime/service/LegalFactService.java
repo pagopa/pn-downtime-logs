@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 import freemarker.template.TemplateException;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.LegalFactDownloadMetadataResponse;
 
-/**
- * An interface containing all methods for allergies.
- */
+
 public interface LegalFactService {
 
 	/**

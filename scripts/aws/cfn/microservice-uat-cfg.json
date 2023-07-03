@@ -1,6 +1,5 @@
 {
   "Parameters" : {
-    "SafeStorageBaseUrl":"https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev",
     "SchedulerLegalfactidTimer":"0 0 6 * * ?",
     "SchedulerLegalfactidActive":"true"
   }
