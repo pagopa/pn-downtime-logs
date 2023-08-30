@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>it.pagopa.pn</groupId>
 	<artifactId>pn-downtime-logs</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<version>2.0.2-SNAPSHOT</version>
 	<name>pn-downtime-logs</name>
 	<description>Register PN downtime logs</description>
 	<scm>
