@@ -40,7 +40,7 @@ Parameters:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
 
-  FargateEFSFileSystemID:
+  FargateEFSFileSystem:
     Type: String
     Description: "EFS Filesystem"
 
@@ -300,7 +300,7 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DowntimeLogsMicroserviceTaskManagedPolicy
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
-        EfsFilesystem: !Ref FargateEFSFileSystemID
+        EfsFilesystem: !Ref FargateEFSFileSystem
 
   # Grant operational rights to PN-Downtime-Logs microservice
   DowntimeLogsMicroserviceTaskManagedPolicy:
