@@ -246,6 +246,13 @@ Parameters:
     Type: Number
     Default: 300
     
+  EnhancedWebSecurityEnabled:
+    Type: String
+    Default: false
+    Description: Enable additional WAF Web rules
+    AllowedValues:
+      - true
+      - false
 Resources:
 
   DowntimeLogsMicroservice:
@@ -362,6 +369,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-downtime-logs-web'
         IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.APIGatewayARN
+        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   PublicRestApiExternal:
     Type: "AWS::ApiGateway::RestApi"
