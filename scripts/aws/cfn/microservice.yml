@@ -233,7 +233,12 @@ Parameters:
   MaxTasksNumber:
     Default: 6
     Type: Number
-    Description: maximum autoscaling number of tasks   
+    Description: maximum autoscaling number of tasks
+
+  WebWafLimit:
+    Default: 600000
+    Type: Number
+    Description: b2b waf limit
     
   LogAlarmStrategy:
     Type: String
@@ -369,6 +374,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-downtime-logs-web'
         IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.APIGatewayARN
+        Limit: !Ref WebWafLimit
         EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   PublicRestApiExternal:
