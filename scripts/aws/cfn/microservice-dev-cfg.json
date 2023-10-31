@@ -7,6 +7,7 @@
     "AutoscalingThreshold": "16000",
     "HealthyThresholdCount": "2",
     "EnhancedWebSecurityEnabled": "true",
-    "MountEfs": "true"
+    "MountEfs": "true",
+    "WireTapLogActivation" : "false"
   }
 }

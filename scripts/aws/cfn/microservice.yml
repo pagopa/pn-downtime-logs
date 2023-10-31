@@ -51,6 +51,14 @@ Parameters:
          - "true"
          - "false"
 
+  WireTapLogActivation:
+    Type: String
+    Default: false
+    Description: Activation of wire logs
+    AllowedValues:
+      - true
+      - false
+
   FargateEFSFileSystemID:
     Type: String
     Description: "EFS Filesystem"
@@ -321,6 +329,7 @@ Resources:
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
         EfsFilesystem: !Ref FargateEFSFileSystemID
         MountEfs: !Ref MountEfs
+        WireTapLogActivation: !Ref WireTapLogActivation
 
 
   # Grant operational rights to PN-Downtime-Logs microservice
