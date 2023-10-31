@@ -43,6 +43,17 @@ Parameters:
   SubnetsIds:
     Type: String
     Description: 'subnets ids comma separated list. Where to deploy the microservice'
+
+  MountEfs:
+    Type: String
+    Default: false
+    AllowedValues:
+         - "true"
+         - "false"
+
+  FargateEFSFileSystemID:
+    Type: String
+    Description: "EFS Filesystem"
   
   EcsDefaultSecurityGroup:
     Type: String
