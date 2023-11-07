@@ -15,10 +15,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 
 @Component
-@Slf4j
+@CustomLog
 public class LegalFactIdJob implements Job {
 
 	private static final String JOB_LOG_NAME = "Recover LegalFactId Job ";

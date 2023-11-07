@@ -14,23 +14,20 @@ import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.service.LegalFactService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 
 
-/** The Constant log. */
-@Slf4j
+
 @Component
+@CustomLog
 public class DowntimeLogsReceiver {
 
-	/** The mapper. */
 	@Autowired
-	ObjectMapper mapper;
+	private ObjectMapper mapper;
 	
-	/** The legal fact service. */
 	@Autowired
-	LegalFactService legalFactService;
+	private LegalFactService legalFactService;
 	
-	/** The dynamo DB mapper. Log */
 	@Autowired
 	private DynamoDBMapper dynamoDBMapper;
 	

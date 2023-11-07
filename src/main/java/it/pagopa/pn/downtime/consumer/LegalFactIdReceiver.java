@@ -20,16 +20,15 @@ import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileCreatedDto;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.restclient.safestorage.model.FileCreatedDto;
 import it.pagopa.pn.downtime.service.LegalFactService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 
 @Component
-@Slf4j
+@CustomLog
 public class LegalFactIdReceiver {
 
-	/** The dynamo DB mapper. Log */
 	@Autowired
 	private DynamoDBMapper dynamoDBMapper;
 
@@ -39,6 +38,12 @@ public class LegalFactIdReceiver {
 	@Autowired
 	LegalFactService legalFactService;
 
+	/**
+	 * Receive legal fact.
+	 *
+	 * @param message the message
+	 * @throws JsonProcessingException the json processing exception
+	 */
 	@SqsListener(value = "${amazon.sqs.end-point.legalfact-available}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 	public void receiveLegalFact(final String message) throws JsonProcessingException {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
@@ -65,6 +70,12 @@ public class LegalFactIdReceiver {
 		}
 	}
 	
+	/**
+	 * Update file available.
+	 *
+	 * @param logs the logs
+	 * @param legalFact the legal fact
+	 */
 	private void updateFileAvailable(List<DowntimeLogs> logs, FileCreatedDto legalFact) {
 		if (logs != null && !logs.isEmpty()) {
 			logs.get(0).setFileAvailable(true);

@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
 
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
+
 
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

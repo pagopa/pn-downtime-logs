@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>it.pagopa.pn</groupId>
 		<artifactId>pn-parent</artifactId>
-		<version>2.0.0-SNAPSHOT</version>
+		<version>2.1.1</version>
 		<relativePath>../pn-parent</relativePath>
 	</parent>
-	<groupId>it.pagopa.pn.downtime</groupId>
+	<groupId>it.pagopa.pn</groupId>
 	<artifactId>pn-downtime-logs</artifactId>
-	<version>2.0.0-SNAPSHOT</version>
+	<version>2.1.0-SNAPSHOT</version>
 	<name>pn-downtime-logs</name>
 	<description>Register PN downtime logs</description>
 	<scm>
@@ -20,7 +22,8 @@
 	</scm>
 	<properties>
 		<springfox-version>3.0.0</springfox-version>
-		<openapi-generator-maven-plugin-version>5.1.0</openapi-generator-maven-plugin-version>
+		<openapi-generator-maven-plugin-version>5.4.0
+		</openapi-generator-maven-plugin-version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -110,7 +113,7 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20230227</version>
+			<version>20231013</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openapitools</groupId>
@@ -154,10 +157,10 @@
 			<version>3.0.2</version>
 		</dependency>
 		<dependency>
-            <groupId>it.pagopa.pn</groupId>
-            <artifactId>pn-commons</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
+			<groupId>it.pagopa.pn</groupId>
+			<artifactId>pn-commons</artifactId>
+			<version>2.1.11</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -194,32 +197,37 @@
 				<version>${openapi-generator-maven-plugin-version}</version>
 				<executions>
 					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-safestorage</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<generatorName>java</generatorName>
 							<inputSpec>${basedir}/docs/wsclients/pn-safestorage-v1-api.yaml
 							</inputSpec>
+							<generatorName>java</generatorName>
 							<library>resttemplate</library>
-							<output>${project.basedir}/target/generated-sources/</output>
-							<apiPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.api
-							</apiPackage>
-							<modelPackage>${project.groupId}.${project.artifactId}.restclient.safestorage.model
-							</modelPackage>
-							<invokerPackage>${project.groupId}.${project.artifactId}.restclient.safestorage
-							</invokerPackage>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<generateApiDocumentation>false</generateApiDocumentation>
-							<generateModelDocumentation>false</generateModelDocumentation>
 							<configOptions>
+								<apiPackage>${project.groupId}.downtime.generated.openapi.msclient.safestorage.v1.api
+								</apiPackage>
+								<modelPackage>${project.groupId}.downtime.generated.openapi.msclient.safestorage.v1.dto
+								</modelPackage>
+								<invokerPackage>${project.groupId}.downtime.generated.openapi.msclient.safestorage.v1.client
+								</invokerPackage>
 								<dateLibrary>java8</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
 							</configOptions>
 						</configuration>
 					</execution>
 					<execution>
-						<id>spring-server</id>
+						<phase>generate-resources</phase>
+						<id>pn-internal-downtime-logs</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
@@ -227,15 +235,26 @@
 							<inputSpec>${project.basedir}/docs/openapi/api-internal-v1.yaml
 							</inputSpec>
 							<generatorName>spring</generatorName>
-							<apiPackage>${project.groupId}.${project.artifactId}.api
-							</apiPackage>
-							<modelPackage>${project.groupId}.${project.artifactId}.model
-							</modelPackage>
-							<enablePostProcessFile>true</enablePostProcessFile>
+							<library>spring-boot</library>
+							<modelNameSuffix />
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
 							<configOptions>
-								<serializableModel>true</serializableModel>
+								<basePackage>${project.groupId}.downtime.generated.openapi.server.v1
+								</basePackage>
+								<modelPackage>${project.groupId}.downtime.generated.openapi.server.v1.dto
+								</modelPackage>
+								<apiPackage>${project.groupId}.downtime.generated.openapi.server.v1.api
+								</apiPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
 								<interfaceOnly>true</interfaceOnly>
-								<unhandledException>true</unhandledException>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>false</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -249,7 +268,8 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<configuration>
-					<dataFile>${project.build.directory}/jacoco-ouput/merged.exec</dataFile>
+					<dataFile>${project.build.directory}/jacoco-ouput/merged.exec
+					</dataFile>
 				</configuration>
 				<reportSets>
 					<reportSet>

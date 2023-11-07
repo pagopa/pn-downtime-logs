@@ -58,14 +58,14 @@ paths:
   "/status":                                                                                            # ONLY EXTERNAL
     get:                                                                                                # ONLY EXTERNAL
       summary: status path                                                                         # ONLY EXTERNAL
-      description: >-                                                                                   # ONLY EXTERNAL
-        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                     # ONLY EXTERNAL
-          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    # ONLY EXTERNAL
-          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                           # ONLY EXTERNAL
-        Il body e lasciato libero quindi utilizziamo quanto già definito per il path                    # ONLY EXTERNAL
-        /downtime/status                                                                                # ONLY EXTERNAL
+      description: >-                                                                                   
+        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                    
+          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                          
+        Il body e lasciato libero quindi utilizziamo quanto già definito per il path                    
+        /downtime/status                                                                                
       tags:                                                                                             # ONLY EXTERNAL  
-        - Read                                                                                          # ONLY EXTERNAL
+        - Status                                                                                         # ONLY EXTERNAL
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: status                                                                               # ONLY EXTERNAL
@@ -104,7 +104,7 @@ paths:
         Metodo che restituisce l'elenco delle funzionalità di Piattaforma Notifiche e l'elenco
         dei disservizi presenti al momento dell'invocazione.
       tags:
-        - Read
+        - Downtime
 #      security:                                                                                         # ONLY EXTERNAL
 #        - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: currentStatus
@@ -140,7 +140,7 @@ paths:
         Il parametro _functionality_ è opzionale e ripetibile; permette di filtrare i disservizi 
         estratti limitandoli a quelli impattanti le funzionalità elencate.
       tags:
-        - Read
+        - Downtime
  #     security:                                                                                         # ONLY EXTERNAL
  #       - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: statusHistory
@@ -180,7 +180,7 @@ paths:
         recuperato dagli archivi, fornisce una stima per eccesso di quanti secondi bisogna 
         attendere.
       tags:
-        - Read
+        - Downtime
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: getLegalFact
@@ -241,7 +241,7 @@ paths:
         richiamato sia dagli allarmi automatici che da GUI. Tali casi vanno discriminati 
         con l'attributo di richiesta _sourceType_.
       tags:
-        - Write
+        - DowntimeInternal
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: addStatusChangeEvent

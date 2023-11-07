@@ -22,8 +22,8 @@ import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

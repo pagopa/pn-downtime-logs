@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.downtime.consumer.CloudwatchReceiver;
 import it.pagopa.pn.downtime.consumer.DowntimeLogsReceiver;
 import it.pagopa.pn.downtime.consumer.LegalFactIdReceiver;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.PnFunctionality;
 import it.pagopa.pn.downtime.service.LegalFactService;
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

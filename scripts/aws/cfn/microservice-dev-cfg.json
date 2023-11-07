@@ -1,8 +1,11 @@
 {
   "Parameters" : {
-    "SafeStorageBaseUrl":"https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev",
     "SchedulerLegalfactidTimer":"0 0 6 * * ?",
     "SchedulerLegalfactidActive":"true",
-    "MaxTasksNumber": "1"
+    "MinTasksNumber": "2",
+    "MaxTasksNumber": "5",
+    "AutoscalingThreshold": "16000",
+    "HealthyThresholdCount": "2",
+    "EnhancedWebSecurityEnabled": "true"
   }
 }

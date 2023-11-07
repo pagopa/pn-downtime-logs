@@ -88,7 +88,7 @@ Parameters:
     Type: String  
     Description: ARN of dynamodb table containing log
 
-  SafeStorageBaseUrl:
+  SandboxSafeStorageBaseUrl:
     Type: String
     Description: base url for safe storage requests
   
@@ -233,8 +233,31 @@ Parameters:
   MaxTasksNumber:
     Default: 6
     Type: Number
-    Description: maximum autoscaling number of tasks   
+    Description: maximum autoscaling number of tasks
+
+  WebWafLimit:
+    Default: 600000
+    Type: Number
+    Description: web waf limit
     
+  LogAlarmStrategy:
+    Type: String
+    Default: 'FATAL'
+  PublicApiCacheClusterSize:
+    Type: Number
+    Default: 0.5
+
+  PublicApiCacheTtl:
+    Type: Number
+    Default: 300
+    
+  EnhancedWebSecurityEnabled:
+    Type: String
+    Default: false
+    Description: Enable additional WAF Web rules
+    AllowedValues:
+      - true
+      - false
 Resources:
 
   DowntimeLogsMicroservice:
@@ -259,7 +282,7 @@ Resources:
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SafeStorageBaseUrl}'
+        ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
         ContainerEnvEntry3: 'PN_DOWNTIMELOGS_ENABLE_APIKEY=false'
         ContainerEnvEntry4: 'PN_DOWNTIMELOGS_APIKEY_HEADER=NotApplicable'
         ContainerEnvEntry5: 'PN_DOWNTIMELOGS_APIKEY_VALUE=NotApplicable'
@@ -284,6 +307,7 @@ Resources:
         AlbSecurityGroup: !Ref AlbSecurityGroup
         TaskRoleManagedPolicyArn: !Ref DowntimeLogsMicroserviceTaskManagedPolicy
         EcsLogGroup: !Ref EcsLogGroup
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Grant operational rights to PN-Downtime-Logs microservice
   DowntimeLogsMicroserviceTaskManagedPolicy:
@@ -350,6 +374,8 @@ Resources:
         WAFName: !Sub '${ProjectName}-downtime-logs-web'
         IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.APIGatewayARN
+        Limit: !Ref WebWafLimit
+        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   PublicRestApiExternal:
     Type: "AWS::ApiGateway::RestApi"
@@ -415,9 +441,14 @@ Resources:
           HttpMethod: "*"
           MetricsEnabled: "true"
           ResourcePath: /*
+          LoggingLevel: 'INFO'
+          CacheTtlInSeconds: !Ref PublicApiCacheTtl
+          CachingEnabled: true
       RestApiId: !Ref PublicRestApiExternal
       StageName: unique
       TracingEnabled: true
+      CacheClusterEnabled: true
+      CacheClusterSize: !Ref PublicApiCacheClusterSize
       
   PagoPaMapping:
     Type: 'AWS::ApiGateway::BasePathMapping'

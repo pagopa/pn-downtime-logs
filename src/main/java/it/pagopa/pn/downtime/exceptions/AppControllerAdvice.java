@@ -29,8 +29,8 @@ import com.google.gson.reflect.TypeToken;
 
 import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.dto.response.AwsSafeStorageErrorDto;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.Problem;
-import it.pagopa.pn.downtime.pn_downtime_logs.model.ProblemError;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.Problem;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.ProblemError;
 import it.pagopa.pn.downtime.util.Constants;
 import lombok.extern.log4j.Log4j2;
 
@@ -38,54 +38,44 @@ import lombok.extern.log4j.Log4j2;
 @RestControllerAdvice
 public class AppControllerAdvice {
 
-
 	@ExceptionHandler(value = { NoSuchElementException.class, RestClientException.class })
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<Object> generalException(HttpServletRequest request, RuntimeException ex) {
 		printLog(HttpStatus.INTERNAL_SERVER_ERROR, ex, request);
-		return new ResponseEntity<>(
-				createProblem(HttpStatus.INTERNAL_SERVER_ERROR, Constants.GENERIC_ENGLISH_MESSAGE,
-						Constants.GENERIC_MESSAGE),
-				new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(createProblem(HttpStatus.INTERNAL_SERVER_ERROR, Constants.GENERIC_ENGLISH_MESSAGE,
+				Constants.GENERIC_MESSAGE), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@ExceptionHandler(value = { NoSuchAlgorithmException.class })
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<Object> noSuchAlgorithmException(HttpServletRequest request, GeneralSecurityException ex) {
 		printLog(HttpStatus.INTERNAL_SERVER_ERROR, ex, request);
-		return new ResponseEntity<>(
-				createProblem(HttpStatus.INTERNAL_SERVER_ERROR, Constants.GENERIC_ENGLISH_MESSAGE,
-						Constants.GENERIC_MESSAGE),
-				new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(createProblem(HttpStatus.INTERNAL_SERVER_ERROR, Constants.GENERIC_ENGLISH_MESSAGE,
+				Constants.GENERIC_MESSAGE), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@ExceptionHandler(value = { IOException.class })
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<Object> iOException(HttpServletRequest request, IOException ex) {
 		printLog(HttpStatus.INTERNAL_SERVER_ERROR, ex, request);
-		return new ResponseEntity<>(
-				createProblem(HttpStatus.INTERNAL_SERVER_ERROR, Constants.GENERIC_ENGLISH_MESSAGE,
-						Constants.GENERIC_MESSAGE),
-				new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(createProblem(HttpStatus.INTERNAL_SERVER_ERROR, Constants.GENERIC_ENGLISH_MESSAGE,
+				Constants.GENERIC_MESSAGE), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@ExceptionHandler(value = { TemplateException.class })
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<Object> templateException(HttpServletRequest request, TemplateException ex) {
 		printLog(HttpStatus.INTERNAL_SERVER_ERROR, ex, request);
-		return new ResponseEntity<>(
-				createProblem(HttpStatus.INTERNAL_SERVER_ERROR, Constants.GENERIC_ENGLISH_MESSAGE,
-						Constants.GENERIC_MESSAGE),
-				new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(createProblem(HttpStatus.INTERNAL_SERVER_ERROR, Constants.GENERIC_ENGLISH_MESSAGE,
+				Constants.GENERIC_MESSAGE), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
+
 	@ExceptionHandler(value = { SdkClientException.class })
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<Object> sdkClientException(HttpServletRequest request, RuntimeException ex) {
 		printLog(HttpStatus.BAD_REQUEST, ex, request);
 		return new ResponseEntity<>(
-				createProblem(HttpStatus.BAD_REQUEST, Constants.GENERIC_ENGLISH_MESSAGE,
-						Constants.GENERIC_MESSAGE),
+				createProblem(HttpStatus.BAD_REQUEST, Constants.GENERIC_ENGLISH_MESSAGE, Constants.GENERIC_MESSAGE),
 				new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
@@ -93,9 +83,8 @@ public class AppControllerAdvice {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<Object> runTimeException(HttpServletRequest request, RuntimeException ex) {
 		printLog(HttpStatus.BAD_REQUEST, ex, request);
-		return new ResponseEntity<>(
-				createProblem(HttpStatus.BAD_REQUEST, Constants.GENERIC_BAD_REQUEST_ERROR_ENGLISH_MESSAGE,
-						Constants.GENERIC_BAD_REQUEST_ERROR_MESSAGE),
+		return new ResponseEntity<>(createProblem(HttpStatus.BAD_REQUEST,
+				Constants.GENERIC_BAD_REQUEST_ERROR_ENGLISH_MESSAGE, Constants.GENERIC_BAD_REQUEST_ERROR_MESSAGE),
 				new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
@@ -103,10 +92,18 @@ public class AppControllerAdvice {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<Object> servletException(HttpServletRequest request, ServletException ex) {
 		printLog(HttpStatus.BAD_REQUEST, ex, request);
-		return new ResponseEntity<>(
-				createProblem(HttpStatus.BAD_REQUEST, Constants.GENERIC_BAD_REQUEST_ERROR_ENGLISH_MESSAGE,
-						Constants.GENERIC_BAD_REQUEST_ERROR_MESSAGE),
+		return new ResponseEntity<>(createProblem(HttpStatus.BAD_REQUEST,
+				Constants.GENERIC_BAD_REQUEST_ERROR_ENGLISH_MESSAGE, Constants.GENERIC_BAD_REQUEST_ERROR_MESSAGE),
 				new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(value = { IllegalArgumentException.class })
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public ResponseEntity<Object> illegalArgumentException(HttpServletRequest request, IllegalArgumentException ex) {
+		printLog(HttpStatus.CONFLICT, ex, request);
+		return new ResponseEntity<>(
+				createProblem(HttpStatus.CONFLICT, Constants.GENERIC_CONFLICT_ERROR_MESSAGE_TITLE, ex.getMessage()),
+				new HttpHeaders(), HttpStatus.CONFLICT);
 	}
 
 	@ExceptionHandler(value = { HttpClientErrorException.class })
@@ -119,11 +116,9 @@ public class AppControllerAdvice {
 	@ExceptionHandler(value = { HttpRequestMethodNotSupportedException.class })
 	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
 	public ResponseEntity<Object> unKnownException(HttpServletRequest request, ServletException ex) {
-		printLog(HttpStatus.METHOD_NOT_ALLOWED, ex, request);		
-		return new ResponseEntity<>(
-				createProblem(HttpStatus.METHOD_NOT_ALLOWED, Constants.GENERIC_ENGLISH_MESSAGE,
-						Constants.GENERIC_MESSAGE),
-				new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED);
+		printLog(HttpStatus.METHOD_NOT_ALLOWED, ex, request);
+		return new ResponseEntity<>(createProblem(HttpStatus.METHOD_NOT_ALLOWED, Constants.GENERIC_ENGLISH_MESSAGE,
+				Constants.GENERIC_MESSAGE), new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED);
 	}
 
 	public Problem createProblem(HttpStatus status, String title, String detail) {

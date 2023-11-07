@@ -32,6 +32,10 @@ Parameters:
     Type: String
     Description: 'Where to send Logs'
     
+  LogRetention:
+    Type: Number
+    Default: 14
+
 Resources:
 
   ### Queue that receive safe-storage notification to DOWNTIME LOGS ###
@@ -61,9 +65,6 @@ Resources:
           KeyType: HASH
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
-      SSESpecification:
-        SSEEnabled: true
-        SSEType: KMS
       KinesisStreamSpecification:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification: 
@@ -109,9 +110,6 @@ Resources:
           KeyType: RANGE
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
-      SSESpecification:
-        SSEEnabled: true
-        SSEType: KMS
       KinesisStreamSpecification:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification: 
@@ -125,6 +123,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
         LogGroupName: !Sub '${ProjectName}-downtime-logs'
+        LogGroupRetention: !Ref LogRetention
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
 
 Outputs:
