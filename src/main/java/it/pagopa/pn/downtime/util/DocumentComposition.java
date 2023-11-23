@@ -127,7 +127,8 @@ public class DocumentComposition {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
 		PdfRendererBuilder builder = new PdfRendererBuilder();
-
+		builder.usePdfUaAccessbility(true);
+		builder.usePdfAConformance(PdfRendererBuilder.PdfAConformance.PDFA_3_A);
 		builder.withHtmlContent(html, baseUri);
 		builder.toStream(baos);
 		builder.run();
