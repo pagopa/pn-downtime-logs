@@ -12,23 +12,18 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DocumentCompositionTest {
-
-    public class DocumentComposition {
-        public byte[] html2Pdf(String baseUri, String html) {
-            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-                PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.withHtmlContent(html, baseUri);
-                builder.toStream(os);
-                builder.run();
-                return os.toByteArray();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+    public byte[] html2Pdf(String baseUri, String html) {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(html, baseUri);
+            builder.toStream(os);
+            builder.run();
+            return os.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
-
-    private DocumentComposition documentComposition = new DocumentComposition();
 
     @Test
     public void testHtml2Pdf() throws IOException {
@@ -49,7 +44,7 @@ public class DocumentCompositionTest {
         html = html.replace("${timeReferenceEndDate}", timeReferenceEndDate);
 
         // Convert HTML to PDF
-        byte[] result = documentComposition.html2Pdf(baseUri, html);
+        byte[] result = html2Pdf(baseUri, html);
 
         // Validate the result
         assertNotNull(result);
