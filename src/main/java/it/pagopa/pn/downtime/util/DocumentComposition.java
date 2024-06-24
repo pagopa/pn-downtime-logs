@@ -122,7 +122,7 @@ public class DocumentComposition {
 		return pdf;
 	}
 
-	private byte[] html2Pdf(String baseUri, String html) throws IOException {
+	public byte[] html2Pdf(String baseUri, String html) throws IOException {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
