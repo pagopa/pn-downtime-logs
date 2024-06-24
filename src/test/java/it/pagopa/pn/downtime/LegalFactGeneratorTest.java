@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LegalFactGeneratorTest {
 
     @Test
-    public void testHtml2Pdf() throws IOException, TemplateException {
+    public void generateDowntimeLogsLegalFactPdf() throws IOException, TemplateException {
         Configuration freemarker = new Configuration(new Version(2, 3, 0));
         DocumentComposition documentComposition = new DocumentComposition(freemarker);
         LegalFactGenerator legalFactGenerator = new LegalFactGenerator(documentComposition);
