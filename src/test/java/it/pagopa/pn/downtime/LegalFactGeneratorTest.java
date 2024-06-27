@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
@@ -29,8 +28,6 @@ public class LegalFactGeneratorTest {
 
         // Read the HTML template
         Path htmlTemplatePath = Paths.get("src/main/resources/documents_composition_templates/PdfLegalFact.html");
-        String html = Files.readString(htmlTemplatePath);
-        String baseUri = htmlTemplatePath.getParent().toUri().toString();
 
         //Generate downtime
         DowntimeLogs downtime = new DowntimeLogs();
