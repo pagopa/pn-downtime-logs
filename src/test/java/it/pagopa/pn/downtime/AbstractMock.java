@@ -123,6 +123,7 @@ public abstract class AbstractMock {
 	protected final String eventsUrl = "/downtime-internal/v1/events";
 	protected final String legalFactIdUrl = "/downtime/v1/legal-facts/";
 	protected final String healthCheckUrl = "/healthcheck";
+	protected final String probingUrl = "/interop/probing";
 
 	protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
 		Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
@@ -367,6 +368,12 @@ public abstract class AbstractMock {
 	protected void mockCurrentStatusOK(RestTemplate client) throws IOException {
 		String mock = getStringFromResourse(currentStatus);
 		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
+		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
+				.thenReturn(response);
+	}
+
+	protected void mockProbingOK(RestTemplate client) throws IOException {
+		ResponseEntity<Object> response = new ResponseEntity<Object>(HttpStatus.OK);
 		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
 				.thenReturn(response);
 	}

@@ -86,4 +86,9 @@ public class MockControllerTest extends AbstractMock {
 		callCheckOptions(eventsUrl, "POST");
 	}
 
+	@Test
+	public void callCheckOptionsInteropProbing() throws Exception {
+		callCheckOptions(probingUrl, "GET");
+	}
+
 }

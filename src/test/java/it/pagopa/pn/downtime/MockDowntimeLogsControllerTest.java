@@ -70,6 +70,27 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("KO");
 		assertThat(response.getContentAsString()).contains("500");
 	}
+	/** jUnit test for the /interop/probing service */
+
+	@Test
+	public void test_CheckProbing() throws Exception {
+		mockProbingOK(client);
+		MockHttpServletResponse response = mvc.perform(get(probingUrl)).andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+
+	}
+
+	@Test
+	public void test_CheckProbingKO() throws Exception {
+		mockCurrentStatus500(client);
+		mockFindByFunctionalityAndEndDateIsNullCheck500(
+				getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
+						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403", null));
+		MockHttpServletResponse response = mvc.perform(get(probingUrl)).andReturn().getResponse();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+	}
+
 	/** jUnit test for the /historyStatus service */
 
 	public void test_CheckHistoryStatus(boolean toTime) throws Exception {

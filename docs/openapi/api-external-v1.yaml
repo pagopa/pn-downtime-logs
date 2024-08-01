@@ -34,6 +34,9 @@ tags:
   - name: Write
     description: >-
       Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
+  - name: interopProbing
+    description: >-
+      Invocazioni per sapere lo stato dell'E-service
 
 paths:
     ##########################################################################################
@@ -72,7 +75,7 @@ paths:
       x-api-permissions:                                                                                
         - 'api-key-read'                                                                                
         - 'log-downtime-read'                                                                           
-      responses:                                                                                        # ONLY EXTERNAL  
+      responses:                                                                                        # ONLY EXTERNAL
         '200':                                                                                          # ONLY EXTERNAL
           description: Ok                                                                               # ONLY EXTERNAL
           content:                                                                                      # ONLY EXTERNAL
@@ -100,6 +103,27 @@ paths:
             application/problem+json:                                                                   # ONLY EXTERNAL
               schema:                                                                                   # ONLY EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                         # ONLY EXTERNAL
+  ###########################################################################################
+  ###                                 INTEROP PROBING                                     ###
+  ###########################################################################################
+  "/interop/probing":
+    get:
+      summary: Provides the status of the E-Service
+      description: >-
+        Metodo che restituisce lo stato dell'E-service al probing di interoperabilita
+      tags:
+        - interopProbing
+      operationId: getEserviceStatus
+      responses:
+        '200':
+          description: The e-service is up and running
+        '500':
+          description: A managed error has occured during the request elaboration
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
   "/downtime/v1/status":
     get:
       summary: Stato attuale
