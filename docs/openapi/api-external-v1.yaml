@@ -61,10 +61,10 @@ paths:
   "/status":                                                                                            # ONLY EXTERNAL
     get:                                                                                                # ONLY EXTERNAL
       summary: status path                                                                         # ONLY EXTERNAL
-      description: >-                                                                                   
-        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                    
+      description: >-                                                                                   # ONLY EXTERNAL
+        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                     
           - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    
-          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                          
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                           
         Il body e lasciato libero quindi utilizziamo quanto già definito per il path                    
         /downtime/status                                                                                
       tags:                                                                                             # ONLY EXTERNAL  
@@ -72,7 +72,10 @@ paths:
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: status                                                                               # ONLY EXTERNAL
-      responses:                                                                                        # ONLY EXTERNAL  
+      x-api-permissions:
+        - 'api-key-read'
+        - 'log-downtime-read'
+      responses:                                                                                        # ONLY EXTERNAL
         '200':                                                                                          # ONLY EXTERNAL
           description: Ok                                                                               # ONLY EXTERNAL
           content:                                                                                      # ONLY EXTERNAL
@@ -132,8 +135,8 @@ paths:
       security:                                                                                         # ONLY EXTERNAL
         - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: currentStatus
-      x-api-permissions:                                                                                
-        - 'api-key-read'                                                                                
+      x-api-permissions:
+        - 'api-key-read'
         - 'log-downtime-read'
       responses:
         '200':
