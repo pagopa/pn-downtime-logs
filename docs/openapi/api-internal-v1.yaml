@@ -72,9 +72,6 @@ paths:
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: status                                                                               # ONLY EXTERNAL
-      x-api-permissions:
-        - 'api-key-read'
-        - 'log-downtime-read'
       responses:                                                                                        # ONLY EXTERNAL  
         '200':                                                                                          # ONLY EXTERNAL
           description: Ok                                                                               # ONLY EXTERNAL

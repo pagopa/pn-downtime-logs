@@ -61,10 +61,10 @@ paths:
   "/status":                                                                                            # ONLY EXTERNAL
     get:                                                                                                # ONLY EXTERNAL
       summary: status path                                                                         # ONLY EXTERNAL
-      description: >-                                                                                   # ONLY EXTERNAL
-        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                     
+      description: >-                                                                                   
+        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                    
           - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    
-          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                           
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                          
         Il body e lasciato libero quindi utilizziamo quanto già definito per il path                    
         /downtime/status                                                                                
       tags:                                                                                             # ONLY EXTERNAL  
@@ -72,10 +72,7 @@ paths:
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: status                                                                               # ONLY EXTERNAL
-      x-api-permissions:                                                                                
-        - 'api-key-read'                                                                                
-        - 'log-downtime-read'                                                                           
-      responses:                                                                                        # ONLY EXTERNAL
+      responses:                                                                                        # ONLY EXTERNAL  
         '200':                                                                                          # ONLY EXTERNAL
           description: Ok                                                                               # ONLY EXTERNAL
           content:                                                                                      # ONLY EXTERNAL
@@ -135,8 +132,8 @@ paths:
       security:                                                                                         # ONLY EXTERNAL
         - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: currentStatus
-      x-api-permissions:
-        - 'api-key-read'
+      x-api-permissions:                                                                                
+        - 'api-key-read'                                                                                
         - 'log-downtime-read'
       responses:
         '200':
@@ -173,7 +170,7 @@ paths:
       operationId: statusHistory
       x-api-permissions:                                                                                
         - 'api-key-read'                                                                                
-        - 'log-downtime-read'                                                                          
+        - 'log-downtime-read'
       parameters:
         - $ref: '#/components/parameters/queryFromTime'
         - $ref: '#/components/parameters/queryToTime'
@@ -213,7 +210,7 @@ paths:
       operationId: getLegalFact
       x-api-permissions:                                                                                
         - 'api-key-read'                                                                                
-        - 'log-downtime-read'                                                                           
+        - 'log-downtime-read'
       parameters:
         - name: legalFactId
           in: path
@@ -274,7 +271,7 @@ paths:
       operationId: addStatusChangeEvent
       x-api-permissions:                                                                                
         - 'api-key-write'                                                                                
-        - 'log-downtime-write'                                                                           
+        - 'log-downtime-write'
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'
       requestBody:
