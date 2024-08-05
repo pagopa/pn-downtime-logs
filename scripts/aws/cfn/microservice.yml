@@ -513,17 +513,17 @@ Resources:
       FailOnWarnings: true
       Name: !Sub ${ProjectName}-downtime-logs-probing-api
 
-  InteropApiResource:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !GetAtt ProbingRestApiExternal.RootResourceId
-      PathPart: "interop"
-      RestApiId: !Ref ProbingRestApiExternal
+  #InteropApiResource:
+  #  Type: "AWS::ApiGateway::Resource"
+  #  Properties:
+  #    ParentId: !GetAtt ProbingRestApiExternal.RootResourceId
+  #    PathPart: "interop"
+  #    RestApiId: !Ref ProbingRestApiExternal
 
   ProbingApiResource:
     Type: "AWS::ApiGateway::Resource"
     Properties:
-      ParentId: !Ref InteropApiResource
+      ParentId: !GetAtt ProbingRestApiExternal.RootResourceId
       PathPart: "probing"
       RestApiId: !Ref ProbingRestApiExternal
 
