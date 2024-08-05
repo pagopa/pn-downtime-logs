@@ -580,6 +580,7 @@ Resources:
   ProbingMapping:
     Type: 'AWS::ApiGateway::BasePathMapping'
     Properties:
+      BasePath: 'interop'
       DomainName: !Ref ApiDnsName
       Stage: !Ref ProbingRestApiStage
       RestApiId: !Ref ProbingRestApiExternal
