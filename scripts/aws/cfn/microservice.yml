@@ -517,14 +517,14 @@ Resources:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt ProbingRestApiExternal.RootResourceId
-      PathPart: "/interop"
+      PathPart: "interop"
       RestApiId: !Ref ProbingRestApiExternal
 
   ProbingApiResource:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !Ref InteropApiResource
-      PathPart: "/probing"
+      PathPart: "probing"
       RestApiId: !Ref ProbingRestApiExternal
 
   ProbingApiMethod:
