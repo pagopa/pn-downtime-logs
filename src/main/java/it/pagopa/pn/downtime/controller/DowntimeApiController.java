@@ -37,5 +37,10 @@ public class DowntimeApiController {
 	public ResponseEntity<BodyBuilder> status() {
 		return ResponseEntity.ok().allow(HttpMethod.GET, HttpMethod.OPTIONS).build();
 	}
+
+	@RequestMapping(path = "/interop/probing", produces = { "application/json" }, method = RequestMethod.OPTIONS)
+	public ResponseEntity<BodyBuilder> getEserviceStatus() {
+		return ResponseEntity.ok().allow(HttpMethod.GET, HttpMethod.OPTIONS).build();
+	}
 	
 }

@@ -296,7 +296,7 @@ Resources:
         ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'     
         ContainerEnvEntry14: 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
         ContainerEnvEntry15: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        MappedPaths: '/downtime/*,/downtime-internal/*,/status'
+        MappedPaths: '/downtime/*,/downtime-internal/*,/status,/interop/probing'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
@@ -502,3 +502,88 @@ Resources:
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-downtime-logs'            
+
+## INTEROP/PROBING
+  ProbingRestApiExternal:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      FailOnWarnings: true
+      Name: !Sub ${ProjectName}-downtime-logs-probing-api
+
+
+  ProbingApiResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt ProbingRestApiExternal.RootResourceId
+      PathPart: "probing"
+      RestApiId: !Ref ProbingRestApiExternal
+
+  ProbingApiMethod:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        Type: HTTP_PROXY
+        ConnectionId: !Ref NetworkLoadBalancerLink
+        ConnectionType: VPC_LINK
+        IntegrationHttpMethod: GET
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestParameters:
+          integration.request.path.proxy: method.request.path.proxy
+        TimeoutInMillis: 29000
+        Uri: !Sub "http://${ApplicationLoadBalancerDomain}:8080/interop/probing"
+      OperationName: Proxy to ECS microservices
+      RequestParameters:
+        method.request.path.proxy: true
+      ResourceId: !Ref ProbingApiResource
+      RestApiId: !Ref ProbingRestApiExternal
+
+  ProbingRestApiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn:
+      - ProbingApiMethod
+    Properties:
+      RestApiId: !Ref ProbingRestApiExternal
+
+  ProbingRestApiStage:
+    Type: "AWS::ApiGateway::Stage"
+    Properties:
+      DeploymentId: !Ref ProbingRestApiDeployment
+      AccessLogSetting:
+        DestinationArn: !GetAtt "DowntimeLogsPublicStatusApiLogGroup.Arn"
+        Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency,"xrayTraceId":"$context.xrayTraceId","errorMessage":"$context.error.message","validationError":"$context.error.validationErrorString","integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent"}'
+      MethodSettings:
+        - DataTraceEnabled: "false"
+          HttpMethod: "*"
+          MetricsEnabled: "true"
+          ResourcePath: /*
+          LoggingLevel: 'INFO'
+          CacheTtlInSeconds: !Ref PublicApiCacheTtl
+          CachingEnabled: true
+      RestApiId: !Ref ProbingRestApiExternal
+      StageName: unique
+      TracingEnabled: true
+      CacheClusterEnabled: true
+      CacheClusterSize: !Ref PublicApiCacheClusterSize
+
+  ProbingMapping:
+    Type: 'AWS::ApiGateway::BasePathMapping'
+    Properties:
+      BasePath: 'interop'
+      DomainName: !Ref ApiDnsName
+      Stage: !Ref ProbingRestApiStage
+      RestApiId: !Ref ProbingRestApiExternal
+
+  DowntimeLogsMicroserviceProbingWebApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-downtime-logs-probing'
+        IntendedUsage: B2B 
+        APIGatewayARNs: !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/${ProbingRestApiExternal}/stages/${ProbingRestApiStage}'
