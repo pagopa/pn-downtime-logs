@@ -513,17 +513,11 @@ Resources:
       FailOnWarnings: true
       Name: !Sub ${ProjectName}-downtime-logs-probing-api
 
-  InteropApiResource:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !GetAtt ProbingRestApiExternal.RootResourceId
-      PathPart: "interop"
-      RestApiId: !Ref ProbingRestApiExternal
 
   ProbingApiResource:
     Type: "AWS::ApiGateway::Resource"
     Properties:
-      ParentId: !GetAtt InteropApiResource.Id
+      ParentId: !GetAtt ProbingRestApiExternal.RootResourceId
       PathPart: "probing"
       RestApiId: !Ref ProbingRestApiExternal
 
@@ -576,6 +570,14 @@ Resources:
       TracingEnabled: true
       CacheClusterEnabled: true
       CacheClusterSize: !Ref PublicApiCacheClusterSize
+
+  ProbingMapping:
+    Type: 'AWS::ApiGateway::BasePathMapping'
+    Properties:
+      BasePath: 'interop'
+      DomainName: !Ref ApiDnsName
+      Stage: !Ref ProbingRestApiStage
+      RestApiId: !Ref ProbingRestApiExternal
 
   DowntimeLogsMicroserviceProbingWebApiWaf:
     Type: AWS::CloudFormation::Stack
