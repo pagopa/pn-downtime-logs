@@ -563,13 +563,13 @@ Resources:
           MetricsEnabled: "true"
           ResourcePath: /*
           LoggingLevel: 'INFO'
-          CacheTtlInSeconds: !Ref PublicApiCacheTtl  ##DA VERIFICARE
+          CacheTtlInSeconds: !Ref PublicApiCacheTtl
           CachingEnabled: true
       RestApiId: !Ref ProbingRestApiExternal
       StageName: unique
       TracingEnabled: true
       CacheClusterEnabled: true
-      CacheClusterSize: !Ref PublicApiCacheClusterSize  ##DA VERFICARE
+      CacheClusterSize: !Ref PublicApiCacheClusterSize
 
   ProbingMapping:
     Type: 'AWS::ApiGateway::BasePathMapping'
