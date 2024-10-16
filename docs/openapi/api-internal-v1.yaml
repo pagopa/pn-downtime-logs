@@ -28,10 +28,13 @@ tags:
   - name: HealthCheck
     description: >-
       Invocazioni per sapere lo stato di PN
-  - name: Read
+  - name: Status
     description: >-
       Lettura dello stato di PN, API pubbliche
-  - name: Write
+  - name: Downtime
+    description: >-
+      Invocazioni per recupero dei disservizi di PN
+  - name: DowntimeInternal
     description: >-
       Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
   - name: interopProbing
@@ -72,6 +75,9 @@ paths:
   #    security:                                                                                         # ONLY EXTERNAL
   #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: status                                                                               # ONLY EXTERNAL
+      x-api-permissions:
+        - 'api-key-read'
+        - 'log-downtime-read'
       responses:                                                                                        # ONLY EXTERNAL  
         '200':                                                                                          # ONLY EXTERNAL
           description: Ok                                                                               # ONLY EXTERNAL
