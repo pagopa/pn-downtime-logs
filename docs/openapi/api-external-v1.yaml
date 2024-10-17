@@ -127,6 +127,35 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
+  ###########################################################################################
+  ###                                 API PUBBLICHE                                       ###
+  ###########################################################################################
+
+  "/downtime/v1/resolved":
+    get:
+      summary: Recupero disservizi
+      description: >-
+        Metodo che restituisce l'elenco dei disservizi risolti per l'anno e il mese selezionato.
+      tags:
+        - Downtime
+      operationId: getResolved
+      parameters:
+        - $ref: '#/components/parameters/queryYear'
+        - $ref: '#/components/parameters/queryMonth'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnDowntimeHistoryResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
   "/downtime/v1/status":
     get:
       summary: Stato attuale
@@ -304,6 +333,28 @@ components:
     ###########################################################################################
     ###                          PARAMETRI DI RICERCA DEI DOWNTIME                          ###
     ###########################################################################################
+
+    queryYear:
+      name: year
+      in: query
+      required: false
+      description: anno di ricerca dei disservizi risolti. Se non presente si intende l'anno corrente.
+      schema:
+        type: integer
+        minimum: 2023
+      example: 2024
+
+    queryMonth:
+      name: month
+      in: query
+      required: false
+      description: mese di ricerca dei disservizi risolti. Se non presente si intende il mese corrente.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 12
+      example: 3
+
     
     queryFromTime:
       name: fromTime
