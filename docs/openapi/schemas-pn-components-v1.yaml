@@ -97,6 +97,13 @@ components:
             type: string
           fileAvailable:
             type: boolean
+          fileAvailableTimestamp:
+            type: string
+            format: date-time
+            title: Momento di creazione dell'atto opponibile a terzi
+            description: >-
+              Momento di creazione dell'atto opponibile a terzi di malfunzionamento e ripristino. 
+              Coincide con il momento in cui pn-ss comunica la disponibilitá dell'atto opponibile generato.
           
     PnFunctionalityStatus:
         type: string
