@@ -1,0 +1,622 @@
+openapi: 3.0.1
+info:
+  title: >-
+    ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
+  version: nSiLAYI91CQgjyIY2XLhMkgqk6P1ukL6wWe03G9Pklw=
+servers:
+  - url: https://${stageVariables.DnsName}/{basePath}
+    variables:
+      basePath:
+        default: /${stageVariables.ServiceApiPath}
+    x-amazon-apigateway-endpoint-configuration:
+      disableExecuteApiEndpoint: true
+paths:
+  /status:
+    get:
+      summary: status path
+      description: >-
+        Questo path e questo metodo devono, per richiesta di AGID, restituire
+        <br/>                    
+          - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                          
+        Il body e lasciato libero quindi utilizziamo quanto già definito per il
+        path                    
+        /downtime/status                                                                                
+      tags:
+        - Status
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/PnStatusResponse'
+              example:
+                functionalities:
+                  - NOTIFICATION_CREATE
+                  - NOTIFICATION_VISUALIZATION
+                  - NOTIFICATION_WORKFLOW
+                openIncidents: []
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/PnStatusResponse'
+              example:
+                functionalities:
+                  - NOTIFICATION_CREATE
+                  - NOTIFICATION_VISUALIZATION
+                  - NOTIFICATION_WORKFLOW
+                openIncidents:
+                  - functionality: NOTIFICATION_CREATE
+                    status: KO
+                    startDate: '2019-08-24T14:15:22Z'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/status
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''PUBLIC'''
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+      parameters: []
+    options:
+      operationId: Options for /status API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/status
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters: {}
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /interop/probing:
+    get:
+      summary: Provides the status of the E-Service
+      description: >-
+        Metodo che restituisce lo stato dell'E-service al probing di
+        interoperabilita
+      tags:
+        - interopProbing
+      operationId: getEserviceStatus
+      responses:
+        '200':
+          description: The e-service is up and running
+        '500':
+          description: A managed error has occured during the request elaboration
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/interop/probing
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''PUBLIC'''
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+      parameters: []
+    options:
+      operationId: Options for /interop/probing API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/interop/probing
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters: {}
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /downtime/v1/resolved:
+    get:
+      summary: Recupero disservizi
+      description: >-
+        Metodo che restituisce l'elenco dei disservizi risolti per l'anno e il
+        mese selezionato.
+      tags:
+        - Downtime
+      operationId: getResolved
+      x-api-cachekey-parameters:
+        - name: querystring.year
+        - name: querystring.month
+      parameters:
+        - $ref: '#/components/parameters/queryYear'
+        - $ref: '#/components/parameters/queryMonth'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PnDowntimeHistoryResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/downtime/v1/resolved
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''PUBLIC'''
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+        cacheKeyParameters:
+          - name: querystring.year
+          - name: querystring.month
+    options:
+      operationId: Options for /downtime/v1/resolved API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/downtime/v1/resolved
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters: {}
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /downtime/v1/legal-facts/{legalFactId}:
+    get:
+      summary: Ottieni atto opponibile a terzi
+      description: >-
+        Fornisce le informazioni per scaricare un atto opponibile a terzi o, se
+        tale atto va  recuperato dagli archivi, fornisce una stima per eccesso
+        di quanti secondi bisogna  attendere.
+      tags:
+        - Downtime
+      operationId: getLegalFact
+      x-api-cachekey-parameters:
+        - name: path.legalFactId
+      x-api-permissions:
+        - api-key-read
+        - log-downtime-read
+      parameters:
+        - name: legalFactId
+          in: path
+          required: true
+          description: Identificativo dell'atto opponibile a terzi che si vuole scaricare
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+              examples:
+                hot:
+                  summary: File disponibile
+                  value:
+                    filename: downtime_NEW_NOTIFICATION_20221204.pdf
+                    contentLength: 32423
+                    url: https://s3............com/presigned-url
+                cold:
+                  summary: File archiviato
+                  value:
+                    filename: downtime_NEW_NOTIFICATION_20221204.pdf
+                    contentLength: 32423
+                    retryAfter: 7200
+        '204':
+          description: Not signed
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/downtime/v1/legal-facts/{legalFactId}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''PUBLIC'''
+          integration.request.path.legalFactId: method.request.path.legalFactId
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+        cacheKeyParameters:
+          - name: path.legalFactId
+    options:
+      operationId: Options for /downtime/v1/legal-facts/{legalFactId} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/downtime/v1/legal-facts/{legalFactId}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.legalFactId: method.request.path.legalFactId
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+components:
+  parameters:
+    queryYear:
+      name: year
+      in: query
+      required: false
+      description: >-
+        anno di ricerca dei disservizi risolti. Se non presente si intende
+        l'anno corrente.
+      schema:
+        type: number
+        minimum: 2023
+      example: 2024
+    queryMonth:
+      name: month
+      in: query
+      required: false
+      description: >-
+        mese di ricerca dei disservizi risolti. Se non presente si intende il
+        mese corrente.
+      schema:
+        type: number
+        minimum: 1
+        maximum: 12
+      example: 3
+    queryFromTime:
+      name: fromTime
+      in: query
+      required: true
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
+      schema:
+        type: string
+        format: date-time
+    queryToTime:
+      name: toTime
+      in: query
+      required: false
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
+      schema:
+        type: string
+        format: date-time
+    queryFunctionality:
+      name: functionality
+      in: query
+      required: false
+      description: funzionalità di Piattaforma Notifiche di cui elencare i disservizi
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/PnFunctionality'
+    queryPage:
+      name: page
+      in: query
+      required: false
+      description: Pagina di risultati a cui il client è interessato
+      schema:
+        type: string
+    querySize:
+      name: size
+      in: query
+      required: false
+      description: Size della pagina di risultati a cui il client è interessato
+      schema:
+        type: string
+  schemas:
+    PnFunctionality:
+      title: Funzionalità di PN
+      description: >-
+        - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
+
+        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le
+        notifiche e scaricare gli atti. 
+
+        - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
+      type: string
+      enum:
+        - NOTIFICATION_CREATE
+        - NOTIFICATION_VISUALIZATION
+        - NOTIFICATION_WORKFLOW
+      x-enum-varnames:
+        - NOTIFICATION_CREATE
+        - NOTIFICATION_VISUALIZATION
+        - NOTIFICATION_WORKFLOW
+    PnFunctionalityStatus:
+      type: string
+      enum:
+        - KO
+        - OK
+    PnDowntimeEntry:
+      title: Dati relativi ad un disservizio di PN.
+      type: object
+      required:
+        - functionality
+        - status
+        - startDate
+      properties:
+        functionality:
+          $ref: '#/components/schemas/PnFunctionality'
+        status:
+          $ref: '#/components/schemas/PnFunctionalityStatus'
+        startDate:
+          title: data inizio disservizio
+          type: string
+          format: date-time
+        endDate:
+          title: data fine disservizio
+          description: >-
+            se il disservizio è ancora attivo questo campo sarà assente o con
+            valore _null_
+          type: string
+          format: date-time
+        legalFactId:
+          title: id dell'atto opponibile a terzi
+          description: >-
+            Se assente o valorizzato _null_ indica che l'atto opponibile a terzi
+            non è ancora disponibile. Questo avviene per i disservizi ancora
+            aperti e per i disservizi  terminati da pochi minuti. <br/> Questo
+            valore è da utilizzare con l'API _getLegalFact_ di questo stesso
+            servizio.
+          type: string
+        fileAvailable:
+          type: boolean
+        fileAvailableTimestamp:
+          type: string
+          format: date-time
+          title: Momento di creazione dell'atto opponibile a terzi
+          description: >-
+            Momento di creazione dell'atto opponibile a terzi di
+            malfunzionamento e ripristino.  Coincide con il momento in cui pn-ss
+            comunica la disponibilitá dell'atto opponibile generato.
+    PnStatusResponse:
+      title: Stato attuale di PN
+      description: >-
+        Elenco delle funzionalità della piattaforma ed elenco dei disservizi
+        noti e attivi  al momento della richiesta. I disservizi
+        (_openIncidents_) segnalati sono al più uno  per funzionalità; gli
+        attributi _endDate_ e _legalFactId_ non saranno valorizzati.
+      type: object
+      required:
+        - functionalities
+        - openIncidents
+      properties:
+        status:
+          description: Bad Request
+          example: 400
+          exclusiveMaximum: true
+          maximum: 600
+          minimum: 100
+          type: number
+        title:
+          description: The server cannot process the request
+          example: Bad Request
+          maxLength: 64
+          pattern: ^[ -~]{0,64}$
+          type: string
+        detail:
+          description: The server cannot process the request
+          example: Bad Request
+          maxLength: 4096
+          pattern: ^.{0,4096}$
+          type: string
+        functionalities:
+          title: elenco funzionalità di PN
+          description: >-
+            Un array che comprende tutti i possibili valori dell'enum
+            _PnFunctionality_
+          type: array
+          items:
+            $ref: '#/components/schemas/PnFunctionality'
+        openIncidents:
+          title: elenco disservizi correnti
+          description: Al più uno per funzionalità
+          type: array
+          items:
+            $ref: '#/components/schemas/PnDowntimeEntry'
+    ProblemError:
+      properties:
+        code:
+          description: Internal code of the error
+          example: 123-4567
+          minLength: 8
+          maxLength: 8
+          pattern: ^[0-9]{3}-[0-9]{4}$
+          type: string
+        detail:
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Parameter not valid
+          maxLength: 4096
+          pattern: ^.{0,1024}$
+          type: string
+      required:
+        - code
+        - detail
+    Problem:
+      properties:
+        type:
+          description: URI reference of type definition
+          type: string
+        status:
+          description: >-
+            The HTTP status code generated by the origin server for this
+            occurrence of the problem.
+          example: 400
+          exclusiveMaximum: true
+          maximum: 600
+          minimum: 100
+          type: number
+        title:
+          description: >-
+            A short, summary of the problem type. Written in english and
+            readable
+          example: Service Unavailable
+          maxLength: 64
+          pattern: ^[ -~]{0,64}$
+          type: string
+        detail:
+          description: A human readable explanation of the problem.
+          example: Request took too long to complete.
+          maxLength: 4096
+          pattern: ^.{0,1024}$
+          type: string
+        traceId:
+          type: string
+          nullable: false
+        errors:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/ProblemError'
+      additionalProperties: false
+      required:
+        - status
+        - title
+        - errors
+    PnDowntimeHistoryResponse:
+      title: Elenco disservizi con paginazione
+      description: Risposta a una query dello storico dei disservizi
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          title: Elenco di disservizi
+          type: array
+          items:
+            $ref: '#/components/schemas/PnDowntimeEntry'
+        nextPage:
+          title: prossima pagina di risultati
+          description: >-
+            Se questo attributo non è presente o valorizzato _null_ indica che
+            la query eseguita non presenta ulteriori risultati. <br/> Se questo
+            attributo è valorizzato indica che la query può contenere ulteriori 
+            risultati. La richiesta va rieseguita inserendo nel parametro _page_
+            il valore  di questo campo.
+          type: string
+    LegalFactDownloadMetadataResponse:
+      title: Url e metadati per il download di un allegato di una notifica
+      description: |-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET. <br/>
+          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentLength
+      properties:
+        filename:
+          type: string
+        contentLength:
+          type: number
+          example: 54092
+          description: dimensione, in byte, del contenuto.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
+        retryAfter:
+          type: number
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
+  responses: {}
+  securitySchemes: {}
+tags:
+  - name: HealthCheck
+    description: Invocazioni per sapere lo stato di PN
+  - name: Status
+    description: Lettura dello stato di PN, API pubbliche
+  - name: Downtime
+    description: Invocazioni per recupero dei disservizi di PN
+  - name: DowntimeInternal
+    description: Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
+  - name: interopProbing
+    description: Invocazioni per sapere lo stato dell'E-service
+x-amazon-apigateway-gateway-responses:
+  DEFAULT_5XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+  DEFAULT_4XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+  BAD_REQUEST_PARAMETERS:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: >-
+        {"status": 400, "title": "VALIDATION ERROR", "traceId":
+        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_PARAMETERS",
+        "detail": "Validation errors: $context.error.validationErrorString" } ]}
+  BAD_REQUEST_BODY:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: >-
+        {"status": 400, "title": "VALIDATION ERROR", "traceId":
+        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_BODY",
+        "detail": "Validation errors: $context.error.validationErrorString" } ]}
+x-amazon-apigateway-request-validators:
+  basic:
+    validateRequestBody: true
+    validateRequestParameters: true
+  params-only:
+    validateRequestBody: false
+    validateRequestParameters: true
+x-amazon-apigateway-request-validator: basic

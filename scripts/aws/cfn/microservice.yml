@@ -247,9 +247,17 @@ Parameters:
     Type: Number
     Default: 0.5
 
-  PublicApiCacheTtl:
+  StatusTtlSeconds:
     Type: Number
     Default: 300
+
+  ResolvedTtlSeconds:
+    Type: Number
+    Default: 300
+  
+  DownloadLegalFactTtlSeconds:
+    Type: Number
+    Default: 3480
     
   EnhancedWebSecurityEnabled:
     Type: String
@@ -258,6 +266,18 @@ Parameters:
     AllowedValues:
       - true
       - false
+
+# OpenApi Bucket params
+  MicroserviceBucketName:
+    Type: String
+    Default: ""
+    Description: "Name of the bucket where the microservice files are copied during deploy"
+
+  MicroserviceBucketBaseKey:
+    Type: String
+    Default: ""
+    Description: "Base key of the microservice in the s3 bucket"
+
 Resources:
 
   DowntimeLogsMicroservice:
@@ -340,101 +360,30 @@ Resources:
               - !Ref DowntimeLogsSafeStorageEventsQueueARN
               - !Ref DowntimeLogsAggregateAlarmQueueARN
 
-  # Api:
-  #   Type: "AWS::CloudFormation::Stack"
-  #   Properties:
-  #     Parameters:
-  #       LogRetentionInDays: !Ref ApiLogRetentionInDays
-  #       NetworkLoadBalancerDomain: !GetAtt Backend.Outputs.NlbDomain
-  #       NetworkLoadBalancerLink: !GetAtt Backend.Outputs.NlbLink
-  #       ProjectName: !Ref ProjectName
-  #     TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/api.yaml
-
-  # Expose PN-Downtime-Logs microservice public API with API-GW for WEB usage
-  DowntimeLogsMicroservicePublicWebAPI:
+  DowntimeLogsMicroservicePublicApi:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
-        IntendedUsage: WEB
+        IntendedUsage: PUBLIC
         DnsName: !Ref WebApiDnsName
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ProjectName: !Ref ProjectName
-        ServiceApiPath: 'downtime'
+        ServiceApiPath: ''
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api--PUBLIC-aws.yaml
+        SkipStageCreation: true
   
-  DowntimeLogsMicroservicePublicWebAPIWaf:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
-      Parameters:
-        WAFName: !Sub '${ProjectName}-downtime-logs-web'
-        IntendedUsage: WEB 
-        APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: !Ref WebWafLimit
-        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
-
-  PublicRestApiExternal:
-    Type: "AWS::ApiGateway::RestApi"
-    Properties:
-      EndpointConfiguration:
-        Types:
-          - REGIONAL
-      FailOnWarnings: true
-      Name: !Sub ${ProjectName}-downtime-logs-public-api   
-
-  PublicApiHealthCheckStatusResource:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !GetAtt PublicRestApiExternal.RootResourceId
-      PathPart: "status"
-      RestApiId: !Ref PublicRestApiExternal 
-
-  PublicApiHealthCheckStatusMethod:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      ApiKeyRequired: false
-      AuthorizationType: NONE
-      HttpMethod: GET
-      Integration:
-        Type: HTTP_PROXY
-        ConnectionId: !Ref NetworkLoadBalancerLink
-        ConnectionType: VPC_LINK
-        IntegrationHttpMethod: GET
-        PassthroughBehavior: WHEN_NO_MATCH
-        RequestParameters:
-          integration.request.path.proxy: method.request.path.proxy
-        TimeoutInMillis: 29000
-        Uri: !Sub "http://${ApplicationLoadBalancerDomain}:8080/status"
-      OperationName: Proxy to ECS microservices
-      RequestParameters:
-        method.request.path.proxy: true
-      ResourceId: !Ref PublicApiHealthCheckStatusResource
-      RestApiId: !Ref PublicRestApiExternal
-
-
-  PublicRestApiDeployment:
-    Type: "AWS::ApiGateway::Deployment"
-    DependsOn:
-      - PublicApiHealthCheckStatusMethod
-    Properties:
-      RestApiId: !Ref PublicRestApiExternal 
-
-   # Log Group
-  DowntimeLogsPublicStatusApiLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: 14
-
   PublicRestApiStage:
     Type: "AWS::ApiGateway::Stage"
     Properties:
-      DeploymentId: !Ref PublicRestApiDeployment
+      DeploymentId: !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.DeploymentId
       AccessLogSetting:
-        DestinationArn: !GetAtt "DowntimeLogsPublicStatusApiLogGroup.Arn"
+        DestinationArn: !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiLogGroupArn
         Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency,"xrayTraceId":"$context.xrayTraceId","errorMessage":"$context.error.message","validationError":"$context.error.validationErrorString","integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent"}'
       MethodSettings:
         - DataTraceEnabled: "false"
@@ -442,29 +391,60 @@ Resources:
           MetricsEnabled: "true"
           ResourcePath: /*
           LoggingLevel: 'INFO'
-          CacheTtlInSeconds: !Ref PublicApiCacheTtl
+        - DataTraceEnabled: "false"
+          HttpMethod: "GET"
+          MetricsEnabled: "true"
+          ResourcePath: /status
+          LoggingLevel: 'INFO'
+          CacheTtlInSeconds: !Ref StatusTtlSeconds
           CachingEnabled: true
-      RestApiId: !Ref PublicRestApiExternal
+        - DataTraceEnabled: "false"
+          HttpMethod: "GET"
+          MetricsEnabled: "true"
+          ResourcePath: /downtime/v1/resolved
+          LoggingLevel: 'INFO'
+          CacheTtlInSeconds: !Ref ResolvedTtlSeconds
+          CachingEnabled: true
+        - DataTraceEnabled: "false"
+          HttpMethod: "GET"
+          MetricsEnabled: "true"
+          ResourcePath: /downtime/v1/legal-facts/*
+          LoggingLevel: 'INFO'
+          CacheTtlInSeconds: !Ref DownloadLegalFactTtlSeconds
+          CachingEnabled: true        
+      RestApiId: !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiId
       StageName: unique
       TracingEnabled: true
       CacheClusterEnabled: true
       CacheClusterSize: !Ref PublicApiCacheClusterSize
-      
-  PagoPaMapping:
-    Type: 'AWS::ApiGateway::BasePathMapping'
-    Properties:
-      DomainName: !Ref ApiDnsName
-      Stage: !Ref PublicRestApiStage
-      RestApiId: !Ref PublicRestApiExternal
-
-  DowntimeLogsMicroserviceStatusWebApiWaf:
+      Variables: 
+        ServiceApiPath: ''
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ProjectName: !Ref ProjectName
+        MicroServiceUniqueName: !Sub ${ProjectName}-downtime-logs
+        IntendedUsage: 'PUBLIC'
+        DnsName: !Ref WebApiDnsName
+    
+  
+  DowntimeLogsMicroservicePublicApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
-        WAFName: !Sub '${ProjectName}-downtime-logs-status'
-        IntendedUsage: B2B 
-        APIGatewayARNs: !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/${PublicRestApiExternal}/stages/${PublicRestApiStage}'
+        WAFName: !Sub "${ProjectName}-delivery-public"
+        IntendedUsage: PUBLIC
+        APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.APIGatewayARN
+        Limit: !Ref WebWafLimit
+        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
+
+  # Expose API to custom domain
+  APIMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref WebApiDnsName
+      RestApiId: !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiId
+      Stage: !Ref PublicRestApiStage
 
   ## Dashboard
   DowntimeLogsMicroserviceCloudWatchDashboard:
@@ -479,15 +459,15 @@ Resources:
             - !Ref LogTableName
         RestApiStageArns: !Join
           - ','
-          - - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiStageArn
+          - - !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ','
-          - - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiName
+          - - !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiName
         AlarmArns: !Join
           - ','
           - - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
-            - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
-            - !GetAtt DowntimeLogsMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
+            - !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiLatencyAlarmArn
             - !Ref InternalEventQueueAlarmARN
             - !Ref InternalEventQueueAgeAlarmARN
             - !Ref DowntimeLogsSafeStorageEventsQueueAlarmARN
@@ -503,87 +483,3 @@ Resources:
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-downtime-logs'            
 
-## INTEROP/PROBING
-  ProbingRestApiExternal:
-    Type: "AWS::ApiGateway::RestApi"
-    Properties:
-      EndpointConfiguration:
-        Types:
-          - REGIONAL
-      FailOnWarnings: true
-      Name: !Sub ${ProjectName}-downtime-logs-probing-api
-
-
-  ProbingApiResource:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !GetAtt ProbingRestApiExternal.RootResourceId
-      PathPart: "probing"
-      RestApiId: !Ref ProbingRestApiExternal
-
-  ProbingApiMethod:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      ApiKeyRequired: false
-      AuthorizationType: NONE
-      HttpMethod: GET
-      Integration:
-        Type: HTTP_PROXY
-        ConnectionId: !Ref NetworkLoadBalancerLink
-        ConnectionType: VPC_LINK
-        IntegrationHttpMethod: GET
-        PassthroughBehavior: WHEN_NO_MATCH
-        RequestParameters:
-          integration.request.path.proxy: method.request.path.proxy
-        TimeoutInMillis: 29000
-        Uri: !Sub "http://${ApplicationLoadBalancerDomain}:8080/interop/probing"
-      OperationName: Proxy to ECS microservices
-      RequestParameters:
-        method.request.path.proxy: true
-      ResourceId: !Ref ProbingApiResource
-      RestApiId: !Ref ProbingRestApiExternal
-
-  ProbingRestApiDeployment:
-    Type: "AWS::ApiGateway::Deployment"
-    DependsOn:
-      - ProbingApiMethod
-    Properties:
-      RestApiId: !Ref ProbingRestApiExternal
-
-  ProbingRestApiStage:
-    Type: "AWS::ApiGateway::Stage"
-    Properties:
-      DeploymentId: !Ref ProbingRestApiDeployment
-      AccessLogSetting:
-        DestinationArn: !GetAtt "DowntimeLogsPublicStatusApiLogGroup.Arn"
-        Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency,"xrayTraceId":"$context.xrayTraceId","errorMessage":"$context.error.message","validationError":"$context.error.validationErrorString","integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent"}'
-      MethodSettings:
-        - DataTraceEnabled: "false"
-          HttpMethod: "*"
-          MetricsEnabled: "true"
-          ResourcePath: /*
-          LoggingLevel: 'INFO'
-          CacheTtlInSeconds: !Ref PublicApiCacheTtl
-          CachingEnabled: true
-      RestApiId: !Ref ProbingRestApiExternal
-      StageName: unique
-      TracingEnabled: true
-      CacheClusterEnabled: true
-      CacheClusterSize: !Ref PublicApiCacheClusterSize
-
-  ProbingMapping:
-    Type: 'AWS::ApiGateway::BasePathMapping'
-    Properties:
-      BasePath: 'interop'
-      DomainName: !Ref ApiDnsName
-      Stage: !Ref ProbingRestApiStage
-      RestApiId: !Ref ProbingRestApiExternal
-
-  DowntimeLogsMicroserviceProbingWebApiWaf:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
-      Parameters:
-        WAFName: !Sub '${ProjectName}-downtime-logs-probing'
-        IntendedUsage: B2B 
-        APIGatewayARNs: !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/${ProbingRestApiExternal}/stages/${ProbingRestApiStage}'
