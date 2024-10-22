@@ -404,4 +404,16 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("result");
 	}
 
+	@Test
+	public void test_CheckResolvedNoParams() throws Exception {
+		mockResolved(client);
+
+		MockHttpServletResponse response = mvc
+				.perform(get(resolvedUrl))
+				.andReturn().getResponse();
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentAsString()).contains("result");
+	}
+
 }
