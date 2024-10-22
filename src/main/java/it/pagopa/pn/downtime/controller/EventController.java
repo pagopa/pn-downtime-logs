@@ -106,6 +106,11 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 	}
 
 	@Override
+	public ResponseEntity<PnDowntimeHistoryResponse> getResolved(Integer year, Integer month) {
+		return ResponseEntity.ok(downtimeLogsService.getResolved(year, month));
+	}
+
+	@Override
 	public Optional<NativeWebRequest> getRequest() {
 		return DowntimeApi.super.getRequest();
 	}

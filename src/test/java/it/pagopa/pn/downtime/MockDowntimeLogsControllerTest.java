@@ -390,4 +390,18 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("openIncidents");
 	}
 
+	/** jUnit test for the /resolved service */
+	@Test
+	public void test_CheckResolved() throws Exception {
+		mockResolved(client);
+
+		MockHttpServletResponse response = mvc
+				.perform(get(resolvedUrl)
+						.params(getResolvedParams(2024, 10)))
+				.andReturn().getResponse();
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentAsString()).contains("result");
+	}
+
 }
