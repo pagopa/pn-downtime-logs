@@ -1,6 +1,8 @@
 package it.pagopa.pn.downtime.service.impl;
 
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -231,5 +233,34 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 				.withFilterExpression("attribute_not_exists(legalFactId) and  attribute_exists(endDate) ");
 
 		return dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
+	}
+
+	/**
+	 * Gets the resolved history.
+	 *
+	 * @param year      year of the research.
+	 * @param month        month of the research
+	 * @return all the downtimes present in the period of time specified
+	 */
+	@Override
+	public PnDowntimeHistoryResponse getResolved(Integer year, Integer month) {
+		OffsetDateTime currentDate = OffsetDateTime.now(ZoneOffset.UTC);
+
+		if (year == null) { year = currentDate.getYear(); }
+		if (month == null) { month = currentDate.getMonthValue(); }
+
+		YearMonth yearMonth = YearMonth.of(year, month);
+
+		OffsetDateTime fromTime = yearMonth.atDay(1).atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
+		OffsetDateTime toTime = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toOffsetDateTime();
+
+		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, null);
+		PnDowntimeHistoryResponse response = new PnDowntimeHistoryResponse();
+
+		response.setResult( listHistoryResults.stream()
+				.map( downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime) )
+				.toList()
+		);
+		return response;
 	}
 }

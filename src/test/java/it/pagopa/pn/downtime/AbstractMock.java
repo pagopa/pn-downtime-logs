@@ -105,6 +105,8 @@ public abstract class AbstractMock {
 	private Resource currentStatus500;
 	@Value("classpath:data/history_status.json")
 	private Resource historyStatus;
+	@Value("classpath:data/resolved.json")
+	private Resource resolved;
 	@Value("classpath:data/messageCloudwatch.json")
 	private Resource mockMessageCloudwatch;
 	@Value("classpath:data/messageLegalFactId.json")
@@ -124,6 +126,7 @@ public abstract class AbstractMock {
 	protected final String legalFactIdUrl = "/downtime/v1/legal-facts/";
 	protected final String healthCheckUrl = "/healthcheck";
 	protected final String probingUrl = "/interop/probing";
+	protected final String resolvedUrl = "/downtime/v1/resolved";
 
 	protected void mockProducer(DowntimeLogsSend producer) throws JsonProcessingException {
 		Mockito.doNothing().when(producer).sendMessage(Mockito.any(), Mockito.anyString());
@@ -396,6 +399,15 @@ public abstract class AbstractMock {
 		return requestParams;
 	}
 
+	protected static LinkedMultiValueMap<String, String> getResolvedParams(Integer year, Integer month) {
+		LinkedMultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
+		if(year != null)
+			requestParams.add("year", year.toString());
+		if(month != null)
+			requestParams.add("month", month.toString());
+		return requestParams;
+	}
+
 	@SuppressWarnings("unchecked")
 	protected void mockHistoryStatus(RestTemplate client) throws IOException {
 		String mock = getStringFromResourse(historyStatus);
@@ -411,6 +423,13 @@ public abstract class AbstractMock {
 				serviceDowntime.getStatusHistory(ArgumentMatchers.isNull(), ArgumentMatchers.any(OffsetDateTime.class),
 						ArgumentMatchers.isNull(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
 				.thenThrow(new RuntimeException("The starting date is required."));
+	}
+
+	protected void mockResolved(RestTemplate client) throws IOException {
+		String mock = getStringFromResourse(resolved);
+		ResponseEntity<Object> response = new ResponseEntity<Object>(mock, HttpStatus.OK);
+		Mockito.when(client.getForEntity(Mockito.anyString(), Mockito.any(), Mockito.any(HashMap.class)))
+				.thenReturn(response);
 	}
 
 	protected void mockLegalFactId(RestTemplate client) {
