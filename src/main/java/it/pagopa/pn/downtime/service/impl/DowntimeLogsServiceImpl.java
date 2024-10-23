@@ -244,7 +244,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	 */
 	@Override
 	public PnDowntimeHistoryResponse getResolved(Integer year, Integer month) {
-		OffsetDateTime currentDate = OffsetDateTime.now();
+		OffsetDateTime currentDate = OffsetDateTime.now(ZoneOffset.UTC);
 
 		if (year == null) { year = currentDate.getYear(); }
 		if (month == null) { month = currentDate.getMonthValue(); }
