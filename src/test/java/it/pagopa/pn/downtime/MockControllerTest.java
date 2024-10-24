@@ -91,4 +91,9 @@ public class MockControllerTest extends AbstractMock {
 		callCheckOptions(probingUrl, "GET");
 	}
 
+	@Test
+	public void callCheckOptionsResolved() throws Exception {
+		callCheckOptions(resolvedUrl, "GET");
+	}
+
 }

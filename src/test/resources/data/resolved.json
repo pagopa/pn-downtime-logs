@@ -1,0 +1,23 @@
+{
+  "result": [
+    {
+      "functionality": "NOTIFICATION_CREATE",
+      "status": "OK",
+      "startDate": "2024-10-21T10:26:00Z",
+      "endDate": "2024-10-21T10:27:00Z",
+      "legalFactId": "PN_DOWNTIME_LEGAL_FACTS-d754e47b488e429b9d2ee5fe65a5f64b.pdf",
+      "fileAvailable": true,
+      "fileAvailableTimestamp": "2024-10-21T10:29:29.905055538Z"
+    },
+    {
+      "functionality": "NOTIFICATION_CREATE",
+      "status": "OK",
+      "startDate": "2024-10-08T14:22:00Z",
+      "endDate": "2024-10-08T14:25:00Z",
+      "legalFactId": "PN_DOWNTIME_LEGAL_FACTS-f430f20e8dba46599ebd1ec1fae981f9.pdf",
+      "fileAvailable": true,
+      "fileAvailableTimestamp": "2024-10-08T14:26:32.905055538Z"
+    }
+  ],
+  "nextPage": null
+}

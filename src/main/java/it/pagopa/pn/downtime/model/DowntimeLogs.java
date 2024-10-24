@@ -42,6 +42,8 @@ public class DowntimeLogs implements Serializable {
 	private String history;
 	private Boolean fileAvailable;
 	@JsonSerialize(using = OffsetDateTimeSerializer.class)
+	private OffsetDateTime fileAvailableTimestamp;
+	@JsonSerialize(using = OffsetDateTimeSerializer.class)
 	private OffsetDateTime startDateAttribute;
 	
 	@DynamoDBHashKey
@@ -106,6 +108,12 @@ public class DowntimeLogs implements Serializable {
 	public Boolean getFileAvailable() {
 		return fileAvailable;
 	}
+
+	@DynamoDBAttribute
+	@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+	public OffsetDateTime getFileAvailableTimestamp() {
+		return fileAvailableTimestamp;
+	}
 	
 	@DynamoDBAttribute
 	public String getUuid() {
@@ -150,6 +158,10 @@ public class DowntimeLogs implements Serializable {
 
 	public void setFileAvailable(Boolean fileAvailable) {
 		this.fileAvailable = fileAvailable;
+	}
+
+	public void setFileAvailableTimestamp(OffsetDateTime fileAvailableTimestamp) {
+		this.fileAvailableTimestamp = fileAvailableTimestamp;
 	}
 
 	public void setUuid(String uuid) {

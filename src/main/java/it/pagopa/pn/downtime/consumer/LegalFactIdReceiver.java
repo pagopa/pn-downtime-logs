@@ -1,5 +1,7 @@
 package it.pagopa.pn.downtime.consumer;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,9 +80,12 @@ public class LegalFactIdReceiver {
 	 */
 	private void updateFileAvailable(List<DowntimeLogs> logs, FileCreatedDto legalFact) {
 		if (logs != null && !logs.isEmpty()) {
-			logs.get(0).setFileAvailable(true);
-			log.info("Save legalFactId {}", legalFact.getKey());
-			dynamoDBMapper.save(logs.get(0));
+			DowntimeLogs downtimeLogs = logs.get(0);
+			downtimeLogs.setFileAvailable(true);
+			OffsetDateTime fileAvailableTimestamp = OffsetDateTime.now(ZoneOffset.UTC);
+			downtimeLogs.setFileAvailableTimestamp(fileAvailableTimestamp);
+			log.info("Save legalFactId {} with timestamp {}", legalFact.getKey(), fileAvailableTimestamp);
+			dynamoDBMapper.save(downtimeLogs);
 		} else {
 			throw new ResourceNotFoundException("No Downtime Found for legalFactId {} = " + legalFact.getKey());
 		}

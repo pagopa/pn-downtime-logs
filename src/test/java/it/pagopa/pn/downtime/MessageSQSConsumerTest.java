@@ -73,7 +73,7 @@ public class MessageSQSConsumerTest extends AbstractMock {
 
 		mockLegalFactIdReceiver.receiveLegalFact(messageLegalFactId);
 
-		Assertions.assertTrue(true);
+        Assertions.assertNotNull(dt.getFileAvailableTimestamp());
 	}
 
 	@Test

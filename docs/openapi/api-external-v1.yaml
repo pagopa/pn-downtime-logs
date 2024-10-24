@@ -28,10 +28,13 @@ tags:
   - name: HealthCheck
     description: >-
       Invocazioni per sapere lo stato di PN
-  - name: Read
+  - name: Status
     description: >-
       Lettura dello stato di PN, API pubbliche
-  - name: Write
+  - name: Downtime
+    description: >-
+      Invocazioni per recupero dei disservizi di PN
+  - name: DowntimeInternal
     description: >-
       Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
   - name: interopProbing
@@ -43,39 +46,22 @@ paths:
     ###                           API DI STATO RICHIESTE DA AGID                           ###
     ##########################################################################################
   
-  "/healthcheck":
-    get:
-      summary: healthCheck path
-      description: health check path per verificare lo stato del micro servizio
-      tags:
-        - HealthCheck
-      operationId: healthcheck
-      responses:
-        '200':
-          description: Ok
-        '500':
-          description: Internal Server Error  
     ###########################################################################################
     ###                                 LETTURA DELLO STATO                                 ###
     ###########################################################################################
   "/status":                                                                                            # ONLY EXTERNAL
     get:                                                                                                # ONLY EXTERNAL
       summary: status path                                                                         # ONLY EXTERNAL
-      description: >-                                                                                   # ONLY EXTERNAL
-        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                     
+      description: >-                                                                                   
+        Questo path e questo metodo devono, per richiesta di AGID, restituire <br/>                    
           - status 200 se la piattaforma notifica è correttamente funzionante, <br/>                    
-          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                           
+          - status 500 se la piattaforma ha un funzionamento degradato. <br/>                          
         Il body e lasciato libero quindi utilizziamo quanto già definito per il path                    
         /downtime/status                                                                                
       tags:                                                                                             # ONLY EXTERNAL  
-        - Read                                                                                          # ONLY EXTERNAL
-  #    security:                                                                                         # ONLY EXTERNAL
-  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
+        - Status                                                                                         # ONLY EXTERNAL
       operationId: status                                                                               # ONLY EXTERNAL
-      x-api-permissions:
-        - 'api-key-read'
-        - 'log-downtime-read'
-      responses:                                                                                        # ONLY EXTERNAL
+      responses:                                                                                        # ONLY EXTERNAL  
         '200':                                                                                          # ONLY EXTERNAL
           description: Ok                                                                               # ONLY EXTERNAL
           content:                                                                                      # ONLY EXTERNAL
@@ -124,33 +110,31 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
-  "/downtime/v1/status":
+  ###########################################################################################
+  ###                                 API PUBBLICHE                                       ###
+  ###########################################################################################
+
+  "/downtime/v1/resolved":
     get:
-      summary: Stato attuale
+      summary: Recupero disservizi
       description: >-
-        Metodo che restituisce l'elenco delle funzionalità di Piattaforma Notifiche e l'elenco
-        dei disservizi presenti al momento dell'invocazione.
+        Metodo che restituisce l'elenco dei disservizi risolti per l'anno e il mese selezionato.
       tags:
-        - Read
-      security:                                                                                         # ONLY EXTERNAL
-        - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
-      operationId: currentStatus
-      x-api-permissions:
-        - 'api-key-read'
-        - 'log-downtime-read'
+        - Downtime
+      operationId: getResolved
+      x-api-cachekey-parameters:
+        - "method.request.querystring.year"
+        - "method.request.querystring.month"
+      parameters:
+        - $ref: '#/components/parameters/queryYear'
+        - $ref: '#/components/parameters/queryMonth'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                  $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"
-              example:
-                - functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
-                  openIncidents:
-                    - functionality: NOTIFICATION_CREATE
-                      status: KO
-                      startDate: "2019-08-24T14:15:22Z"
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnDowntimeHistoryResponse"
         '400':
           description: Bad request
           content:
@@ -158,41 +142,7 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
-  "/downtime/v1/history":
-    get:
-      summary: Ricerca storico disservizi
-      description: >-
-        Elenco dei disservizi di Piattafoma Notifiche riscontrate nel lasso di tempo specificato 
-        dai parametri _fromTime_ e _toTime_. <br/>
-        Il parametro _functionality_ è opzionale e ripetibile; permette di filtrare i disservizi 
-        estratti limitandoli a quelli impattanti le funzionalità elencate.
-      tags:
-        - Read
- #     security:                                                                                         # ONLY EXTERNAL
- #       - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
-      operationId: statusHistory
-      x-api-permissions:                                                                                
-        - 'api-key-read'                                                                                
-        - 'log-downtime-read'
-      parameters:
-        - $ref: '#/components/parameters/queryFromTime'
-        - $ref: '#/components/parameters/queryToTime'
-        - $ref: '#/components/parameters/queryFunctionality'
-        - $ref: '#/components/parameters/queryPage'
-        - $ref: '#/components/parameters/querySize'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                  $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnDowntimeHistoryResponse"
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
 
 
     ###########################################################################################
@@ -207,10 +157,10 @@ paths:
         recuperato dagli archivi, fornisce una stima per eccesso di quanti secondi bisogna 
         attendere.
       tags:
-        - Read
-  #    security:                                                                                         # ONLY EXTERNAL
-  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
+        - Downtime
       operationId: getLegalFact
+      x-api-cachekey-parameters:
+        - "method.request.path.legalFactId"
       x-api-permissions:                                                                                
         - 'api-key-read'                                                                                
         - 'log-downtime-read'
@@ -260,40 +210,6 @@ paths:
     ###########################################################################################
     ###                                MODIFICA DELLO STATO                                 ###
     ###########################################################################################
-  "/downtime-internal/v1/events":
-    post:
-      summary: Modifica stato di servizio
-      description: >-
-        Permette di aggiungere un evento di inizio o fine di un disservizio, può essere 
-        richiamato sia dagli allarmi automatici che da GUI. Tali casi vanno discriminati 
-        con l'attributo di richiesta _sourceType_.
-      tags:
-        - Write
-  #    security:                                                                                         # ONLY EXTERNAL
-  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
-      operationId: addStatusChangeEvent
-      x-api-permissions:                                                                                
-        - 'api-key-write'                                                                                
-        - 'log-downtime-write'
-      parameters:
-        - $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusUpdateEvent"
-        required: true
-      responses:
-        '204':
-          description: OK
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 components:
   parameters:
@@ -301,6 +217,28 @@ components:
     ###########################################################################################
     ###                          PARAMETRI DI RICERCA DEI DOWNTIME                          ###
     ###########################################################################################
+
+    queryYear:
+      name: year
+      in: query
+      required: false
+      description: anno di ricerca dei disservizi risolti. Se non presente si intende l'anno corrente.
+      schema:
+        type: integer
+        minimum: 2023
+      example: 2024
+
+    queryMonth:
+      name: month
+      in: query
+      required: false
+      description: mese di ricerca dei disservizi risolti. Se non presente si intende il mese corrente.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 12
+      example: 3
+
     
     queryFromTime:
       name: fromTime

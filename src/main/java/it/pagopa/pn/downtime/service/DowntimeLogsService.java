@@ -45,4 +45,7 @@ public interface DowntimeLogsService {
 			String startEventUuid, String uuid);
 
 	List<DowntimeLogs> findAllByEndDateIsNotNullAndLegalFactIdIsNull();
+
+
+	PnDowntimeHistoryResponse getResolved(Integer year, Integer month);
 }

@@ -22,8 +22,10 @@
 	</scm>
 	<properties>
 		<springfox-version>3.0.0</springfox-version>
-		<openapi-generator-maven-plugin-version>5.4.0
-		</openapi-generator-maven-plugin-version>
+		<openapi-generator-maven-plugin-version>5.4.0</openapi-generator-maven-plugin-version>
+		<default.package>it.pagopa.pn.downtime</default.package>
+		<ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
+		<pagopa.codegen.version>v01.09.00</pagopa.codegen.version>
 	</properties>
 	<dependencies>
 		<dependency>
