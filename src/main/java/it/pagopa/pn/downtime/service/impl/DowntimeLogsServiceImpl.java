@@ -258,6 +258,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		PnDowntimeHistoryResponse response = new PnDowntimeHistoryResponse();
 
 		response.setResult( listHistoryResults != null ? listHistoryResults.stream()
+				.filter( DowntimeLogs::getFileAvailable )
 				.map( downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime) )
 				.toList() : Collections.emptyList()
 		);
