@@ -6,6 +6,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +33,7 @@ import it.pagopa.pn.downtime.service.LegalFactService;
 @RestController
 public class EventController implements DowntimeApi, DowntimeInternalApi {
 
+	private static final Logger log = LoggerFactory.getLogger(EventController.class);
 	@Autowired
 	private EventService eventService;
 
@@ -107,6 +110,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 
 	@Override
 	public ResponseEntity<PnDowntimeHistoryResponse> getResolved(Integer year, Integer month) {
+		log.info("Get resolved with year={} and month={}", year, month);
 		return ResponseEntity.ok(downtimeLogsService.getResolved(year, month));
 	}
 
