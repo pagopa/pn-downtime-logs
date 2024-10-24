@@ -3,12 +3,7 @@ package it.pagopa.pn.downtime.service.impl;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,13 +249,17 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		OffsetDateTime fromTime = yearMonth.atDay(1).atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
 		OffsetDateTime toTime = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toOffsetDateTime();
 		log.info("Get status history fromTime={}, toTime={}", fromTime, toTime);
-		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, null);
+		List<PnFunctionality> allFunctionalities = List.of(PnFunctionality.NOTIFICATION_CREATE,
+				PnFunctionality.NOTIFICATION_WORKFLOW,
+				PnFunctionality.NOTIFICATION_VISUALIZATION
+		);
+		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, allFunctionalities);
 		log.info("Get status history result={}", listHistoryResults);
 		PnDowntimeHistoryResponse response = new PnDowntimeHistoryResponse();
 
-		response.setResult( listHistoryResults.stream()
+		response.setResult( listHistoryResults != null ? listHistoryResults.stream()
 				.map( downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime) )
-				.toList()
+				.toList() : Collections.emptyList()
 		);
 		log.info("Resolved reponse={}", response);
 		return response;
