@@ -1,0 +1,11 @@
+{
+    "openapi": [
+        {
+            "intendedUsage": "PUBLIC",
+            "openapiFiles": [
+                "api-internal-v1.yaml"
+            ],
+            "servicePath": ""
+        }
+    ]
+}

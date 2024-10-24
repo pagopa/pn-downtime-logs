@@ -46,18 +46,18 @@ paths:
     ###                           API DI STATO RICHIESTE DA AGID                           ###
     ##########################################################################################
   
-  "/healthcheck":
-    get:
-      summary: healthCheck path
-      description: health check path per verificare lo stato del micro servizio
-      tags:
-        - HealthCheck
-      operationId: healthcheck
-      responses:
-        '200':
-          description: Ok
-        '500':
-          description: Internal Server Error  
+  "/healthcheck":                                                                                       # NO EXTERNAL
+    get:                                                                                                # NO EXTERNAL         
+      summary: healthCheck path                                                                         # NO EXTERNAL      
+      description: health check path per verificare lo stato del micro servizio                         # NO EXTERNAL
+      tags:                                                                                             # NO EXTERNAL
+        - HealthCheck                                                                                   # NO EXTERNAL
+      operationId: healthcheck                                                                          # NO EXTERNAL
+      responses:                                                                                        # NO EXTERNAL
+        '200':                                                                                          # NO EXTERNAL
+          description: Ok                                                                               # NO EXTERNAL
+        '500':                                                                                          # NO EXTERNAL
+          description: Internal Server Error                                                            # NO EXTERNAL
     ###########################################################################################
     ###                                 LETTURA DELLO STATO                                 ###
     ###########################################################################################
@@ -72,12 +72,7 @@ paths:
         /downtime/status                                                                                
       tags:                                                                                             # ONLY EXTERNAL  
         - Status                                                                                         # ONLY EXTERNAL
-  #    security:                                                                                         # ONLY EXTERNAL
-  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: status                                                                               # ONLY EXTERNAL
-      x-api-permissions:
-        - 'api-key-read'
-        - 'log-downtime-read'
       responses:                                                                                        # ONLY EXTERNAL  
         '200':                                                                                          # ONLY EXTERNAL
           description: Ok                                                                               # ONLY EXTERNAL
@@ -139,6 +134,9 @@ paths:
       tags:
         - Downtime
       operationId: getResolved
+      x-api-cachekey-parameters:
+        - "method.request.querystring.year"
+        - "method.request.querystring.month"
       parameters:
         - $ref: '#/components/parameters/queryYear'
         - $ref: '#/components/parameters/queryMonth'
@@ -160,8 +158,8 @@ paths:
     get:                                                                                                  # NO EXTERNAL
       summary: Stato attuale                                                                              # NO EXTERNAL
       description: >-                                                                                     # NO EXTERNAL
-        Metodo che restituisce l'elenco delle funzionalità di Piattaforma Notifiche e l'elenco
-        dei disservizi presenti al momento dell'invocazione.
+        Metodo che restituisce l'elenco delle funzionalità di Piattaforma Notifiche e l'elenco            # NO EXTERNAL
+        dei disservizi presenti al momento dell'invocazione.                                              # NO EXTERNAL
       tags:                                                                                               # NO EXTERNAL
         - Downtime                                                                                        # NO EXTERNAL
       operationId: currentStatus                                                                          # NO EXTERNAL
@@ -192,10 +190,10 @@ paths:
     get:                                                                                                  # NO EXTERNAL
       summary: Ricerca storico disservizi                                                                 # NO EXTERNAL
       description: >-                                                                                     # NO EXTERNAL
-        Elenco dei disservizi di Piattafoma Notifiche riscontrate nel lasso di tempo specificato 
-        dai parametri _fromTime_ e _toTime_. <br/>
-        Il parametro _functionality_ è opzionale e ripetibile; permette di filtrare i disservizi 
-        estratti limitandoli a quelli impattanti le funzionalità elencate.
+        Elenco dei disservizi di Piattafoma Notifiche riscontrate nel lasso di tempo specificato          # NO EXTERNAL
+        dai parametri _fromTime_ e _toTime_. <br/>                                                        # NO EXTERNAL
+        Il parametro _functionality_ è opzionale e ripetibile; permette di filtrare i disservizi          # NO EXTERNAL
+        estratti limitandoli a quelli impattanti le funzionalità elencate.                                # NO EXTERNAL
       tags:                                                                                               # NO EXTERNAL
         - Downtime                                                                                        # NO EXTERNAL
       operationId: statusHistory                                                                          # NO EXTERNAL
@@ -236,9 +234,9 @@ paths:
         attendere.
       tags:
         - Downtime
-  #    security:                                                                                         # ONLY EXTERNAL
-  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: getLegalFact
+      x-api-cachekey-parameters:
+        - "method.request.path.legalFactId"
       x-api-permissions:                                                                                
         - 'api-key-read'                                                                                
         - 'log-downtime-read'
@@ -292,9 +290,9 @@ paths:
     post:                                                                                                 # NO EXTERNAL
       summary: Modifica stato di servizio                                                                 # NO EXTERNAL
       description: >-                                                                                     # NO EXTERNAL
-        Permette di aggiungere un evento di inizio o fine di un disservizio, può essere 
-        richiamato sia dagli allarmi automatici che da GUI. Tali casi vanno discriminati 
-        con l'attributo di richiesta _sourceType_.
+        Permette di aggiungere un evento di inizio o fine di un disservizio, può essere                   # NO EXTERNAL
+        richiamato sia dagli allarmi automatici che da GUI. Tali casi vanno discriminati                  # NO EXTERNAL
+        con l'attributo di richiesta _sourceType_.                                                        # NO EXTERNAL
       tags:                                                                                               # NO EXTERNAL
         - DowntimeInternal                                                                                # NO EXTERNAL
       operationId: addStatusChangeEvent                                                                   # NO EXTERNAL
