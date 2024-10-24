@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: nSiLAYI91CQgjyIY2XLhMkgqk6P1ukL6wWe03G9Pklw=
+  version: vs39rL4CfSym4FCZ6eOsHYJ7jOxEfdMTll0KhEFK5Og=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -149,8 +149,8 @@ paths:
         - Downtime
       operationId: getResolved
       x-api-cachekey-parameters:
-        - name: querystring.year
-        - name: querystring.month
+        - method.request.querystring.year
+        - method.request.querystring.month
       parameters:
         - $ref: '#/components/parameters/queryYear'
         - $ref: '#/components/parameters/queryMonth'
@@ -186,8 +186,8 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
         cacheKeyParameters:
-          - "method.request.querystring.year"
-          - "method.request.querystring.month"
+          - method.request.querystring.year
+          - method.request.querystring.month
     options:
       operationId: Options for /downtime/v1/resolved API CORS
       x-amazon-apigateway-integration:
@@ -211,7 +211,7 @@ paths:
         - Downtime
       operationId: getLegalFact
       x-api-cachekey-parameters:
-        - name: path.legalFactId
+        - method.request.path.legalFactId
       x-api-permissions:
         - api-key-read
         - log-downtime-read
@@ -276,7 +276,7 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
         cacheKeyParameters:
-          - "method.request.path.legalFactId"
+          - method.request.path.legalFactId
     options:
       operationId: Options for /downtime/v1/legal-facts/{legalFactId} API CORS
       x-amazon-apigateway-integration:
