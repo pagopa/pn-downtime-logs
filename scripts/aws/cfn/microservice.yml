@@ -457,12 +457,12 @@ Resources:
           - ',' 
           - - !Ref EventTableName
             - !Ref LogTableName
-        RestApiStageArns: !Join
-          - ','
-          - - !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiStageArn
-        RestApiNames: !Join
-          - ','
-          - - !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiName
+        # RestApiStageArns: !Join
+        #   - ','
+        #   - - !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/${DowntimeLogsMicroservicePublicApi.Outputs.}/stages/${PublicRestApiStage}
+        # RestApiNames: !Join
+        #   - ','
+        #   - - !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiName
         AlarmArns: !Join
           - ','
           - - !GetAtt DowntimeLogsMicroservice.Outputs.FatalLogsMetricAlarmArn
