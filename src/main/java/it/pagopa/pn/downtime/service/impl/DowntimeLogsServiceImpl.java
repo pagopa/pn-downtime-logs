@@ -254,7 +254,6 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 				PnFunctionality.NOTIFICATION_VISUALIZATION
 		);
 		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, allFunctionalities);
-		log.info("Get status history result={}", listHistoryResults);
 		PnDowntimeHistoryResponse response = new PnDowntimeHistoryResponse();
 
 		response.setResult( listHistoryResults != null ? listHistoryResults.stream()
@@ -262,7 +261,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 				.map( downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime) )
 				.toList() : Collections.emptyList()
 		);
-		log.info("Resolved reponse={}", response);
+		log.info("Resolved response={}", response);
 		return response;
 	}
 }
