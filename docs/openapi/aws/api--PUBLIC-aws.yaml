@@ -186,8 +186,8 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
         cacheKeyParameters:
-          - name: querystring.year
-          - name: querystring.month
+          - "method.request.querystring.year"
+          - "method.request.querystring.month"
     options:
       operationId: Options for /downtime/v1/resolved API CORS
       x-amazon-apigateway-integration:
@@ -276,7 +276,7 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
         cacheKeyParameters:
-          - name: path.legalFactId
+          - "method.request.path.legalFactId"
     options:
       operationId: Options for /downtime/v1/legal-facts/{legalFactId} API CORS
       x-amazon-apigateway-integration:
