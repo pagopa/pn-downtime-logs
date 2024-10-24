@@ -253,14 +253,16 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
 		OffsetDateTime fromTime = yearMonth.atDay(1).atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
 		OffsetDateTime toTime = yearMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toOffsetDateTime();
-
+		log.info("Get status history fromTime={}, toTime={}", fromTime, toTime);
 		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, null);
+		log.info("Get status history result={}", listHistoryResults);
 		PnDowntimeHistoryResponse response = new PnDowntimeHistoryResponse();
 
 		response.setResult( listHistoryResults.stream()
 				.map( downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime) )
 				.toList()
 		);
+		log.info("Resolved reponse={}", response);
 		return response;
 	}
 }
