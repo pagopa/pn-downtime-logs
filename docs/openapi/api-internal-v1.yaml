@@ -135,8 +135,8 @@ paths:
         - Downtime
       operationId: getResolved
       x-api-cachekey-parameters:
-        - name: "querystring.year"
-        - name: "querystring.month"
+        - "method.request.querystring.year"
+        - "method.request.querystring.month"
       parameters:
         - $ref: '#/components/parameters/queryYear'
         - $ref: '#/components/parameters/queryMonth'
@@ -236,7 +236,7 @@ paths:
         - Downtime
       operationId: getLegalFact
       x-api-cachekey-parameters:
-        - name: "path.legalFactId"
+        - "method.request.path.legalFactId"
       x-api-permissions:                                                                                
         - 'api-key-read'                                                                                
         - 'log-downtime-read'

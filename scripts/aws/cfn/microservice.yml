@@ -367,7 +367,7 @@ Resources:
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-downtime-logs'
         IntendedUsage: PUBLIC
-        DnsName: !Ref WebApiDnsName
+        DnsName: !Ref ApiDnsName
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ProjectName: !Ref ProjectName
         ServiceApiPath: ''
@@ -424,7 +424,7 @@ Resources:
         ProjectName: !Ref ProjectName
         MicroServiceUniqueName: !Sub ${ProjectName}-downtime-logs
         IntendedUsage: 'PUBLIC'
-        DnsName: !Ref WebApiDnsName
+        DnsName: !Ref ApiDnsName
     
   
   DowntimeLogsMicroservicePublicApiWaf:
@@ -442,7 +442,7 @@ Resources:
   APIMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      DomainName: !Ref WebApiDnsName
+      DomainName: !Ref ApiDnsName
       RestApiId: !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiId
       Stage: !Ref PublicRestApiStage
 
