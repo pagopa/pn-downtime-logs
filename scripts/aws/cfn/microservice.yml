@@ -459,7 +459,7 @@ Resources:
             - !Ref LogTableName
         RestApiStageArns: !Join
           - ','
-          - - !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/${DowntimeLogsMicroservicePublicApi.Outputs.RestApiId}/stages/${PublicRestApiStage}
+          - - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/restapis/${DowntimeLogsMicroservicePublicApi.Outputs.RestApiId}/stages/${PublicRestApiStage}'
         RestApiNames: !Join
           - ','
           - - !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.RestApiName
