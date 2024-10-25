@@ -28,10 +28,13 @@ tags:
   - name: HealthCheck
     description: >-
       Invocazioni per sapere lo stato di PN
-  - name: Read
+  - name: Status
     description: >-
       Lettura dello stato di PN, API pubbliche
-  - name: Write
+  - name: Downtime
+    description: >-
+      Invocazioni per recupero dei disservizi di PN
+  - name: DowntimeInternal
     description: >-
       Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
   - name: interopProbing
@@ -43,18 +46,18 @@ paths:
     ###                           API DI STATO RICHIESTE DA AGID                           ###
     ##########################################################################################
   
-  "/healthcheck":
-    get:
-      summary: healthCheck path
-      description: health check path per verificare lo stato del micro servizio
-      tags:
-        - HealthCheck
-      operationId: healthcheck
-      responses:
-        '200':
-          description: Ok
-        '500':
-          description: Internal Server Error  
+  "/healthcheck":                                                                                       # NO EXTERNAL
+    get:                                                                                                # NO EXTERNAL         
+      summary: healthCheck path                                                                         # NO EXTERNAL      
+      description: health check path per verificare lo stato del micro servizio                         # NO EXTERNAL
+      tags:                                                                                             # NO EXTERNAL
+        - HealthCheck                                                                                   # NO EXTERNAL
+      operationId: healthcheck                                                                          # NO EXTERNAL
+      responses:                                                                                        # NO EXTERNAL
+        '200':                                                                                          # NO EXTERNAL
+          description: Ok                                                                               # NO EXTERNAL
+        '500':                                                                                          # NO EXTERNAL
+          description: Internal Server Error                                                            # NO EXTERNAL
     ###########################################################################################
     ###                                 LETTURA DELLO STATO                                 ###
     ###########################################################################################
@@ -69,8 +72,6 @@ paths:
         /downtime/status                                                                                
       tags:                                                                                             # ONLY EXTERNAL  
         - Status                                                                                         # ONLY EXTERNAL
-  #    security:                                                                                         # ONLY EXTERNAL
-  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: status                                                                               # ONLY EXTERNAL
       responses:                                                                                        # ONLY EXTERNAL  
         '200':                                                                                          # ONLY EXTERNAL
@@ -121,33 +122,31 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
-  "/downtime/v1/status":
+  ###########################################################################################
+  ###                                 API PUBBLICHE                                       ###
+  ###########################################################################################
+
+  "/downtime/v1/resolved":
     get:
-      summary: Stato attuale
+      summary: Recupero disservizi
       description: >-
-        Metodo che restituisce l'elenco delle funzionalità di Piattaforma Notifiche e l'elenco
-        dei disservizi presenti al momento dell'invocazione.
+        Metodo che restituisce l'elenco dei disservizi risolti per l'anno e il mese selezionato.
       tags:
         - Downtime
-#      security:                                                                                         # ONLY EXTERNAL
-#        - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
-      operationId: currentStatus
-      x-api-permissions:                                                                                
-        - 'api-key-read'                                                                                
-        - 'log-downtime-read'
+      operationId: getResolved
+      x-api-cachekey-parameters:
+        - "method.request.querystring.year"
+        - "method.request.querystring.month"
+      parameters:
+        - $ref: '#/components/parameters/queryYear'
+        - $ref: '#/components/parameters/queryMonth'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                  $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"
-              example:
-                - functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
-                  openIncidents:
-                    - functionality: NOTIFICATION_CREATE
-                      status: KO
-                      startDate: "2019-08-24T14:15:22Z"
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnDowntimeHistoryResponse"
         '400':
           description: Bad request
           content:
@@ -155,41 +154,71 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
-  "/downtime/v1/history":
-    get:
-      summary: Ricerca storico disservizi
-      description: >-
-        Elenco dei disservizi di Piattafoma Notifiche riscontrate nel lasso di tempo specificato 
-        dai parametri _fromTime_ e _toTime_. <br/>
-        Il parametro _functionality_ è opzionale e ripetibile; permette di filtrare i disservizi 
-        estratti limitandoli a quelli impattanti le funzionalità elencate.
-      tags:
-        - Downtime
- #     security:                                                                                         # ONLY EXTERNAL
- #       - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
-      operationId: statusHistory
-      x-api-permissions:                                                                                
-        - 'api-key-read'                                                                                
-        - 'log-downtime-read'
-      parameters:
-        - $ref: '#/components/parameters/queryFromTime'
-        - $ref: '#/components/parameters/queryToTime'
-        - $ref: '#/components/parameters/queryFunctionality'
-        - $ref: '#/components/parameters/queryPage'
-        - $ref: '#/components/parameters/querySize'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                  $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnDowntimeHistoryResponse"
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  "/downtime/v1/status":                                                                                  # NO EXTERNAL
+    get:                                                                                                  # NO EXTERNAL
+      summary: Stato attuale                                                                              # NO EXTERNAL
+      description: >-                                                                                     # NO EXTERNAL
+        Metodo che restituisce l'elenco delle funzionalità di Piattaforma Notifiche e l'elenco            # NO EXTERNAL
+        dei disservizi presenti al momento dell'invocazione.                                              # NO EXTERNAL
+      tags:                                                                                               # NO EXTERNAL
+        - Downtime                                                                                        # NO EXTERNAL
+      operationId: currentStatus                                                                          # NO EXTERNAL
+      x-api-permissions:                                                                                  # NO EXTERNAL
+        - 'api-key-read'                                                                                  # NO EXTERNAL
+        - 'log-downtime-read'                                                                             # NO EXTERNAL
+      responses:                                                                                          # NO EXTERNAL
+        '200':                                                                                            # NO EXTERNAL
+          description: OK                                                                                 # NO EXTERNAL
+          content:                                                                                        # NO EXTERNAL
+            application/json:                                                                             # NO EXTERNAL
+              schema:                                                                                     # NO EXTERNAL
+                  $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse"            # NO EXTERNAL
+              example:                                                                                    # NO EXTERNAL
+                - functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW] # NO EXTERNAL
+                  openIncidents:                                                                          # NO EXTERNAL
+                    - functionality: NOTIFICATION_CREATE                                                  # NO EXTERNAL
+                      status: KO                                                                          # NO EXTERNAL
+                      startDate: "2019-08-24T14:15:22Z"                                                   # NO EXTERNAL
+        '400':                                                                                            # NO EXTERNAL
+          description: Bad request                                                                        # NO EXTERNAL
+          content:                                                                                        # NO EXTERNAL
+            application/problem+json:                                                                     # NO EXTERNAL
+              schema:                                                                                     # NO EXTERNAL
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                           # NO EXTERNAL
+
+  "/downtime/v1/history":                                                                                 # NO EXTERNAL
+    get:                                                                                                  # NO EXTERNAL
+      summary: Ricerca storico disservizi                                                                 # NO EXTERNAL
+      description: >-                                                                                     # NO EXTERNAL
+        Elenco dei disservizi di Piattafoma Notifiche riscontrate nel lasso di tempo specificato          # NO EXTERNAL
+        dai parametri _fromTime_ e _toTime_. <br/>                                                        # NO EXTERNAL
+        Il parametro _functionality_ è opzionale e ripetibile; permette di filtrare i disservizi          # NO EXTERNAL
+        estratti limitandoli a quelli impattanti le funzionalità elencate.                                # NO EXTERNAL
+      tags:                                                                                               # NO EXTERNAL
+        - Downtime                                                                                        # NO EXTERNAL
+      operationId: statusHistory                                                                          # NO EXTERNAL
+      x-api-permissions:                                                                                  # NO EXTERNAL
+        - 'api-key-read'                                                                                  # NO EXTERNAL
+        - 'log-downtime-read'                                                                             # NO EXTERNAL
+      parameters:                                                                                         # NO EXTERNAL
+        - $ref: '#/components/parameters/queryFromTime'                                                   # NO EXTERNAL
+        - $ref: '#/components/parameters/queryToTime'                                                     # NO EXTERNAL
+        - $ref: '#/components/parameters/queryFunctionality'                                              # NO EXTERNAL
+        - $ref: '#/components/parameters/queryPage'                                                       # NO EXTERNAL
+        - $ref: '#/components/parameters/querySize'                                                       # NO EXTERNAL
+      responses:                                                                                          # NO EXTERNAL
+        '200':                                                                                            # NO EXTERNAL
+          description: OK                                                                                 # NO EXTERNAL
+          content:                                                                                        # NO EXTERNAL
+            application/json:                                                                             # NO EXTERNAL
+              schema:                                                                                     # NO EXTERNAL
+                  $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnDowntimeHistoryResponse"   # NO EXTERNAL
+        '400':                                                                                            # NO EXTERNAL
+          description: Bad request                                                                        # NO EXTERNAL
+          content:                                                                                        # NO EXTERNAL
+            application/problem+json:                                                                     # NO EXTERNAL
+              schema:                                                                                     # NO EXTERNAL
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                           # NO EXTERNAL
 
 
     ###########################################################################################
@@ -205,9 +234,9 @@ paths:
         attendere.
       tags:
         - Downtime
-  #    security:                                                                                         # ONLY EXTERNAL
-  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
       operationId: getLegalFact
+      x-api-cachekey-parameters:
+        - "method.request.path.legalFactId"
       x-api-permissions:                                                                                
         - 'api-key-read'                                                                                
         - 'log-downtime-read'
@@ -257,40 +286,38 @@ paths:
     ###########################################################################################
     ###                                MODIFICA DELLO STATO                                 ###
     ###########################################################################################
-  "/downtime-internal/v1/events":
-    post:
-      summary: Modifica stato di servizio
-      description: >-
-        Permette di aggiungere un evento di inizio o fine di un disservizio, può essere 
-        richiamato sia dagli allarmi automatici che da GUI. Tali casi vanno discriminati 
-        con l'attributo di richiesta _sourceType_.
-      tags:
-        - DowntimeInternal
-  #    security:                                                                                         # ONLY EXTERNAL
-  #      - bearerAuth: [ ]                                                                               # ONLY EXTERNAL
-      operationId: addStatusChangeEvent
-      x-api-permissions:                                                                                
-        - 'api-key-write'                                                                                
-        - 'log-downtime-write'
-      parameters:
-        - $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusUpdateEvent"
-        required: true
-      responses:
-        '204':
-          description: OK
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  "/downtime-internal/v1/events":                                                                         # NO EXTERNAL
+    post:                                                                                                 # NO EXTERNAL
+      summary: Modifica stato di servizio                                                                 # NO EXTERNAL
+      description: >-                                                                                     # NO EXTERNAL
+        Permette di aggiungere un evento di inizio o fine di un disservizio, può essere                   # NO EXTERNAL
+        richiamato sia dagli allarmi automatici che da GUI. Tali casi vanno discriminati                  # NO EXTERNAL
+        con l'attributo di richiesta _sourceType_.                                                        # NO EXTERNAL
+      tags:                                                                                               # NO EXTERNAL
+        - DowntimeInternal                                                                                # NO EXTERNAL
+      operationId: addStatusChangeEvent                                                                   # NO EXTERNAL
+      x-api-permissions:                                                                                  # NO EXTERNAL
+        - 'api-key-write'                                                                                 # NO EXTERNAL
+        - 'log-downtime-write'                                                                            # NO EXTERNAL
+      parameters:                                                                                         # NO EXTERNAL
+        - $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'                                    # NO EXTERNAL
+      requestBody:                                                                                        # NO EXTERNAL
+        content:                                                                                          # NO EXTERNAL
+          application/json:                                                                               # NO EXTERNAL
+            schema:                                                                                       # NO EXTERNAL
+              type: array                                                                                 # NO EXTERNAL
+              items:                                                                                      # NO EXTERNAL
+                $ref: "./schemas-pn-components-v1.yaml#/components/schemas/PnStatusUpdateEvent"           # NO EXTERNAL
+        required: true                                                                                    # NO EXTERNAL
+      responses:                                                                                          # NO EXTERNAL
+        '204':                                                                                            # NO EXTERNAL
+          description: OK                                                                                 # NO EXTERNAL
+        '400':                                                                                            # NO EXTERNAL
+          description: Bad request                                                                        # NO EXTERNAL
+          content:                                                                                        # NO EXTERNAL
+            application/problem+json:                                                                     # NO EXTERNAL
+              schema:                                                                                     # NO EXTERNAL
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                           # NO EXTERNAL
 
 components:
   parameters:
@@ -298,6 +325,28 @@ components:
     ###########################################################################################
     ###                          PARAMETRI DI RICERCA DEI DOWNTIME                          ###
     ###########################################################################################
+
+    queryYear:
+      name: year
+      in: query
+      required: false
+      description: anno di ricerca dei disservizi risolti. Se non presente si intende l'anno corrente.
+      schema:
+        type: integer
+        minimum: 2023
+      example: 2024
+
+    queryMonth:
+      name: month
+      in: query
+      required: false
+      description: mese di ricerca dei disservizi risolti. Se non presente si intende il mese corrente.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 12
+      example: 3
+
     
     queryFromTime:
       name: fromTime
