@@ -142,11 +142,10 @@ public class AppControllerAdvice {
 		problem.setTraceId(MDC.get(Constants.TRACE_ID_PLACEHOLDER));
 		problem.setErrors(new ArrayList<>());
 		if (message != null) {
-			String awsMessage = message.substring(message.indexOf("["));
 			try {
 				Type awsErrorsTypeList = new TypeToken<List<AwsSafeStorageErrorDto>>() {
 				}.getType();
-				List<AwsSafeStorageErrorDto> awsErrors = new Gson().fromJson(awsMessage, awsErrorsTypeList);
+				List<AwsSafeStorageErrorDto> awsErrors = new Gson().fromJson(message, awsErrorsTypeList);
 				for (AwsSafeStorageErrorDto errorAws : awsErrors) {
 					for (String specificError : errorAws.getErrorList()) {
 						ProblemError error = new ProblemError();

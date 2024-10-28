@@ -456,7 +456,7 @@ public abstract class AbstractMock {
 	protected void mockLegalFactIdError(RestTemplate client) {
 		Mockito.when(fileDownloadApi.getFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
-						"403 Forbidden: [{\"resultDescription\": \"Unauthorized\", \"errorList\": [\"client is not allowed to read doc type PROVA\"], \"resultCode\": \"403.00\"}]"));
+						"404 Not Found: \"{\"timestamp\":\"2024-10-28T14:02:09.108+00:00\",\"path\":\"/safe-storage/v1/files/PN_DOWNTIME_LEGAL_FACTS-8edac42efd04046ae5d520e5ba4a9a.pdf\",\"status\":404,\"error\":\"Not Found\",\"message\":\"Document key not found : PN_DOWNTIME_LEGAL_FACTS-8edac42efd04046ae5d520e5ba4a9a.pdf\",\"requestId\":\"3dbbdc26-2292\"}\""));
 	}
 
 	@SuppressWarnings("unchecked")
