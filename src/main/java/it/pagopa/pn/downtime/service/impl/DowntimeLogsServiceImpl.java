@@ -146,7 +146,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 				.withIndexName(historyIndex).withKeyConditionExpression("history =:history1")
 				.withFilterExpression(filter).withScanIndexForward(false).withConsistentRead(false)
 				.withExpressionAttributeValues(attributes);
-		log.info("Query expression{}", queryExpression.toString());
+		log.info("Query expression filter={}", filter);
 
 		listHistory = dynamoDBMapper.query(DowntimeLogs.class, queryExpression);
 
