@@ -211,7 +211,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 		MockHttpServletResponse response = mvc.perform(get(legalFactIdUrl.concat("PN_DOWNTIME_LEGAL_FACTS-NOT-EXISTS")))
 				.andReturn().getResponse();
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 	}
 
 	@Test

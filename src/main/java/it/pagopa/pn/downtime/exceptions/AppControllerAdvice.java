@@ -107,10 +107,10 @@ public class AppControllerAdvice {
 	}
 
 	@ExceptionHandler(value = { HttpClientErrorException.class })
-	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<Object> httpClientErrorException(HttpServletRequest request, RuntimeException ex) {
-		return new ResponseEntity<>(createProblemAmazonAws(HttpStatus.UNAUTHORIZED, ex, ex.getMessage(), request),
-				new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(createProblemAmazonAws(HttpStatus.BAD_REQUEST, ex, ex.getMessage(), request),
+				new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(value = { HttpRequestMethodNotSupportedException.class })
