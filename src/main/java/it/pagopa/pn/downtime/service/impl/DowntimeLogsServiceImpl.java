@@ -66,7 +66,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 				+ (toTime != null ? toTime.toString() : "") + " functionality: "
 				+ (functionality != null ? functionality.toString() : "") + " page: " + page + " size: " + size);
 
-		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, functionality);
+		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, functionality, false);
 
 		Page<DowntimeLogs> pageHistory = null;
 
@@ -112,7 +112,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 	 * @return the combined results of the queries
 	 */
 	public List<DowntimeLogs> getStatusHistoryResults(OffsetDateTime fromTime, OffsetDateTime toTime,
-			List<PnFunctionality> functionality) {
+			List<PnFunctionality> functionality, boolean resolvedOnly) {
 
 		List<DowntimeLogs> listHistory = new ArrayList<>();
 
@@ -134,8 +134,15 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 		String filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ")";
 		if (toTime != null) {
 			attributes.put(":endDate1", new AttributeValue().withS(toTime.toString()));
-			filter = filter.concat(
-					" and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or endDate BETWEEN :startDate1 AND :endDate1 or (startDateAttribute < :startDate1 and (endDate > :endDate1 or attribute_not_exists(endDate))))");
+			if(!resolvedOnly) {
+				filter = filter.concat(
+						" and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or endDate BETWEEN :startDate1 AND :endDate1 or (startDateAttribute < :startDate1 and (endDate > :endDate1 or attribute_not_exists(endDate))))");
+			} else {
+				filter = filter.concat(
+						" and (endDate BETWEEN :startDate1 AND :endDate1)"
+				);
+			}
+
 		} else {
 			filter = filter.concat(
 					" and  (startDateAttribute > :startDate1 or endDate > :startDate1 or (startDateAttribute < :startDate1 and attribute_not_exists(endDate)))");
@@ -254,7 +261,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 				PnFunctionality.NOTIFICATION_WORKFLOW,
 				PnFunctionality.NOTIFICATION_VISUALIZATION
 		);
-		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, allFunctionalities);
+		List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, allFunctionalities, true);
 		PnDowntimeHistoryResponse response = new PnDowntimeHistoryResponse();
 
 		response.setResult( listHistoryResults != null ? listHistoryResults.stream()
