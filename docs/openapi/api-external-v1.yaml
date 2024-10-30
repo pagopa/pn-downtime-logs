@@ -18,25 +18,19 @@ info:
     name: Licenza di PN
     url: 'https://da-definire/'
 servers:
-- url: https://api.pn.pagopa.it
+- url: https://api.notifichedigitali.it
   description: Ambiente di produzione
-- url: https://api.uat.pn.pagopa.it
+- url: https://api.uat.notifichedigitali.it
   description: Ambiente di test
-- url: https://api.dev.pn.pagopa.it
+- url: https://api.dev.notifichedigitali.it
   description: Ambiente di sviluppo
 tags:
-  - name: HealthCheck
-    description: >-
-      Invocazioni per sapere lo stato di PN
   - name: Status
     description: >-
       Lettura dello stato di PN, API pubbliche
   - name: Downtime
     description: >-
       Invocazioni per recupero dei disservizi di PN
-  - name: DowntimeInternal
-    description: >-
-      Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
   - name: interopProbing
     description: >-
       Invocazioni per sapere lo stato dell'E-service
