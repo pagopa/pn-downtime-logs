@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: vs39rL4CfSym4FCZ6eOsHYJ7jOxEfdMTll0KhEFK5Og=
+  version: hNQLANebOQChvItmINfkCZ5Ln++wSbGAcDTVjMhRuTw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -579,14 +579,10 @@ components:
   responses: {}
   securitySchemes: {}
 tags:
-  - name: HealthCheck
-    description: Invocazioni per sapere lo stato di PN
   - name: Status
     description: Lettura dello stato di PN, API pubbliche
   - name: Downtime
     description: Invocazioni per recupero dei disservizi di PN
-  - name: DowntimeInternal
-    description: Aggiornamento dello stato di PN, API sottoposte ad autenticazione.
   - name: interopProbing
     description: Invocazioni per sapere lo stato dell'E-service
 x-amazon-apigateway-gateway-responses:
