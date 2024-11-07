@@ -1,5 +1,6 @@
 package it.pagopa.pn.downtime;
 
+
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import freemarker.template.Version;
@@ -27,7 +28,7 @@ public class LegalFactGeneratorTest {
         LegalFactGenerator legalFactGenerator = new LegalFactGenerator(documentComposition);
 
         // Read the HTML template
-        Path htmlTemplatePath = Paths.get("src/main/resources/documents_composition_templates/PdfLegalFact.html");
+        Path htmlTemplatePath = Paths.get("src/main/resources/documents_composition_templates/LegalFactMalfunction.html");
 
         //Generate downtime
         DowntimeLogs downtime = new DowntimeLogs();
@@ -46,7 +47,7 @@ public class LegalFactGeneratorTest {
         assertTrue(result.length > 0);
 
         // Save PDF to file
-        String outputPath = "target/generated-test-sources/test_LegalFact.pdf";
+        String outputPath = "target/generated-test-sources/test_LegalFactMalfunction.pdf";
         try (FileOutputStream fos = new FileOutputStream(outputPath)) {
             fos.write(result);
         }
