@@ -16,20 +16,20 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 @Configuration
 @EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
 public class DynamoDBConfig {
-	
-	public DynamoDBConfig(AwsConfig props) {
+
+	public DynamoDBConfig(AwsConfigsActivation props) {
 		this.props = props;
 	}
 
-	private final AwsConfig props;
-	
+	private final AwsConfigsActivation props;
+
 	@Value("${amazon.dynamodb.accesskey}")
 	private String amazonAWSAccessKey;
 
 	@Value("${amazon.dynamodb.secretkey}")
 	private String amazonAWSSecretKey;
 
-	
+
 	@Bean
 	public AmazonDynamoDB amazonDynamoDBLog() {
 		if (StringUtils.isNotBlank(props.getEndpointUrl()) && StringUtils.isNotBlank(props.getRegionCode())) {
@@ -45,10 +45,10 @@ public class DynamoDBConfig {
 			return AmazonDynamoDBClientBuilder.standard().build();
 		}
 	}
-	
+
 	private AWSCredentialsProvider awsCredentialsProvider() {
 		return new AWSStaticCredentialsProvider(new BasicAWSCredentials(amazonAWSAccessKey, amazonAWSSecretKey));
 	}
-	
+
 
 }
