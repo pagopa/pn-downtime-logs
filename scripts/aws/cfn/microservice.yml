@@ -439,7 +439,7 @@ Resources:
         EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   # Expose API to custom domain
-  APIMapping:
+  PagoPaMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
       DomainName: !Ref ApiDnsName
