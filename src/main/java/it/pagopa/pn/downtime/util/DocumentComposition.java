@@ -26,7 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 public class DocumentComposition {
 
 	public enum TemplateType {
-		LEGAL_FACT("documents_composition_templates/PdfLegalFact.html");
+		LEGAL_FACT("documents_composition_templates/LegalFactMalfunction.html"),
+		LEGAL_FACT_DE("documents_composition_templates/LegalFactMalfunction_de.html"),
+		LEGAL_FACT_FR("documents_composition_templates/LegalFactMalfunction_fr.html"),
+		LEGAL_FACT_SL("documents_composition_templates/LegalFactMalfunction_sl.html");
 
 		private final String htmlTemplate;
 
