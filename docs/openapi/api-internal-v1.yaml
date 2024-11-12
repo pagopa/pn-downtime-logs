@@ -5,13 +5,61 @@ info:
   x-summary: 'Stato della piattaforma PN'
   version: '1.0.0'
   description: >- 
-    Queste API permettono:<br/>
-    - la visualizzazione dello stato dei servizi di Piattaforma Notifiche 
-    e dello storico dei disservizi; per ogni disservizio è possibile scaricare il corrispondente
-    atto opponibile a terzi corrispondente. <br/>
-    - l'inserimento di eventi di inizio o fine di un disservizio utile in quei casi in cui il 
-    sistema automatico non rivela il problema. <br/>
-    __N.B.:__ gli atti opponibili a terzi vengono generati solo per i disservizi conclusi.
+      ## Abstract
+        Queste API vengono utilizzate dai soggetti abilitati all’utilizzo della piattaforma SEND e consentono di:  
+      - Visualizzare lo stato dei servizi di SEND e consultare lo storico dei disservizi; per ogni disservizio è possibile scaricare l'atto opponibile a terzi relativo.
+      
+      - Registrare eventi di inizio o fine di un disservizio, utile nei casi in cui il sistema automatico non rilevi il problema.
+    
+      
+      Nota: gli atti opponibili a terzi sono generati solo per i disservizi che sono stati risolti.
+    
+      # API
+      
+      Le API messe a disposizione sono le seguenti:
+    
+      ## STATUS stato di SEND, API pubbliche
+      
+      ### operationId: status
+      
+      - **GET /status**: La seguente API non presenta nessun query params ed ha lo scopo   di verificare se, al momento della chiamata all’API, sono presenti dei disservizi su SEND.
+      
+        - In caso di nessuna anomalia verrà fornito 200 con l’elenco delle funzionalità attive su SEND.
+      
+        - In caso di anomalie, invece, verrà fornito 500 con l’elenco dei disservizi nel campo “openIncidents”.
+    
+      ## DOWNTIME recupero disservizi di SEND
+      
+      Le seguenti API vengono utilizzate per vedere la presenza di eventuali disservizi     risolti in un dato periodo ed ottenere l’atto opponibile a terzi relativo     al disservizio.
+    
+      1. **Recupera il legalFactId**: Invia una richiesta a **GET /downtime/v1/resolved** per ottenere l'elenco dei disservizi risolti. Troverai il `legalFactId` associato al disservizio.
+      
+      2. **Ottieni informazioni sull'atto**: Utilizza il `legalFactId` con la chiamata **GET /downtime/v1/legal-facts/{legalFactId}** per ricevere i dettagli dell'atto, compreso l'URL per il download. Se l'atto è ancora in archivio, l'API fornirà una stima del tempo di attesa.
+    
+      ## Le API messe a disposizione sono:
+    
+      ### operationId: getResolved
+    
+      - **GET /downtime/v1/resolved**:  
+      La seguente API restituisce l’elenco dei disservizi risolti per l’anno ed il mese indicati nei query params `year` e `month` (NOTA: Se non vengono valorizzati i query params si intendono l’anno e/o il mese corrente).
+      
+        - In caso di disservizi presenti viene restituita un elenco con tutti i disservizi risolti nell’anno e mese selezionati e gli identificativi univoci degli atti disponibili nel campo `legalFactId`.
+      
+        - In caso non sia presente nessun disservizio risolto nell’anno e mese selezionato, allora verrà restituita una lista vuota.
+        
+      ### operationId: getLegalFact
+    
+      - **GET /downtime/v1/legal-facts/{legalFactId}**:  
+      La seguente API fornisce le informazioni necessarie a scaricare un atto opponibile a terzi o, se tale atto deve essere recuperato dagli archivi, fornisce una stima per eccesso di quanti secondi bisogna attendere. Il `legalFactId` deve essere inserito nel query param ed è possibile ottenerlo dalla chiamata all’API **GET /downtime/v1/resolved**.
+        - Nel caso in cui l’atto opponibile fornito sia già presente verranno restituite le informazioni necessarie a scaricarlo compreso l’URL a S3.
+        - Nel caso in cui l’atto opponibile debba essere recuperato dagli archivi, verrà fornita una stima di quanti secondi bisogna attendere nel campo `retryAfter`.
+  
+      ## interopProbing API per ottenere lo stato dell’E-service
+    
+      ### operationId: getEserviceStatus
+      
+      - **GET /interop/probing**: La chiamata alla seguente API restituisce 200 nel caso in cui l’E-service di SEND non presenta alcun disservizio. Al contrario, restituisce 500 nel caso in cui sia presente un disservizio.
+      
   contact:
     email: pn@pagopa.it
   license:
