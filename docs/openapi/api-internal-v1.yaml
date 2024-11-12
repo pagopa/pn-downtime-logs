@@ -8,8 +8,6 @@ info:
       ## Abstract
         Queste API vengono utilizzate dai soggetti abilitati all’utilizzo della piattaforma SEND e consentono di:  
       - Visualizzare lo stato dei servizi di SEND e consultare lo storico dei disservizi; per ogni disservizio è possibile scaricare l'atto opponibile a terzi relativo.
-      
-      - Registrare eventi di inizio o fine di un disservizio, utile nei casi in cui il sistema automatico non rilevi il problema.
     
       
       Nota: gli atti opponibili a terzi sono generati solo per i disservizi che sono stati risolti.
