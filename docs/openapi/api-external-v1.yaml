@@ -7,10 +7,14 @@ info:
   description: >- 
       ## Abstract
         Queste API vengono utilizzate dai soggetti abilitati all’utilizzo della piattaforma SEND e consentono di:  
-      - Visualizzare lo stato dei servizi di SEND e consultare lo storico dei disservizi; per ogni disservizio è possibile scaricare l'atto opponibile a terzi relativo.
+      - Visualizzare lo stato dei servizi di SEND,
+      
+      - Consultare lo storico dei disservizi,
+      
+      - Per ogni disservizio è possibile scaricare l'atto opponibile a terzi relativo.
     
       
-      Nota: gli atti opponibili a terzi sono generati solo per i disservizi che sono stati risolti.
+      NOTA: gli atti opponibili a terzi sono generati solo per i disservizi che sono stati risolti.
     
       # API
       
@@ -24,7 +28,12 @@ info:
       
         - In caso di nessuna anomalia verrà fornito 200 con l’elenco delle funzionalità attive su SEND.
       
-        - In caso di anomalie, invece, verrà fornito 500 con l’elenco dei disservizi nel campo “openIncidents”.
+        - In caso di anomalie, invece, verrà fornito 500 con l’elenco dei disservizi nel campo “openIncidents”:
+            - NOTIFICATION_CREATE: la possibilità di creare nuove notifiche
+            
+            - NOTIFICATION_VISUALIZATION: la possibilità di visualizzare le notifiche e scaricare gli atti.
+            
+            - NOTIFICATION_WORKFLOW: l'avanzamento del processo di notifica.
     
       ## DOWNTIME recupero disservizi di SEND
       
@@ -56,7 +65,7 @@ info:
     
       ### operationId: getEserviceStatus
       
-      - **GET /interop/probing**: La chiamata alla seguente API restituisce 200 nel caso in cui l’E-service di SEND non presenta alcun disservizio. Al contrario, restituisce 500 nel caso in cui sia presente un disservizio.
+      - **GET /interop/probing**: La chiamata alla seguente API, usata esclusivamente in PDND interoperabilità, restituisce 200 nel caso in cui l’E-service non presenta alcun disservizio. Al contrario, restituisce 500 nel caso in cui sia presente un disservizio.
       
   contact:
     email: pn@pagopa.it
