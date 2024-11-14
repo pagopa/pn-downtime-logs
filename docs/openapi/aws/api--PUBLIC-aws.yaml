@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hNQLANebOQChvItmINfkCZ5Ln++wSbGAcDTVjMhRuTw=
+  version: hDIAzE4at3QG+ZNO2FEehM1eZY2lPi0gZYPm+H/whQY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -92,16 +92,18 @@ paths:
         type: http_proxy
   /interop/probing:
     get:
-      summary: Provides the status of the E-Service
+      summary: Recupero stato E-service PDND
       description: >-
-        Metodo che restituisce lo stato dell'E-service al probing di
-        interoperabilita
+        Metodo che restituisce lo stato dell'E-service di PDND
+        interoperabilità:                    
+          - status 200 se i servizi sono correttamente funzionanti, <br/>                    
+          - status 500 se i servizi non sono correttamente funzionanti. <br/>
       tags:
         - interopProbing
       operationId: getEserviceStatus
       responses:
         '200':
-          description: The e-service is up and running
+          description: The E-service is up and running
         '500':
           description: A managed error has occured during the request elaboration
           content:
@@ -580,11 +582,11 @@ components:
   securitySchemes: {}
 tags:
   - name: Status
-    description: Lettura dello stato di PN, API pubbliche
+    description: Lettura dello stato di SEND, API pubbliche
   - name: Downtime
-    description: Invocazioni per recupero dei disservizi di PN
+    description: Invocazioni per recupero dei disservizi di SEND
   - name: interopProbing
-    description: Invocazioni per sapere lo stato dell'E-service
+    description: Invocazioni per sapere lo stato dell'E-service di PDND Interoprabilità
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:
