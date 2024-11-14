@@ -29,11 +29,11 @@ info:
         - In caso di nessuna anomalia verrà fornito 200 con l’elenco delle funzionalità attive su SEND.
       
         - In caso di anomalie, invece, verrà fornito 500 con l’elenco dei disservizi nel campo “openIncidents”:
-            - NOTIFICATION_CREATE: la possibilità di creare nuove notifiche
+            - `NOTIFICATION_CREATE`: la possibilità di creare nuove notifiche
             
-            - NOTIFICATION_VISUALIZATION: la possibilità di visualizzare le notifiche e scaricare gli atti.
+            - `NOTIFICATION_VISUALIZATION`: la possibilità di visualizzare le notifiche e scaricare gli atti.
             
-            - NOTIFICATION_WORKFLOW: l'avanzamento del processo di notifica.
+            - `NOTIFICATION_WORKFLOW`: l'avanzamento del processo di notifica.
     
       ## DOWNTIME recupero disservizi di SEND
       
@@ -94,7 +94,7 @@ tags:
       Aggiornamento dello stato di PN, API sottoposte ad autenticazione.    # NO EXTERNAL
   - name: interopProbing
     description: >-
-      Invocazioni per sapere lo stato dell'E-service
+      Invocazioni per sapere lo stato dell'E-service di PDND Interoprabilità
 
 paths:
     ##########################################################################################
@@ -161,15 +161,17 @@ paths:
   ###########################################################################################
   "/interop/probing":
     get:
-      summary: Provides the status of the E-Service
+      summary: Recupero stato E-service PDND
       description: >-
-        Metodo che restituisce lo stato dell'E-service al probing di interoperabilita
+        Metodo che restituisce lo stato dell'E-service di PDND interoperabilità:                    
+          - status 200 se i servizi sono correttamente funzionanti, <br/>                    
+          - status 500 se i servizi non sono correttamente funzionanti. <br/>
       tags:
         - interopProbing
       operationId: getEserviceStatus
       responses:
         '200':
-          description: The e-service is up and running
+          description: The E-service is up and running
         '500':
           description: A managed error has occured during the request elaboration
           content:
@@ -446,11 +448,4 @@ components:
       description: Size della pagina di risultati a cui il client è interessato
       schema:
         type: string
-#  securitySchemes:           # ONLY EXTERNAL                           
-#    bearerAuth:              # ONLY EXTERNAL                           
-#      type: http             # ONLY EXTERNAL                           
-#      scheme: Bearer         # ONLY EXTERNAL                         
-#      description: JWT       # ONLY EXTERNAL                         
-#security:                    # ONLY EXTERNAL                         
-# - bearerAuth: []            # ONLY EXTERNAL                         
-    
+
