@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   termsOfService: https://termofservice.it
-  title: 'Stato della piattaforma PN'
-  x-summary: 'Stato della piattaforma PN'
+  title: 'Stato della piattaforma SEND'
+  x-summary: 'Stato della piattaforma SEND'
   version: '1.0.0'
   description: >- 
       ## Abstract
@@ -70,7 +70,7 @@ info:
   contact:
     email: pn@pagopa.it
   license:
-    name: Licenza di PN
+    name: Licenza di SEND
     url: 'https://da-definire/'
 servers:
 - url: https://api.notifichedigitali.it
@@ -82,16 +82,16 @@ servers:
 tags:
   - name: HealthCheck                               # NO EXTERNAL
     description: >-                                 # NO EXTERNAL
-      Invocazioni per sapere lo stato di PN         # NO EXTERNAL
+      Invocazioni per sapere lo stato di SEND         # NO EXTERNAL
   - name: Status
     description: >-
-      Lettura dello stato di PN, API pubbliche
+      Lettura dello stato di SEND, API pubbliche
   - name: Downtime
     description: >-
-      Invocazioni per recupero dei disservizi di PN
+      Invocazioni per recupero dei disservizi di SEND
   - name: DowntimeInternal                                                  # NO EXTERNAL
     description: >-                                                         # NO EXTERNAL
-      Aggiornamento dello stato di PN, API sottoposte ad autenticazione.    # NO EXTERNAL
+      Aggiornamento dello stato di SEND, API sottoposte ad autenticazione.    # NO EXTERNAL
   - name: interopProbing
     description: >-
       Invocazioni per sapere lo stato dell'E-service di PDND Interoprabilità
