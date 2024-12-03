@@ -6,6 +6,9 @@
     "MaxTasksNumber": "5",
     "AutoscalingThreshold": "16000",
     "HealthyThresholdCount": "2",
-    "EnhancedWebSecurityEnabled": "true"
+    "EnhancedWebSecurityEnabled": "true",
+    "PnCronAnalyzer": "* */1 * * * *",
+    "WireTapLogActivation": "false",
+    "MountEfs": "false"
   }
 }

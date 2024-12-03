@@ -140,6 +140,32 @@ Parameters:
     Type: String
     Description: age alarm queue ARN
 
+  # Logging parameters
+  WireTapLogActivation:
+    Type: String
+    Default: false
+    Description: Activation of wire logs
+    AllowedValues:
+      - true
+      - false
+
+  PnCronAnalyzer:
+    Type: String
+    Default: '-'
+    Description: Cron for which you send the metric to CloudWatch
+
+  # EFS parameters
+  FargateEFSFileSystemID:
+    Type: String
+    Description: "EFS Filesystem"
+
+  MountEfs:
+    Type: String
+    Default: false
+    AllowedValues:
+      - "true"
+      - "false"
+
   SchedulerLegalfactidActive:
     Type: String
     
@@ -300,6 +326,9 @@ Resources:
         AutoscalingDataPointN: !Ref AutoscalingDataPointN
         AutoscalingDataPointM: !Ref AutoscalingDataPointM
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        EfsFilesystem: !Ref FargateEFSFileSystemID
+        MountEfs: !Ref MountEfs
+        WireTapLogActivation: !Ref WireTapLogActivation
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PN_DOWNTIMELOGS_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
@@ -316,6 +345,9 @@ Resources:
         ContainerEnvEntry13: !Sub 'PN_DOWNTIMELOGS_LEGALFACTAVAILABLE_ENDPOINT=${DowntimeLogsSafeStorageEventsQueueURL}'     
         ContainerEnvEntry14: 'PN_DOWNTIMELOGS_SAFESTORAGE_RESERVEFILE=/safe-storage/v1/files'
         ContainerEnvEntry15: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry16: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry17: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
+
         MappedPaths: '/downtime/*,/downtime-internal/*,/status,/interop/probing'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds

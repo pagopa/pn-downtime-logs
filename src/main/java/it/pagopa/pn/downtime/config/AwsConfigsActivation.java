@@ -1,16 +1,11 @@
 package it.pagopa.pn.downtime.config;
 
+import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@ConfigurationProperties("aws")
-@Getter
-@Setter
 @Configuration
-public class AwsConfig {
-	private String regionCode;
-	private String endpointUrl;
+@ConfigurationProperties("aws")
+public class AwsConfigsActivation extends AwsConfigs {
+
 }
