@@ -8,7 +8,7 @@
     "HealthyThresholdCount": "2",
     "EnhancedWebSecurityEnabled": "true",
     "PnCronAnalyzer": "* */1 * * * *",
-    "WireTapLogActivation": "false",
-    "MountEfs": "false"
+    "WireTapLogActivation": "true",
+    "MountEfs": "true"
   }
 }
