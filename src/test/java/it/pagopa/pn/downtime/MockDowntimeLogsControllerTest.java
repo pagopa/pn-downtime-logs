@@ -10,6 +10,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.pagopa.pn.downtime.config.LegalFactGeneratorTestConfiguration;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
@@ -38,7 +40,7 @@ import it.pagopa.pn.downtime.service.LegalFactService;
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
-
+@Import(LegalFactGeneratorTestConfiguration.class)
 public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	@Autowired
