@@ -8,6 +8,7 @@ import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileC
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileCreationResponse;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileDownloadResponse;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.service.LegalFactService;
 import lombok.CustomLog;
@@ -71,7 +72,7 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Autowired
 	private ApiClient api;
 
-	private it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator legalFactGenerator;
+	private final LegalFactGenerator legalFactGenerator;
 
 	/** The Constant PAGOPA_SAFESTORAGE_HEADER. */
 	private static final String PAGOPA_SAFESTORAGE_HEADER = "x-pagopa-safestorage-cx-id";
