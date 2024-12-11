@@ -20,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.OffsetDateTime;
@@ -37,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(properties = {"pn.downtime-logs.enable-templates-engine=false"})
 public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	@Autowired
@@ -59,7 +61,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("functionalities");
 		assertThat(response.getContentAsString()).contains("openIncidents");
 	}
-	
+
 	@Test
 	public void callCurrentStatusError() throws Exception {
 		mockStatusError();
@@ -94,7 +96,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	public void test_CheckHistoryStatus(boolean toTime) throws Exception {
 		mockHistoryStatus(client);
 		List<PnFunctionality> functionality = List.of(PnFunctionality.NOTIFICATION_CREATE, PnFunctionality.NOTIFICATION_WORKFLOW, PnFunctionality.NOTIFICATION_VISUALIZATION);
-		
+
 		MockHttpServletResponse response = null;
 		if (!toTime) {
 			response = mvc
@@ -112,7 +114,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 		assertThat(response.getContentAsString()).contains("result");
 		assertThat(response.getContentAsString()).contains("functionality");
 	}
-	
+
 	/**
 	 * Two downtimeLogs with startDate between fromDate and toDate
 	 */
@@ -223,8 +225,8 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	/** jUnit test for the /addStatusChange service */
 
-	/** 
-	 * A KO event arrives and there is no other open 
+	/**
+	 * A KO event arrives and there is no other open
 	 */
 	@Test
 	public void test_CheckAddStatusChangeKOWithEndDate() throws Exception {
@@ -235,34 +237,34 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
 				List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
-		
+
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
-		
+
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
 	}
-	
-	/** 
-	 * A KO event arrives and there is other open 
+
+	/**
+	 * A KO event arrives and there is other open
 	 */
 	@Test
 	public void test_CheckAddStatusChangeKONoEndDate() throws Exception {
 		mockAddStatusChange_KO(client);
 		mockFindByFunctionalityAndStartDateLessThanEqualNoEndDate();
 		mockSaveEvent();
-		
+
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
 				List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
-		
+
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
-		
+
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
 	}
 
 	public void test_CheckAddStatusChange() throws Exception {
 		mockAddStatusChange_OK(client);
-		
+
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
 				List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
@@ -273,30 +275,30 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	@Test
 	public void test_CheckAddStatusChangeKO_GivenFutureDowntimeOpen() throws Exception {
 		mockFindOpenDowntimeFuture();
-		
+
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-27T15:55:15.995Z"),
 				List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
-		
+
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
-		
+
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
 	}
-	
+
 	@Test
 	public void test_CheckAddStatusChangeKO_whenDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists() throws Exception {
 		mockFindDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists();
-		
+
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
 				List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.KO, SourceTypeEnum.ALARM, "ALARM");
-		
+
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
-		
+
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
 	}
-	/** 
-	 * An OK event arrives and there is a KO event open 
+	/**
+	 * An OK event arrives and there is a KO event open
 	 */
 	@Test
 	public void test_CheckAddStatusChangeOK() throws Exception {
@@ -310,16 +312,16 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	@Test
 	public void test_CheckAddStatusChangeOK_givenFindNextDowntimeLogsResultNotEmpty() throws Exception {
 		mockFindNextDowntimeLogsNotEmpty();
-		
+
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T16:55:15.995Z"),
 				List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.CONFLICT.value());
 	}
-	
-	/** 
-	 * An OK event arrives and there is a KO event open from the previous year 
+
+	/**
+	 * An OK event arrives and there is a KO event open from the previous year
 	 */
 	@Test
 	public void test_CheckAddStatusChangeOKAfterYear() throws Exception {
@@ -330,23 +332,23 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 		test_CheckAddStatusChange();
 	}
 
-	/** 
-	 * An OK event arrives and there is a KO event already closed 
+	/**
+	 * An OK event arrives and there is a KO event already closed
 	 */
 	@Test
 	public void test_CheckAddStatusChangeOKError() throws Exception {
 		mockAddStatusChange_OK(client);
 		mockAddStatusChangeOKError();
-		
+
 		String pnStatusUpdateEvent = getPnStatusUpdateEvent(OffsetDateTime.parse("2023-04-05T15:06:47.327907Z"),
 				 List.of(PnFunctionality.NOTIFICATION_CREATE), PnFunctionalityStatus.OK, SourceTypeEnum.OPERATOR, "OPERATOR");
-		
+
 		MockHttpServletResponse response = mvc.perform(post(eventsUrl).content(pnStatusUpdateEvent)
 				.contentType(APPLICATION_JSON_UTF8).header("x-pagopa-pn-uid", "PAGO-PA-OK")).andReturn().getResponse();
-		
+
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
 	}
-	
+
 	@Test
 	public void test_CloudwatchMapper() {
 		Alarm alarm = new Alarm();
