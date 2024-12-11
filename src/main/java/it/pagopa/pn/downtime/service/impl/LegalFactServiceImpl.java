@@ -1,29 +1,6 @@
 package it.pagopa.pn.downtime.service.impl;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
-import freemarker.template.Version;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.api.FileDownloadApi;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.api.FileUploadApi;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.client.ApiClient;
@@ -33,10 +10,24 @@ import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileD
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.service.LegalFactService;
-import it.pagopa.pn.downtime.util.DocumentComposition;
-import it.pagopa.pn.downtime.util.LegalFactGenerator;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +70,8 @@ public class LegalFactServiceImpl implements LegalFactService {
 	
 	@Autowired
 	private ApiClient api;
+
+	private it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator legalFactGenerator;
 
 	/** The Constant PAGOPA_SAFESTORAGE_HEADER. */
 	private static final String PAGOPA_SAFESTORAGE_HEADER = "x-pagopa-safestorage-cx-id";
@@ -209,13 +202,8 @@ public class LegalFactServiceImpl implements LegalFactService {
 	@Override
 	public DowntimeLogs generateLegalFact(DowntimeLogs downtime)
 			throws IOException, NoSuchAlgorithmException, TemplateException {
-		Configuration freemarker = new Configuration(new Version(2, 3, 0)); // Version is a final class
-		DocumentComposition documentComposition = new DocumentComposition(freemarker);
-		LegalFactGenerator legalFactGenerator = new LegalFactGenerator(documentComposition);
-		byte[] file = legalFactGenerator.generateLegalFact(downtime);
+		byte[] file = legalFactGenerator.generateMalfunctionLegalFact(downtime);
 		reserveUploadFile(file, downtime);
 		return downtime;
-
 	}
-
 }
