@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.OffsetDateTime;
@@ -29,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
-@TestPropertySource(properties = {"pn.downtime-logs.enable-templates-engine=false"})
 public class MessageSQSConsumerTest extends AbstractMock {
 
 	@Autowired
@@ -80,6 +78,7 @@ public class MessageSQSConsumerTest extends AbstractMock {
 	@Test
 	public void test_messageMockActsQueueReceiver() throws Throwable {
 		mockAddStatusChange_OK(client);
+		mockTemplatesClientBehavior();
 
 		String messageActsQueue = getMessageActsQueueFromResource();
 		mockDowntimeLogsReceiver.receiveStringMessage(messageActsQueue);
