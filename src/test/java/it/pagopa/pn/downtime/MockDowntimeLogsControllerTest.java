@@ -1,16 +1,13 @@
 package it.pagopa.pn.downtime;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import it.pagopa.pn.downtime.config.LegalFactGeneratorTestConfiguration;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.model.Alarm;
+import it.pagopa.pn.downtime.model.DowntimeLogs;
+import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
+import it.pagopa.pn.downtime.service.LegalFactService;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,27 +17,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
-import it.pagopa.pn.downtime.model.Alarm;
-import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
-import it.pagopa.pn.downtime.service.LegalFactService;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
-@Import(LegalFactGeneratorTestConfiguration.class)
 public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	@Autowired
