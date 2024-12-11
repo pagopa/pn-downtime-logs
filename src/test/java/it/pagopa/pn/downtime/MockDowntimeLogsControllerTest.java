@@ -20,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.OffsetDateTime;
@@ -37,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(properties = {"pn.downtime-logs.enable-templates-engine=false"})
 public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	@Autowired
@@ -215,7 +217,6 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	@Test
 	public void test_GenerateLegalFact() throws Exception {
 		mockAddStatusChange_OK(client);
-		mockTemplatesClientBehavior();
 		DowntimeLogs downtime = getDowntimeLogs("NOTIFICATION_CREATE2022",
 				OffsetDateTime.parse("2022-08-28T08:55:15.995Z"), PnFunctionality.NOTIFICATION_CREATE, "EVENT",
 				"akdocdfe-50403", OffsetDateTime.parse("2022-08-28T08:55:15.995Z"));
