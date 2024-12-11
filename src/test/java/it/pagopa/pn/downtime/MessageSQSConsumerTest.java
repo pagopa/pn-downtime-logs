@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.OffsetDateTime;
 
+import it.pagopa.pn.downtime.config.LegalFactGeneratorTestConfiguration;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -24,12 +26,13 @@ import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.service.LegalFactService;
 
+
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
-
+@Import(LegalFactGeneratorTestConfiguration.class)
 public class MessageSQSConsumerTest extends AbstractMock {
 
 	@Autowired
@@ -46,6 +49,7 @@ public class MessageSQSConsumerTest extends AbstractMock {
 
 	@Autowired
 	ObjectMapper mapper;
+
 
 	@Test
 	public void test_messageMockCloudwatchReceiver() throws Throwable {
@@ -79,6 +83,7 @@ public class MessageSQSConsumerTest extends AbstractMock {
 	@Test
 	public void test_messageMockActsQueueReceiver() throws Throwable {
 		mockAddStatusChange_OK(client);
+
 		String messageActsQueue = getMessageActsQueueFromResource();
 		mockDowntimeLogsReceiver.receiveStringMessage(messageActsQueue);
 
