@@ -25,11 +25,7 @@ class TemplatesClientTest {
     void testMalfunctionLegalFact_Success() {
         // Arrange
         LanguageEnum language = LanguageEnum.IT;
-        MalfunctionLegalFact malfunctionLegalFact = new MalfunctionLegalFact();
-        malfunctionLegalFact.setStartDate("01/06/2024");
-        malfunctionLegalFact.setTimeReferenceStartDate("12:00");
-        malfunctionLegalFact.setEndDate("01/06/2024");
-        malfunctionLegalFact.setTimeReferenceEndDate("14:00");
+        MalfunctionLegalFact malfunctionLegalFact = sampleMalfunctionLegalFact();
 
         byte[] expectedPdfBytes = "Test PDF Content".getBytes();
         when(templateEngineClient.malfunctionLegalFact(language, malfunctionLegalFact))
@@ -41,7 +37,6 @@ class TemplatesClientTest {
         // Assert
         assertNotNull(result, "Result must not be null");
         assertArrayEquals(expectedPdfBytes, result, "Result match the expected PDF bytes");
-
         verify(templateEngineClient, times(1)).malfunctionLegalFact(language, malfunctionLegalFact);
     }
 
@@ -49,11 +44,7 @@ class TemplatesClientTest {
     void testMalfunctionLegalFact_NullResponse() {
         // Arrange
         LanguageEnum language = LanguageEnum.IT;
-        MalfunctionLegalFact malfunctionLegalFact = new MalfunctionLegalFact();
-        malfunctionLegalFact.setStartDate("01/06/2024");
-        malfunctionLegalFact.setTimeReferenceStartDate("12:00");
-        malfunctionLegalFact.setEndDate("01/06/2024");
-        malfunctionLegalFact.setTimeReferenceEndDate("14:00");
+        MalfunctionLegalFact malfunctionLegalFact = sampleMalfunctionLegalFact();
 
         when(templateEngineClient.malfunctionLegalFact(language, malfunctionLegalFact)).thenReturn(null);
 
@@ -62,7 +53,6 @@ class TemplatesClientTest {
 
         // Assert
         assertNull(result, "Result null when API returns null");
-
         verify(templateEngineClient, times(1)).malfunctionLegalFact(language, malfunctionLegalFact);
     }
 
@@ -70,11 +60,7 @@ class TemplatesClientTest {
     void testMalfunctionLegalFact_ExceptionThrown() {
         // Arrange
         LanguageEnum language = LanguageEnum.IT;
-        MalfunctionLegalFact malfunctionLegalFact = new MalfunctionLegalFact();
-        malfunctionLegalFact.setStartDate("01/06/2024");
-        malfunctionLegalFact.setTimeReferenceStartDate("12:00");
-        malfunctionLegalFact.setEndDate("01/06/2024");
-        malfunctionLegalFact.setTimeReferenceEndDate("14:00");
+        MalfunctionLegalFact malfunctionLegalFact = sampleMalfunctionLegalFact();
 
         when(templateEngineClient.malfunctionLegalFact(language, malfunctionLegalFact))
                 .thenThrow(new RuntimeException("API Error"));
@@ -83,7 +69,15 @@ class TemplatesClientTest {
         Exception exception = assertThrows(RuntimeException.class, () ->
                 templatesClient.malfunctionLegalFact(language, malfunctionLegalFact));
         assertEquals("API Error", exception.getMessage(), "Exception message is matched");
-
         verify(templateEngineClient, times(1)).malfunctionLegalFact(language, malfunctionLegalFact);
+    }
+
+    private MalfunctionLegalFact sampleMalfunctionLegalFact() {
+        MalfunctionLegalFact malfunctionLegalFact = new MalfunctionLegalFact();
+        malfunctionLegalFact.setStartDate("01/06/2024");
+        malfunctionLegalFact.setTimeReferenceStartDate("12:00");
+        malfunctionLegalFact.setEndDate("01/06/2024");
+        malfunctionLegalFact.setTimeReferenceEndDate("14:00");
+        return malfunctionLegalFact;
     }
 }
