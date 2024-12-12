@@ -13,7 +13,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-class TemplatesClientImplTest {
+class TemplatesClientTest {
     @Mock
     private TemplateApi templateEngineClient;
 
