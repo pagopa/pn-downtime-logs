@@ -91,6 +91,10 @@ Parameters:
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: base url for safe storage requests
+
+  TemplatesEngineBaseUrl:
+    Type: String
+    Description: base url for templates engine requests
   
   InternalEventQueueARN:
     Type: String
@@ -347,6 +351,7 @@ Resources:
         ContainerEnvEntry15: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry16: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
         ContainerEnvEntry17: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
+        ContainerEnvEntry18: !Sub 'PN_DOWNTIMELOGS_TEMPLATES_ENGINE_BASE_URL=${TemplatesEngineBaseUrl}'
 
         MappedPaths: '/downtime/*,/downtime-internal/*,/status,/interop/probing'
         ECSClusterName: !Ref ECSClusterName
