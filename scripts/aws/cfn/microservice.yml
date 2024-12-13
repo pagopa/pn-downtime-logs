@@ -92,10 +92,6 @@ Parameters:
     Type: String
     Description: base url for safe storage requests
 
-  TemplatesEngineBaseUrl:
-    Type: String
-    Description: base url for templates engine requests
-  
   InternalEventQueueARN:
     Type: String
     Description: internal events queue ARN
