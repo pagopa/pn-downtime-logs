@@ -10,7 +10,14 @@ public class OffsetDateTimeFormatter {
 
     private OffsetDateTimeFormatter() {}
 
-
+    /**
+     * Get the date formatted base on Italian's date format.
+     * This method invokes the right utils to get correct date.
+     *
+     * @param date is a representation of a date-time with an offset.
+     *
+     * @return the string of the formatted date.
+     */
     public static String getDateFormatted(OffsetDateTime date) {
         if (date == null) {
             return "";
@@ -19,6 +26,14 @@ public class OffsetDateTimeFormatter {
         return newDate.format(DTF_DATE);
     }
 
+    /**
+     * Get the time formatted base on Italian's time format.
+     * This method invokes the right utils to get correct time.
+     *
+     * @param time is a representation of a date-time with an offset.
+     *
+     * @return the string of the formatted time.
+     */
     public static String getTimeFormatted(OffsetDateTime time) {
         if (time == null) {
             return "";

@@ -24,14 +24,26 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
     private final DocumentComposition documentComposition;
 
 
+    /**
+     * Generates the pdf of the malfunction legal fact.
+     * This method is invoked to generate the legal fact.
+     * It populates all field with provided data then the client invoke the external service.
+     *
+     * @param downtimeLogs the downtime used for the legal fact generation
+     *
+     * @return the byte array of the pdf generated.
+     *
+     * @throws IOException              Signals that an I/O exception has occurred.
+     * @throws TemplateException        the template exception
+     */
     @Override
-    public byte[] generateMalfunctionLegalFact(DowntimeLogs downtime) throws IOException, TemplateException {
+    public byte[] generateMalfunctionLegalFact(DowntimeLogs downtimeLogs) throws IOException, TemplateException {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter fmtTime = DateTimeFormatter.ofPattern("HH:mm");
         log.info("generateLegalFact");
         Map<String, Object> templateModel = new HashMap<>();
-        OffsetDateTime newStartDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(downtime.getStartDate());
-        OffsetDateTime newEndDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(downtime.getEndDate());
+        OffsetDateTime newStartDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(downtimeLogs.getStartDate());
+        OffsetDateTime newEndDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(downtimeLogs.getEndDate());
 
         templateModel.put(FIELD_START_DATE	,  newStartDate.format(fmt));
         templateModel.put(FIELD_START_DATE_TIME	,  newStartDate.format(fmtTime));

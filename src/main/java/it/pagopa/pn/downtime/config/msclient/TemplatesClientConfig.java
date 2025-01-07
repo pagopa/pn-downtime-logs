@@ -9,12 +9,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.client.RestTemplate;
 
+
 @Configuration
 public class TemplatesClientConfig {
 
     @Value("${pn.downtime-logs.templates-engine-base-url}")
     private String templatesEngineBaseUrl;
 
+    /**
+     * Creates and configures a TemplateApi bean.
+     * This method is invoked during application bootstrap to construct and initialize an instance.
+     *
+     * @param restTemplate the RestTemplate instance used for making HTTP requests.
+     *
+     * @return a fully configured TemplateApi instance
+     */
     @Bean
     @Primary
     public TemplateApi templateApiConfig(@Qualifier("restTemplate") RestTemplate restTemplate) {
@@ -22,5 +31,4 @@ public class TemplatesClientConfig {
         apiClient.setBasePath(templatesEngineBaseUrl);
         return new TemplateApi(apiClient);
     }
-
 }
