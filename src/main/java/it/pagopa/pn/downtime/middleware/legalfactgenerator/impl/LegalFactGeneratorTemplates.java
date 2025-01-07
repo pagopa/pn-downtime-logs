@@ -18,11 +18,12 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     /**
      * Generates the pdf of the malfunction legal fact.
+     * <p>
      * This method is invoked to generate the legal fact.
      * It populates all field with provided data then the client invoke the external service.
+     * </p>
      *
-     * @param downtimeLogs the downtime used for the legal fact generation
-     *
+     * @param downtimeLogs the downtime used for the legal fact generation.
      * @return the byte array of the pdf generated.
      */
     @Override

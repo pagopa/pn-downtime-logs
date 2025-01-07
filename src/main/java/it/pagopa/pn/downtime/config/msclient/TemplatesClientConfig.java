@@ -18,11 +18,12 @@ public class TemplatesClientConfig {
 
     /**
      * Creates and configures a TemplateApi bean.
+     * <p>
      * This method is invoked during application bootstrap to construct and initialize an instance.
+     * </p>
      *
      * @param restTemplate the RestTemplate instance used for making HTTP requests.
-     *
-     * @return a fully configured TemplateApi instance
+     * @return a fully configured TemplateApi instance.
      */
     @Bean
     @Primary
