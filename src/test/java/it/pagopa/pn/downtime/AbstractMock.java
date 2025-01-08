@@ -1,52 +1,11 @@
 package it.pagopa.pn.downtime;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.withSettings;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.Rule;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.StreamUtils;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedParallelScanList;
-import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
-import com.amazonaws.services.dynamodbv2.datamodeling.ScanResultPage;
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
 import io.awspring.cloud.messaging.listener.SimpleMessageListenerContainer;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.api.FileDownloadApi;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.api.FileUploadApi;
@@ -59,12 +18,40 @@ import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStat
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.mapper.CloudwatchMapper;
+import it.pagopa.pn.downtime.middleware.externalclient.TemplatesClient;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.impl.DowntimeLogsServiceImpl;
+import org.junit.Rule;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.time.OffsetDateTime;
+import java.util.*;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 public abstract class AbstractMock {
 
@@ -98,6 +85,9 @@ public abstract class AbstractMock {
 
 	@MockBean
 	private FileUploadApi fileUploadApi;
+
+	@MockBean
+	private TemplatesClient mockTemplatesClient;
 
 	@Value("classpath:data/current_status.json")
 	private Resource currentStatus;
@@ -478,6 +468,11 @@ public abstract class AbstractMock {
 		ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
 		Mockito.when(client.exchange(ArgumentMatchers.any(URI.class), ArgumentMatchers.any(HttpMethod.class),
 				ArgumentMatchers.any(HttpEntity.class), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
+	}
+
+	protected void mockTemplatesClientBehavior() {
+		Mockito.when(mockTemplatesClient.malfunctionLegalFact(Mockito.any(), Mockito.any()))
+				.thenReturn("mocked-legal-fact".getBytes());
 	}
 
 	protected static String getPnStatusUpdateEvent(OffsetDateTime timestamp, List<PnFunctionality> functionality,
