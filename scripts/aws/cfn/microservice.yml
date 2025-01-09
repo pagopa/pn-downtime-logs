@@ -293,6 +293,14 @@ Parameters:
       - true
       - false
 
+  EnableTemplatesEngine:
+    Type: String
+    Default: false
+    Description: 'Enable TemplatesEngine'
+    AllowedValues:
+      - true
+      - false
+
 # OpenApi Bucket params
   MicroserviceBucketName:
     Type: String
