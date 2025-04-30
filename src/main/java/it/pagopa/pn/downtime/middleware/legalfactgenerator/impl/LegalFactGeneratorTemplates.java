@@ -34,6 +34,11 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .timeReferenceStartDate(OffsetDateTimeFormatter.getTimeFormatted(downtimeLogs.getStartDate()))
                 .endDate(OffsetDateTimeFormatter.getDateFormatted(downtimeLogs.getEndDate()))
                 .timeReferenceEndDate(OffsetDateTimeFormatter.getTimeFormatted(downtimeLogs.getEndDate()));
+        return generateMalfunctionLegalFact(malfunctionLegalFact);
+    }
+
+    @Override
+    public byte[] generateMalfunctionLegalFact(MalfunctionLegalFact malfunctionLegalFact) {
         return templatesClient.malfunctionLegalFact(LanguageEnum.IT, malfunctionLegalFact);
     }
 }

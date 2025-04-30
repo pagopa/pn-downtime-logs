@@ -6,9 +6,13 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,11 +24,6 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeApi;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeInternalApi;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeHistoryResponse;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusResponse;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
 import it.pagopa.pn.downtime.service.LegalFactService;
@@ -119,4 +118,13 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 		return DowntimeApi.super.getRequest();
 	}
 
+	@Override
+	public ResponseEntity<Resource> getMalfunctionPreview(MalfunctionLegalFact malfunctionLegalFact) {
+        try {
+			ByteArrayResource resource = new ByteArrayResource(legalFactService.previewLegalFact(malfunctionLegalFact));
+			return ResponseEntity.ok(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

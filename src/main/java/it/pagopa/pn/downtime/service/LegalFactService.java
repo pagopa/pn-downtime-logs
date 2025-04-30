@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 
 import freemarker.template.TemplateException;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.MalfunctionLegalFact;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 
 
@@ -20,6 +21,17 @@ public interface LegalFactService {
 	 * @throws TemplateException the template exception
 	 */
 	DowntimeLogs generateLegalFact(DowntimeLogs downtime) throws IOException, NoSuchAlgorithmException, TemplateException;
+
+	/**
+	 * Generates the pdf of the legal for preview.
+	 *
+	 * @param malfunctionLegalFact the malfunctionLegalFact used for the legal fact generation
+	 * @return the byte[] file
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws NoSuchAlgorithmException the no such algorithm exception
+	 * @throws TemplateException the template exception
+	 */
+	byte[] previewLegalFact(MalfunctionLegalFact malfunctionLegalFact) throws IOException, NoSuchAlgorithmException, TemplateException;
 
 	/**
 	 * Gets the legal fact by making the call to SafeStorage.

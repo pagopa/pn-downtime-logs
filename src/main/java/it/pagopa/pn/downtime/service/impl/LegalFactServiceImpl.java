@@ -8,6 +8,8 @@ import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileC
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileCreationResponse;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileDownloadResponse;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.MalfunctionLegalFact;
+import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
 import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.service.LegalFactService;
@@ -71,6 +73,9 @@ public class LegalFactServiceImpl implements LegalFactService {
 	
 	@Autowired
 	private ApiClient api;
+
+	@Autowired
+	private DowntimeLogsMapper downtimeLogsMapper;
 
 	private final LegalFactGenerator legalFactGenerator;
 
@@ -207,4 +212,11 @@ public class LegalFactServiceImpl implements LegalFactService {
 		reserveUploadFile(file, downtime);
 		return downtime;
 	}
+
+    @Override
+    public byte[] previewLegalFact(MalfunctionLegalFact malfunctionLegalFact) throws IOException, TemplateException {
+        it.pagopa.pn.downtime.generated.openapi.msclient.templatesengine.model.MalfunctionLegalFact entry = downtimeLogsMapper.malfunctionLegalFactDtoToModelClient(malfunctionLegalFact);
+        return legalFactGenerator.generateMalfunctionLegalFact(entry);
+    }
+
 }
