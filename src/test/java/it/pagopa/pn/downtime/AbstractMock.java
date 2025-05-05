@@ -114,6 +114,7 @@ public abstract class AbstractMock {
 	protected final String historyStatusUrl = "/downtime/v1/history";
 	protected final String eventsUrl = "/downtime-internal/v1/events";
 	protected final String legalFactIdUrl = "/downtime/v1/legal-facts/";
+	protected final String previewMalfunctionUrl = "/downtime/v1/legal-facts/malfunction/preview";
 	protected final String healthCheckUrl = "/healthcheck";
 	protected final String probingUrl = "/interop/probing";
 	protected final String resolvedUrl = "/downtime/v1/resolved";
