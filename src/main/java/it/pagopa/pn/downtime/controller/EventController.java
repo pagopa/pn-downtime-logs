@@ -98,7 +98,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
 	 * @param toTime        ending timestamp of the research
 	 * @param functionality functionalities for which the research has to be done
 	 * @param page          the page of the research
-	 * @param size          the size of the researcj
+	 * @param size          the size of the research
 	 * @return all the downtimes present in the period of time specified
 	 */
 	@Override

@@ -2,8 +2,6 @@ components:
   schemas:
     MalfunctionLegalFact:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-templates-engine/844ab18fc513a2984fd8cfb6a037187f724a05ba/docs/openapi/schemas-params.yaml#/components/schemas/MalfunctionLegalFact'
-    SuccessResponsePDF:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-templates-engine/844ab18fc513a2984fd8cfb6a037187f724a05ba/docs/openapi/schemas-responses.yaml#/components/responses/SuccessResponsePDF'
   parameters:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###

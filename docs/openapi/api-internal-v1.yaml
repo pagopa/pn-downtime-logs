@@ -302,7 +302,7 @@ paths:
               $ref: './remote-refs.yaml#/components/schemas/MalfunctionLegalFact'                         # NO EXTERNAL
       responses:                                                                                          # NO EXTERNAL
         '200':                                                                                            # NO EXTERNAL
-          $ref: './remote-refs.yaml#/components/schemas/SuccessResponsePDF'                               # NO EXTERNAL
+          $ref: './schemas-pn-components-v1.yaml#/components/schemas/MalfunctionResponsePDF'              # NO EXTERNAL
         '400':                                                                                            # NO EXTERNAL
           description: Bad request                                                                        # NO EXTERNAL
           content:                                                                                        # NO EXTERNAL

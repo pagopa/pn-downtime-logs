@@ -103,7 +103,7 @@ class LegalFactGeneratorTemplatesTest {
         malfunctionLegalFact.setTimeReferenceStartDate("14:00");
         malfunctionLegalFact.setEndDate("01/06/2024");
         malfunctionLegalFact.setTimeReferenceEndDate("16:00");
-        malfunctionLegalFact.setDescription("Test Description");
+        malfunctionLegalFact.setHtmlDescription("<p>Sample <b>Test Description</b></p>");
 
         byte[] expectedPdfBytes = "Test PDF Content".getBytes();
 
@@ -123,7 +123,7 @@ class LegalFactGeneratorTemplatesTest {
         assertEquals("14:00", captured.getTimeReferenceStartDate());
         assertEquals("01/06/2024", captured.getEndDate());
         assertEquals("16:00", captured.getTimeReferenceEndDate());
-        assertEquals("Test Description", captured.getDescription());
+        assertEquals("<p>Sample <b>Test Description</b></p>", captured.getHtmlDescription());
     }
 
     private DowntimeLogs sampleDowntimeLogs() {
