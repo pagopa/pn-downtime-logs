@@ -299,7 +299,7 @@ paths:
         content:                                                                                          # NO EXTERNAL
           application/json:                                                                               # NO EXTERNAL
             schema:                                                                                       # NO EXTERNAL
-              $ref: './remote-refs.yaml#/components/schemas/MalfunctionLegalFact'                         # NO EXTERNAL
+              $ref: './schemas-pn-components-v1.yaml#/components/schemas/PnStatusUpdateEvent'             # NO EXTERNAL
       responses:                                                                                          # NO EXTERNAL
         '200':                                                                                            # NO EXTERNAL
           $ref: './schemas-pn-components-v1.yaml#/components/schemas/MalfunctionResponsePDF'              # NO EXTERNAL

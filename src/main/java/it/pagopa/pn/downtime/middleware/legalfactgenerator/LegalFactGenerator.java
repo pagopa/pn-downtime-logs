@@ -1,8 +1,8 @@
 package it.pagopa.pn.downtime.middleware.legalfactgenerator;
 
 import freemarker.template.TemplateException;
-import it.pagopa.pn.downtime.generated.openapi.msclient.templatesengine.model.MalfunctionLegalFact;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
+
 import java.io.IOException;
 
 
@@ -12,20 +12,8 @@ public interface LegalFactGenerator {
      *
      * @param downtimeLogs the downtime used for the legal fact generation.
      * @return the byte array of the pdf generated.
-     *
-     * @throws IOException              Signals that an I/O exception has occurred.
-     * @throws TemplateException        the template exception
+     * @throws IOException       Signals that an I/O exception has occurred.
+     * @throws TemplateException the template exception
      */
     byte[] generateMalfunctionLegalFact(DowntimeLogs downtimeLogs) throws IOException, TemplateException;
-
-    /**
-     * Generates the pdf of the malfunction legal fact.
-     *
-     * @param malfunctionLegalFact for legal fact generation.
-     * @return the byte array of the pdf generated.
-     *
-     * @throws IOException              Signals that an I/O exception has occurred.
-     * @throws TemplateException        the template exception
-     */
-    byte[] generateMalfunctionLegalFact(MalfunctionLegalFact malfunctionLegalFact) throws IOException, TemplateException;
 }

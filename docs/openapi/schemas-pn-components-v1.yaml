@@ -237,6 +237,10 @@ components:
             title: identificativo della sorgente dell'evento
             description: >-
               - "AlarmDescription" dell'allarme CLoudWatch se _SourceType = ALARM_
-  
               - "uid" dell'operatore che ha effettuato il login se _SourceType = OPERATOR_
+            type: string
+          htmlDescription:
+            title: descrizione dell'evento
+            description: >-
+              Descrizione dell'evento in formato HTML. <br/>
             type: string

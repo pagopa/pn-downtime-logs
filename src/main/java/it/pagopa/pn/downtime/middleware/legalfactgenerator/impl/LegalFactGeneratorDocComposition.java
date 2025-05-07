@@ -1,14 +1,12 @@
 package it.pagopa.pn.downtime.middleware.legalfactgenerator.impl;
 
 import freemarker.template.TemplateException;
-import it.pagopa.pn.downtime.generated.openapi.msclient.templatesengine.model.MalfunctionLegalFact;
 import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.util.DocumentComposition;
 import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,42 +33,27 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
      *
      * @param downtimeLogs the downtime used for the legal fact generation.
      * @return the byte array of the pdf generated.
-     * @throws IOException       Signals that an I/O exception has occurred.
-     * @throws TemplateException the template exception
+     *
+     * @throws IOException              Signals that an I/O exception has occurred.
+     * @throws TemplateException        the template exception
      */
     @Override
     public byte[] generateMalfunctionLegalFact(DowntimeLogs downtimeLogs) throws IOException, TemplateException {
-        log.info("generateLegalFact");
-        Map<String, Object> templateModel = getTemplateModel(downtimeLogs.getStartDate(), downtimeLogs.getEndDate());
-
-        return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.LEGAL_FACT,
-                templateModel
-        );
-    }
-
-    @Override
-    public byte[] generateMalfunctionLegalFact(MalfunctionLegalFact malfunctionLegalFact) throws IOException, TemplateException {
-        Map<String, Object> templateModel = getTemplateModel(OffsetDateTime.parse(malfunctionLegalFact.getStartDate()), OffsetDateTime.parse((malfunctionLegalFact.getEndDate())));
-
-        return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.LEGAL_FACT,
-                templateModel
-        );
-    }
-
-    private Map<String, Object> getTemplateModel(OffsetDateTime startDate, OffsetDateTime endDate) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter fmtTime = DateTimeFormatter.ofPattern("HH:mm");
-
+        log.info("generateLegalFact");
         Map<String, Object> templateModel = new HashMap<>();
-        OffsetDateTime newStartDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(startDate);
-        OffsetDateTime newEndDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(endDate);
+        OffsetDateTime newStartDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(downtimeLogs.getStartDate());
+        OffsetDateTime newEndDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(downtimeLogs.getEndDate());
 
-        templateModel.put(FIELD_START_DATE, newStartDate.format(fmt));
-        templateModel.put(FIELD_START_DATE_TIME, newStartDate.format(fmtTime));
-        templateModel.put(FIELD_END_DATE, newEndDate.format(fmt));
-        templateModel.put(FIELD_END_DATE_TIME, newEndDate.format(fmtTime));
-        return templateModel;
+        templateModel.put(FIELD_START_DATE	,  newStartDate.format(fmt));
+        templateModel.put(FIELD_START_DATE_TIME	,  newStartDate.format(fmtTime));
+        templateModel.put(FIELD_END_DATE	,  newEndDate.format(fmt));
+        templateModel.put(FIELD_END_DATE_TIME	,  newEndDate.format(fmtTime));
+
+        return documentComposition.executePdfTemplate(
+                DocumentComposition.TemplateType.LEGAL_FACT,
+                templateModel
+        );
     }
 }

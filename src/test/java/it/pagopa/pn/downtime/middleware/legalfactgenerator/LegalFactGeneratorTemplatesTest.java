@@ -94,38 +94,6 @@ class LegalFactGeneratorTemplatesTest {
         assertEquals("", captured.getTimeReferenceEndDate());
     }
 
-    @Test
-    void testGenerateMalfunctionLegalFact_ByMalfunctionLegalFact() {
-        // Arrange
-        LanguageEnum language = LanguageEnum.IT;
-        MalfunctionLegalFact malfunctionLegalFact = new MalfunctionLegalFact();
-        malfunctionLegalFact.setStartDate("01/06/2024");
-        malfunctionLegalFact.setTimeReferenceStartDate("14:00");
-        malfunctionLegalFact.setEndDate("01/06/2024");
-        malfunctionLegalFact.setTimeReferenceEndDate("16:00");
-        malfunctionLegalFact.setHtmlDescription("<p>Sample <b>Test Description</b></p>");
-
-        byte[] expectedPdfBytes = "Test PDF Content".getBytes();
-
-        when(templatesClient.malfunctionLegalFact(eq(language), any(MalfunctionLegalFact.class)))
-                .thenReturn(expectedPdfBytes);
-
-        // Act
-        byte[] result = legalFactGeneratorTemplates.generateMalfunctionLegalFact(malfunctionLegalFact);
-
-        // Assert
-        assertNotNull(result);
-        ArgumentCaptor<MalfunctionLegalFact> captor = ArgumentCaptor.forClass(MalfunctionLegalFact.class);
-        verify(templatesClient).malfunctionLegalFact(eq(language), captor.capture());
-
-        MalfunctionLegalFact captured = captor.getValue();
-        assertEquals("01/06/2024", captured.getStartDate());
-        assertEquals("14:00", captured.getTimeReferenceStartDate());
-        assertEquals("01/06/2024", captured.getEndDate());
-        assertEquals("16:00", captured.getTimeReferenceEndDate());
-        assertEquals("<p>Sample <b>Test Description</b></p>", captured.getHtmlDescription());
-    }
-
     private DowntimeLogs sampleDowntimeLogs() {
         DowntimeLogs downtime = new DowntimeLogs();
         downtime.setStartDate(OffsetDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneOffset.UTC));

@@ -1,3 +1,4 @@
+
 package it.pagopa.pn.downtime.middleware.legalfactgenerator.impl;
 
 import it.pagopa.pn.downtime.generated.openapi.msclient.templatesengine.model.LanguageEnum;
@@ -33,12 +34,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .startDate(OffsetDateTimeFormatter.getDateFormatted(downtimeLogs.getStartDate()))
                 .timeReferenceStartDate(OffsetDateTimeFormatter.getTimeFormatted(downtimeLogs.getStartDate()))
                 .endDate(OffsetDateTimeFormatter.getDateFormatted(downtimeLogs.getEndDate()))
-                .timeReferenceEndDate(OffsetDateTimeFormatter.getTimeFormatted(downtimeLogs.getEndDate()));
-        return generateMalfunctionLegalFact(malfunctionLegalFact);
-    }
-
-    @Override
-    public byte[] generateMalfunctionLegalFact(MalfunctionLegalFact malfunctionLegalFact) {
+                .timeReferenceEndDate(OffsetDateTimeFormatter.getTimeFormatted(downtimeLogs.getEndDate()))
+                .htmlDescription(downtimeLogs.getHtmlDescription());
         return templatesClient.malfunctionLegalFact(LanguageEnum.IT, malfunctionLegalFact);
     }
 }
