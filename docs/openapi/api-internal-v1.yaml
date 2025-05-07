@@ -309,6 +309,12 @@ paths:
             application/problem+json:                                                                     # NO EXTERNAL
               schema:                                                                                     # NO EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                           # NO EXTERNAL
+        '500':                                                                                            # NO EXTERNAL
+          description: A managed error has occured during the request elaboration                         # NO EXTERNAL
+          content:                                                                                        # NO EXTERNAL
+            application/problem+json:                                                                     # NO EXTERNAL
+              schema:                                                                                     # NO EXTERNAL
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                           # NO EXTERNAL
 
     ###########################################################################################
     ###                                MODIFICA DELLO STATO                                 ###
