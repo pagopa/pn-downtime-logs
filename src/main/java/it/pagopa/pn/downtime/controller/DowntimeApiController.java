@@ -23,12 +23,6 @@ public class DowntimeApiController {
 		return ResponseEntity.ok().allow(HttpMethod.GET, HttpMethod.OPTIONS).build();
 	}
 
-	@RequestMapping(path = "/downtime/v1/legal-facts/malfunction/preview", produces = {
-			"application/json" }, method = RequestMethod.OPTIONS)
-	public ResponseEntity<BodyBuilder> getMalfunctionPreview() {
-		return ResponseEntity.ok().allow(HttpMethod.PUT, HttpMethod.OPTIONS).build();
-	}
-
 	@RequestMapping(path = "/downtime/v1/history", produces = { "application/json" }, method = RequestMethod.OPTIONS)
 	public ResponseEntity<BodyBuilder> statusHistory() {
 		return ResponseEntity.ok().allow(HttpMethod.GET, HttpMethod.OPTIONS).build();

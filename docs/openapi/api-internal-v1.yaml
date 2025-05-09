@@ -282,40 +282,6 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
-  "/downtime/v1/legal-facts/malfunction/preview":                                                         # NO EXTERNAL
-    put:                                                                                                  # NO EXTERNAL
-      summary: Preview AO3 malfunzionamento                                                               # NO EXTERNAL
-      description: >-                                                                                     # NO EXTERNAL
-        Ritorna il pdf per la preview dell'atto opponibile a terzi per il malfunzionamento                # NO EXTERNAL
-      tags:                                                                                               # NO EXTERNAL
-        - Downtime                                                                                        # NO EXTERNAL
-      operationId: getMalfunctionPreview                                                                  # NO EXTERNAL
-      x-api-permissions:                                                                                  # NO EXTERNAL
-        - 'api-key-read'                                                                                  # NO EXTERNAL
-        - 'log-downtime-read'                                                                             # NO EXTERNAL
-      requestBody:                                                                                        # NO EXTERNAL
-        description: Parametri necessari per generare il documento                                        # NO EXTERNAL
-        required: true                                                                                    # NO EXTERNAL
-        content:                                                                                          # NO EXTERNAL
-          application/json:                                                                               # NO EXTERNAL
-            schema:                                                                                       # NO EXTERNAL
-              $ref: './schemas-pn-components-v1.yaml#/components/schemas/PnStatusUpdateEvent'             # NO EXTERNAL
-      responses:                                                                                          # NO EXTERNAL
-        '200':                                                                                            # NO EXTERNAL
-          $ref: './schemas-pn-components-v1.yaml#/components/schemas/MalfunctionResponsePDF'              # NO EXTERNAL
-        '400':                                                                                            # NO EXTERNAL
-          description: Bad request                                                                        # NO EXTERNAL
-          content:                                                                                        # NO EXTERNAL
-            application/problem+json:                                                                     # NO EXTERNAL
-              schema:                                                                                     # NO EXTERNAL
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                           # NO EXTERNAL
-        '500':                                                                                            # NO EXTERNAL
-          description: A managed error has occured during the request elaboration                         # NO EXTERNAL
-          content:                                                                                        # NO EXTERNAL
-            application/problem+json:                                                                     # NO EXTERNAL
-              schema:                                                                                     # NO EXTERNAL
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                           # NO EXTERNAL
-
     ###########################################################################################
     ###                                MODIFICA DELLO STATO                                 ###
     ###########################################################################################

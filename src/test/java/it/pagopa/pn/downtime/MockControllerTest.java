@@ -95,10 +95,4 @@ public class MockControllerTest extends AbstractMock {
 	public void callCheckOptionsResolved() throws Exception {
 		callCheckOptions(resolvedUrl, "GET");
 	}
-
-	@Test
-	public void callCheckOptionsMalfunction() throws Exception {
-		callCheckOptions(previewMalfunctionUrl, "PUT");
-	}
-
 }

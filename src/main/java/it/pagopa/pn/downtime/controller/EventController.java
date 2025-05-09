@@ -116,14 +116,4 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
     public Optional<NativeWebRequest> getRequest() {
         return DowntimeApi.super.getRequest();
     }
-
-    @Override
-    public ResponseEntity<Resource> getMalfunctionPreview(PnStatusUpdateEvent pnStatusUpdateEvent) {
-        try {
-            ByteArrayResource resource = new ByteArrayResource(eventService.previewLegalFact(pnStatusUpdateEvent));
-            return ResponseEntity.ok(resource);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
