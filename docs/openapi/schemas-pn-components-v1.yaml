@@ -173,7 +173,26 @@ components:
             description: >-
               Stima del numero di secondi da aspettare prima che il contenuto del 
               documento sia scaricabile.
-      
+
+    MalfunctionResponsePDF:
+      description: Ok
+      headers:
+        Content-Type:
+          description: Tipo di contenuto del documento
+          schema:
+            type: string
+            example: application/pdf
+        Content-Disposition:
+          description: Disposizione del contenuto per il download come allegato
+          schema:
+            x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+            type: string
+            example: attachment; filename="document.pdf"
+      content:
+        application/pdf:
+          schema:
+            type: string
+            format: binary
       ###########################################################################################
       ###                    DTO MODIFICA STATO DELLA PIATTAFORMA NOTIFICHE                   ###
       ###########################################################################################
