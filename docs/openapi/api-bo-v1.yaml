@@ -1,0 +1,49 @@
+openapi: 3.0.3
+info:
+  x-summary: 'Piattaforma Notifiche: API per il Front End del BackOffice'
+  title: 'Downtime-logs per il BackOffice'
+  version: '3.0.0'
+servers:
+  - url: https://api.notifichedigitali.it
+    description: Ambiente di produzione
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di test
+  - url: https://api.dev.notifichedigitali.it
+    description: Ambiente di sviluppo
+tags:
+  - name: DowntimeBo
+    description: >-
+      Invocazioni per recupero dei disservizi di PN da parte del BackOffice
+paths:
+  "/downtime-bo/v1/legal-facts/malfunction/preview":
+    put:
+      summary: Preview AO3 malfunzionamento
+      description: >-
+        Ritorna il pdf per la preview dell'atto opponibile a terzi per il malfunzionamento
+      tags:
+        - DowntimeBo
+      operationId: getMalfunctionPreview
+      x-api-permissions:
+        - 'log-downtime-write'
+      requestBody:
+        description: Parametri necessari per generare il documento
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas-pn-components-v1.yaml#/components/schemas/PnStatusUpdateEvent'
+      responses:
+        '200':
+          $ref: './schemas-pn-components-v1.yaml#/components/schemas/MalfunctionResponsePDF'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: A managed error has occured during the request elaboration
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
