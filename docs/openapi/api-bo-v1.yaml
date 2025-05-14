@@ -4,12 +4,12 @@ info:
   title: 'Downtime-logs per il BackOffice'
   version: '3.0.0'
 servers:
-- url: https://api.notifichedigitali.it
-  description: Ambiente di produzione
-- url: https://api.uat.notifichedigitali.it
-  description: Ambiente di test
-- url: https://api.dev.notifichedigitali.it
-  description: Ambiente di sviluppo
+  - url: https://api.notifichedigitali.it
+    description: Ambiente di produzione
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di test
+  - url: https://api.dev.notifichedigitali.it
+    description: Ambiente di sviluppo
 tags:
   - name: DowntimeBo
     description: >-
@@ -18,7 +18,7 @@ paths:
   "/downtime-bo/v1/legal-facts/malfunction/preview":
     put:
       summary: Preview AO3 malfunzionamento
-      description: >-                                                                                     
+      description: >-
         Ritorna il pdf per la preview dell'atto opponibile a terzi per il malfunzionamento
       tags:
         - DowntimeBo
