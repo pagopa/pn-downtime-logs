@@ -267,3 +267,8 @@ components:
           format: date-time
         functionality:
           $ref: '#/components/schemas/PnFunctionality'
+        htmlDescription:
+          title: descrizione dell'evento
+          description: >-
+            Descrizione dell'evento in formato HTML. <br/>
+          type: string

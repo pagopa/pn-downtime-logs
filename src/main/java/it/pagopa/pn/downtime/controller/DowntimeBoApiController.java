@@ -55,6 +55,8 @@ public class DowntimeBoApiController implements DowntimeBoApi {
         pnStatusUpdateEvent.setStatus(boStatusUpdateEvent.getStatus());
         pnStatusUpdateEvent.setFunctionality(functionalities);
         pnStatusUpdateEvent.setTimestamp(boStatusUpdateEvent.getTimestamp());
+        pnStatusUpdateEvent.setHtmlDescription(boStatusUpdateEvent.getHtmlDescription());
+
         pnStatusUpdateEvent.setSource(xPagopaPnUid);
         pnStatusUpdateEvent.setSourceType(PnStatusUpdateEvent.SourceTypeEnum.OPERATOR);
 
