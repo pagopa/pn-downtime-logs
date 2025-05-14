@@ -1,7 +1,10 @@
 package it.pagopa.pn.downtime.controller;
 
 import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeBoApi;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.BoStatusUpdateEvent;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
+import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.service.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Validated
 @RestController
 public class DowntimeBoApiController implements DowntimeBoApi {
@@ -23,9 +29,11 @@ public class DowntimeBoApiController implements DowntimeBoApi {
     private EventService eventService;
 
     @Override
-    public ResponseEntity<Resource> getMalfunctionPreview(PnStatusUpdateEvent pnStatusUpdateEvent) {
-        log.info("Get malfunction preview for event: {}", pnStatusUpdateEvent);
+    public ResponseEntity<Resource> getMalfunctionPreview(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
+        log.info("Get malfunction preview for event: {}", boStatusUpdateEvent);
         try {
+            PnStatusUpdateEvent pnStatusUpdateEvent = mapBoEventToPnEvent(xPagopaPnUid, boStatusUpdateEvent);
+
             byte[] data = eventService.previewLegalFact(pnStatusUpdateEvent);
             ByteArrayResource resource = new ByteArrayResource(data);
 
@@ -37,5 +45,19 @@ public class DowntimeBoApiController implements DowntimeBoApi {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private PnStatusUpdateEvent mapBoEventToPnEvent(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
+        List<PnFunctionality> functionalities = new ArrayList<>();
+        functionalities.add(boStatusUpdateEvent.getFunctionality());
+
+        PnStatusUpdateEvent pnStatusUpdateEvent = new PnStatusUpdateEvent();
+        pnStatusUpdateEvent.setStatus(boStatusUpdateEvent.getStatus());
+        pnStatusUpdateEvent.setFunctionality(functionalities);
+        pnStatusUpdateEvent.setTimestamp(boStatusUpdateEvent.getTimestamp());
+        pnStatusUpdateEvent.setSource(xPagopaPnUid);
+        pnStatusUpdateEvent.setSourceType(PnStatusUpdateEvent.SourceTypeEnum.OPERATOR);
+
+        return pnStatusUpdateEvent;
     }
 }

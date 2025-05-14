@@ -25,13 +25,15 @@ paths:
       operationId: getMalfunctionPreview
       x-api-permissions:
         - 'log-downtime-write'
+      parameters:                                                             # NO EXTERNAL
+        - $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'        # NO EXTERNAL
       requestBody:
         description: Parametri necessari per generare il documento
         required: true
         content:
           application/json:
             schema:
-              $ref: './schemas-pn-components-v1.yaml#/components/schemas/PnStatusUpdateEvent'
+              $ref: './schemas-pn-components-v1.yaml#/components/schemas/BoStatusUpdateEvent'
       responses:
         '200':
           $ref: './schemas-pn-components-v1.yaml#/components/schemas/MalfunctionResponsePDF'
