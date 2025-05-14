@@ -357,7 +357,7 @@ Resources:
         ContainerEnvEntry17: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
         ContainerEnvEntry18: !Sub 'PN_DOWNTIMELOGS_TEMPLATES_ENGINE_BASE_URL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry19: !Sub 'PN_DOWNTIMELOGS_ENABLE_TEMPLATES_ENGINE=${EnableTemplatesEngine}'
-        MappedPaths: '/downtime/*,/downtime-internal/*,/status,/interop/probing'
+        MappedPaths: '/downtime/*,/downtime-internal/*,/downtime-bo/*,/status,/interop/probing'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
