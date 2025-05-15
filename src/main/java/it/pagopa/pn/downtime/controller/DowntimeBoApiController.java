@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,16 +27,16 @@ public class DowntimeBoApiController implements DowntimeBoApi {
     private EventService eventService;
 
     @Override
-    public ResponseEntity<Resource> getMalfunctionPreview(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
+    public ResponseEntity<byte[]> getMalfunctionPreview(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
         log.info("Get malfunction preview for event: {}", boStatusUpdateEvent);
         try {
             PnStatusUpdateEvent pnStatusUpdateEvent = mapBoEventToPnEvent(xPagopaPnUid, boStatusUpdateEvent);
 
             byte[] data = eventService.previewLegalFact(pnStatusUpdateEvent);
-            ByteArrayResource resource = new ByteArrayResource(data);
 
             return ResponseEntity.ok()
-                    .body(resource);
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(data);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

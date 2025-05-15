@@ -36,7 +36,12 @@ paths:
               $ref: './schemas-pn-components-v1.yaml#/components/schemas/BoStatusUpdateEvent'
       responses:
         '200':
-          $ref: './schemas-pn-components-v1.yaml#/components/schemas/MalfunctionResponsePDF'
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: byte
         '400':
           description: Bad request
           content:
