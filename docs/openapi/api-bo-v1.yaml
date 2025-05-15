@@ -41,7 +41,7 @@ paths:
             application/pdf:
               schema:
                 type: string
-                format: byte
+                format: binary
         '400':
           description: Bad request
           content:
