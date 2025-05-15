@@ -1,31 +1,33 @@
 package it.pagopa.pn.downtime.controller;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
+
 import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeApi;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeInternalApi;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeHistoryResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.EventService;
 import it.pagopa.pn.downtime.service.LegalFactService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Validated
 @RestController
@@ -83,7 +85,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
      *
      * @param legalFactId the legal fact id. Required
      * @return the link for the download of the legal fact or the retry after for
-     * retrying the request
+     *         retrying the request
      */
     @Override
     public ResponseEntity<LegalFactDownloadMetadataResponse> getLegalFact(String legalFactId) {
@@ -97,7 +99,7 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
      * @param toTime        ending timestamp of the research
      * @param functionality functionalities for which the research has to be done
      * @param page          the page of the research
-     * @param size          the size of the research
+     * @param size          the size of the researcj
      * @return all the downtimes present in the period of time specified
      */
     @Override
@@ -116,4 +118,5 @@ public class EventController implements DowntimeApi, DowntimeInternalApi {
     public Optional<NativeWebRequest> getRequest() {
         return DowntimeApi.super.getRequest();
     }
+
 }

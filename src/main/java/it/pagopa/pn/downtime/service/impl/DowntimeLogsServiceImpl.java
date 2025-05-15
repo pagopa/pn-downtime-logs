@@ -1,16 +1,10 @@
 package it.pagopa.pn.downtime.service.impl;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
-import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.service.DowntimeLogsService;
-import it.pagopa.pn.downtime.util.DowntimeLogUtil;
-import lombok.CustomLog;
-import lombok.RequiredArgsConstructor;
+import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.util.*;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +15,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
-import java.time.YearMonth;
-import java.time.ZoneOffset;
-import java.util.*;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeEntry;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeHistoryResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusResponse;
+import it.pagopa.pn.downtime.mapper.DowntimeLogsMapper;
+import it.pagopa.pn.downtime.model.DowntimeLogs;
+import it.pagopa.pn.downtime.service.DowntimeLogsService;
+import it.pagopa.pn.downtime.util.DowntimeLogUtil;
+import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -32,16 +38,16 @@ import java.util.*;
 public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
     @Autowired
-    private DowntimeLogsMapper downtimeLogsMapper;
-    @Autowired
     private DynamoDBMapper dynamoDBMapper;
+
+    @Autowired
+    private DowntimeLogsMapper downtimeLogsMapper;
 
     @Value("${history.index}")
     private String historyIndex;
 
     @Value("${amazon.dynamodb.log.endpoint}")
     private String downtimeLogsTableName;
-
     /**
      * Gets the status history.
      *
@@ -128,7 +134,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
         String filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ")";
         if (toTime != null) {
             attributes.put(":endDate1", new AttributeValue().withS(toTime.toString()));
-            if (!resolvedOnly) {
+            if(!resolvedOnly) {
                 filter = filter.concat(
                         " and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or endDate BETWEEN :startDate1 AND :endDate1 or (startDateAttribute < :startDate1 and (endDate > :endDate1 or attribute_not_exists(endDate))))");
             } else {
@@ -235,20 +241,16 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
     /**
      * Gets the resolved history.
      *
-     * @param year  year of the research.
-     * @param month month of the research
+     * @param year      year of the research.
+     * @param month        month of the research
      * @return all the downtimes present in the period of time specified
      */
     @Override
     public PnDowntimeHistoryResponse getResolved(Integer year, Integer month) {
         OffsetDateTime currentDate = OffsetDateTime.now(ZoneOffset.UTC);
 
-        if (year == null) {
-            year = currentDate.getYear();
-        }
-        if (month == null) {
-            month = currentDate.getMonthValue();
-        }
+        if (year == null) { year = currentDate.getYear(); }
+        if (month == null) { month = currentDate.getMonthValue(); }
 
         YearMonth yearMonth = YearMonth.of(year, month);
 
@@ -262,9 +264,9 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
         List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, allFunctionalities, true);
         PnDowntimeHistoryResponse response = new PnDowntimeHistoryResponse();
 
-        response.setResult(listHistoryResults != null ? listHistoryResults.stream()
-                .filter(DowntimeLogs::getFileAvailable)
-                .map(downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime))
+        response.setResult( listHistoryResults != null ? listHistoryResults.stream()
+                .filter( DowntimeLogs::getFileAvailable )
+                .map( downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime) )
                 .toList() : Collections.emptyList()
         );
         log.info("Resolved response={}", response);

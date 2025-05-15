@@ -1,8 +1,18 @@
 package it.pagopa.pn.downtime.model;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+
+import org.springframework.data.annotation.Id;
+
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.model.converter.OffsetDateTimeConverter;
@@ -11,10 +21,6 @@ import it.pagopa.pn.downtime.model.converter.PnFunctionalityStatusConverter;
 import it.pagopa.pn.downtime.util.OffsetDateTimeSerializer;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.data.annotation.Id;
-
-import java.io.Serializable;
-import java.time.OffsetDateTime;
 
 @NoArgsConstructor
 @DynamoDBTable(tableName = "Downtime-DowntimeLogs")
@@ -53,17 +59,17 @@ public class DowntimeLogs implements Serializable {
         downtimeLogsId.setFunctionalityStartYear(functionalityStartYear);
     }
 
-    @DynamoDBRangeKey
-    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
-    public OffsetDateTime getStartDate() {
-        return downtimeLogsId != null ? downtimeLogsId.getStartDate() : null;
-    }
-
     public void setStartDate(OffsetDateTime startDate) {
         if (downtimeLogsId == null) {
             downtimeLogsId = new DowntimeLogsId();
         }
         downtimeLogsId.setStartDate(startDate);
+    }
+
+    @DynamoDBRangeKey
+    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    public OffsetDateTime getStartDate() {
+        return downtimeLogsId != null ? downtimeLogsId.getStartDate() : null;
     }
 
     @DynamoDBAttribute
@@ -72,18 +78,10 @@ public class DowntimeLogs implements Serializable {
         return endDate;
     }
 
-    public void setEndDate(OffsetDateTime endDate) {
-        this.endDate = endDate;
-    }
-
     @DynamoDBAttribute
     @DynamoDBTypeConverted(converter = PnFunctionalityConverter.Converter.class)
     public PnFunctionality getFunctionality() {
         return functionality;
-    }
-
-    public void setFunctionality(PnFunctionality functionality) {
-        this.functionality = functionality;
     }
 
     @DynamoDBAttribute
@@ -92,17 +90,9 @@ public class DowntimeLogs implements Serializable {
         return status;
     }
 
-    public void setStatus(PnFunctionalityStatus status) {
-        this.status = status;
-    }
-
     @DynamoDBAttribute
     public String getStartEventUuid() {
         return startEventUuid;
-    }
-
-    public void setStartEventUuid(String startEventUuid) {
-        this.startEventUuid = startEventUuid;
     }
 
     @DynamoDBAttribute
@@ -110,26 +100,14 @@ public class DowntimeLogs implements Serializable {
         return endEventUuid;
     }
 
-    public void setEndEventUuid(String endEventUuid) {
-        this.endEventUuid = endEventUuid;
-    }
-
     @DynamoDBAttribute
     public String getLegalFactId() {
         return legalFactId;
     }
 
-    public void setLegalFactId(String legalFactId) {
-        this.legalFactId = legalFactId;
-    }
-
     @DynamoDBAttribute
     public Boolean getFileAvailable() {
         return fileAvailable;
-    }
-
-    public void setFileAvailable(Boolean fileAvailable) {
-        this.fileAvailable = fileAvailable;
     }
 
     @DynamoDBAttribute
@@ -138,17 +116,9 @@ public class DowntimeLogs implements Serializable {
         return fileAvailableTimestamp;
     }
 
-    public void setFileAvailableTimestamp(OffsetDateTime fileAvailableTimestamp) {
-        this.fileAvailableTimestamp = fileAvailableTimestamp;
-    }
-
     @DynamoDBAttribute
     public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 
     @DynamoDBAttribute
@@ -156,18 +126,10 @@ public class DowntimeLogs implements Serializable {
         return history;
     }
 
-    public void setHistory(String history) {
-        this.history = history;
-    }
-
     @DynamoDBAttribute
     @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
     public OffsetDateTime getStartDateAttribute() {
         return startDateAttribute;
-    }
-
-    public void setStartDateAttribute(OffsetDateTime startDateAttribute) {
-        this.startDateAttribute = startDateAttribute;
     }
 
     @DynamoDBAttribute
@@ -178,4 +140,54 @@ public class DowntimeLogs implements Serializable {
     public void setHtmlDescription(String htmlDescription) {
         this.htmlDescription = htmlDescription;
     }
+
+    public void setEndDate(OffsetDateTime endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setFunctionality(PnFunctionality functionality) {
+        this.functionality = functionality;
+    }
+
+    public void setStatus(PnFunctionalityStatus status) {
+        this.status = status;
+    }
+
+    public void setStartEventUuid(String startEventUuid) {
+        this.startEventUuid = startEventUuid;
+    }
+
+    public void setEndEventUuid(String endEventUuid) {
+        this.endEventUuid = endEventUuid;
+    }
+
+    public void setLegalFactId(String legalFactId) {
+        this.legalFactId = legalFactId;
+    }
+
+
+    public void setFileAvailable(Boolean fileAvailable) {
+        this.fileAvailable = fileAvailable;
+    }
+
+    public void setFileAvailableTimestamp(OffsetDateTime fileAvailableTimestamp) {
+        this.fileAvailableTimestamp = fileAvailableTimestamp;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setHistory(String history) {
+        this.history = history;
+    }
+
+    public void setStartDateAttribute(OffsetDateTime startDateAttribute) {
+        this.startDateAttribute = startDateAttribute;
+    }
+
+
+
+
+
 }

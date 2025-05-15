@@ -10,7 +10,6 @@ import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileD
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.service.EventService;
 import it.pagopa.pn.downtime.service.LegalFactService;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
@@ -37,85 +35,72 @@ import java.util.Optional;
 @CustomLog
 public class LegalFactServiceImpl implements LegalFactService {
 
-    /**
-     * The Constant PAGOPA_SAFESTORAGE_HEADER.
-     */
-    private static final String PAGOPA_SAFESTORAGE_HEADER = "x-pagopa-safestorage-cx-id";
-    /**
-     * The Constant PAGOPA_SAFESTORAGE_HEADER_VALUE.
-     */
-    private static final String PAGOPA_SAFESTORAGE_HEADER_VALUE = "pn-downtime-logs";
-    /**
-     * The Constant UPLOAD_SAFESTORAGE_HEADER_SECRET.
-     */
-    private static final String UPLOAD_SAFESTORAGE_HEADER_SECRET = "x-amz-meta-secret";
-    /**
-     * The Constant UPLOAD_SAFESTORAGE_HEADER_CHECKSUM.
-     */
-    private static final String UPLOAD_SAFESTORAGE_HEADER_CHECKSUM = "x-amz-checksum-sha256";
-    /**
-     * The Constant RESERVE_SAFESTORAGE_HEADER_CHECKSUM.
-     */
-    private static final String RESERVE_SAFESTORAGE_HEADER_CHECKSUM = "x-checksum";
-    /**
-     * The Constant RESERVE_SAFESTORAGE_HEADER_CHECKSUM_VALUE.
-     */
-    private static final String RESERVE_SAFESTORAGE_HEADER_CHECKSUM_VALUE = "x-checksum-value";
-    /**
-     * The Constant SHA256.
-     */
-    private static final String SHA256 = "SHA-256";
-    private final LegalFactGenerator legalFactGenerator;
-    /**
-     * The url safe store.
-     */
+    /** The url safe store. */
     @Value("${amazon.safestore.baseurl}")
     private String urlSafeStore;
-    /**
-     * The url reserve store.
-     */
+
+    /** The url reserve store. */
     @Value("${amazon.safestore.reservefile}")
     private String urlReserveStore;
-    /**
-     * The enable api key.
-     */
+
+    /** The enable api key. */
     @Value("${pagopa.header.enable-apikey}")
     private boolean enableApiKey;
-    /**
-     * The api key header.
-     */
+
+    /** The api key header. */
     @Value("${pagopa.header.apikey}")
     private String apiKeyHeader;
-    /**
-     * The api key header value.
-     */
+
+    /** The api key header value. */
     @Value("${pagopa.headervalue.apikey}")
     private String apiKeyHeaderValue;
-    /**
-     * The pago pa document type.
-     */
+
+    /** The pago pa document type. */
     @Value("${pagopa.reservation.documenttype}")
     private String pagoPaDocumentType;
-    /**
-     * The rest template.
-     */
+
+    /** The rest template. */
     @Autowired
     private RestTemplate restTemplate;
+
     @Autowired
     private FileDownloadApi fileDownloadApi;
+
     @Autowired
     private FileUploadApi fileUploadApi;
+
     @Autowired
     private ApiClient api;
-    @Autowired
-    private EventService eventService;
+
+    private final LegalFactGenerator legalFactGenerator;
+
+    /** The Constant PAGOPA_SAFESTORAGE_HEADER. */
+    private static final String PAGOPA_SAFESTORAGE_HEADER = "x-pagopa-safestorage-cx-id";
+
+    /** The Constant PAGOPA_SAFESTORAGE_HEADER_VALUE. */
+    private static final String PAGOPA_SAFESTORAGE_HEADER_VALUE = "pn-downtime-logs";
+
+    /** The Constant UPLOAD_SAFESTORAGE_HEADER_SECRET. */
+    private static final String UPLOAD_SAFESTORAGE_HEADER_SECRET = "x-amz-meta-secret";
+
+    /** The Constant UPLOAD_SAFESTORAGE_HEADER_CHECKSUM. */
+    private static final String UPLOAD_SAFESTORAGE_HEADER_CHECKSUM = "x-amz-checksum-sha256";
+
+    /** The Constant RESERVE_SAFESTORAGE_HEADER_CHECKSUM. */
+    private static final String RESERVE_SAFESTORAGE_HEADER_CHECKSUM = "x-checksum";
+
+    /** The Constant RESERVE_SAFESTORAGE_HEADER_CHECKSUM_VALUE. */
+    private static final String RESERVE_SAFESTORAGE_HEADER_CHECKSUM_VALUE = "x-checksum-value";
+
+    /** The Constant SHA256. */
+    private static final String SHA256 = "SHA-256";
 
     /**
      * Gets the legal fact by making the call to SafeStorage.
      *
      * @param legalFactId the legal fact id
      * @return the link for the download of the legal fact or the retry after for
-     * retrying the request
+     *         retrying the request
      */
     @Override
     public LegalFactDownloadMetadataResponse getLegalFact(String legalFactId) {
