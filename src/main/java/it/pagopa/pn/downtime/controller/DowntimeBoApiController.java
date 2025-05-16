@@ -11,11 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,10 +34,17 @@ public class DowntimeBoApiController implements DowntimeBoApi {
     public ResponseEntity<Resource> getMalfunctionPreview(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
         log.info("Get malfunction preview for event: {}", boStatusUpdateEvent);
         try {
+            File file = new File("src/main/resources/sample.pdf");
+            if (!file.exists()) {
+                throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
+            }
+
             Resource resource = new FileSystemResource("src/main/resources/sample.pdf");
 
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
+                    .contentLength(file.length())
                     .body(resource);
         } catch (Exception e) {
             throw new RuntimeException(e);
