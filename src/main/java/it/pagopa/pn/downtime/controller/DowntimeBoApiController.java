@@ -8,7 +8,6 @@ import it.pagopa.pn.downtime.service.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -36,6 +35,24 @@ public class DowntimeBoApiController implements DowntimeBoApi {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Void> addStatusChangeEventBo(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
+        log.info("Post events from backoffice: {}", boStatusUpdateEvent);
+
+        try {
+            PnStatusUpdateEvent pnStatusUpdateEvent = mapBoEventToPnEvent(xPagopaPnUid, boStatusUpdateEvent);
+
+            List<PnStatusUpdateEvent> events = new ArrayList<>();
+            events.add(pnStatusUpdateEvent);
+
+            eventService.addStatusChangeEvent(xPagopaPnUid, events);
+            return ResponseEntity.noContent().build();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -54,3 +54,34 @@ paths:
             application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
+  "/downtime-bo/v1/events":
+    post:
+      summary: Modifica stato di servizio
+      description: >-
+        Permette di aggiungere un evento di inizio o fine di un disservizio, può essere
+        richiamato sia dagli allarmi automatici che da GUI. Tali casi vanno discriminati
+        con l'attributo di richiesta _sourceType_.
+      tags:
+        - DowntimeBo
+      operationId: addStatusChangeEventBo
+      x-api-permissions:
+        - 'log-downtime-write'
+      parameters:                                                                                         # NO EXTERNAL
+        - $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'                                    # NO EXTERNAL
+      requestBody:
+        description: Parametri necessari per generare il documento
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas-pn-components-v1.yaml#/components/schemas/BoStatusUpdateEvent'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
