@@ -18,7 +18,7 @@ public class OffSetDateTimeConfig implements WebMvcConfigurer {
 
 	
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new MappingJackson2HttpMessageConverter(objectMapper()));
     }
 
