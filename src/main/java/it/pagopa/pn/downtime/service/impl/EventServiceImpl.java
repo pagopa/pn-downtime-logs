@@ -188,6 +188,7 @@ public class EventServiceImpl implements EventService {
             dt.setEndDate(newEndDate);
             dt.setEndEventUuid(eventId);
             dt.setStatus(event.getStatus());
+            dt.setHtmlDescription(event.getHtmlDescription());
             dynamoDBMapper.save(dt);
             producer.sendMessage(dt, url);
         }
