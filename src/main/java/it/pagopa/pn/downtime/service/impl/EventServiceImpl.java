@@ -270,7 +270,7 @@ public class EventServiceImpl implements EventService {
         return legalFactGenerator.generateMalfunctionLegalFact(dt);
     }
 
-    private DowntimeLogs findDowntimeLogs(OffsetDateTime date, PnFunctionality functionality, PnStatusUpdateEvent event) {
+    protected DowntimeLogs findDowntimeLogs(OffsetDateTime date, PnFunctionality functionality, PnStatusUpdateEvent event) {
         return resultQuery(date, functionality, event)
                 .orElseGet(() -> resultQuery(date.minusYears(1), functionality, event).isPresent()
                         ? resultQuery(date.minusYears(1), functionality, event).get()
