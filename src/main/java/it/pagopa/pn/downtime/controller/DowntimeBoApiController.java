@@ -28,7 +28,7 @@ public class DowntimeBoApiController implements DowntimeBoApi {
 
     @Override
     public ResponseEntity<Resource> getMalfunctionPreview(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
-        log.info("Get malfunction preview for event: {}", boStatusUpdateEvent);
+        log.info("Get malfunction preview for xPagopaPnUid: {}, event: {}", xPagopaPnUid, boStatusUpdateEvent);
         try {
             PnStatusUpdateEvent event = mapBoEventToPnEvent(xPagopaPnUid, boStatusUpdateEvent);
             byte[] data = eventService.previewLegalFact(event);
