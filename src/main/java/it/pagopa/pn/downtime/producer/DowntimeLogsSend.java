@@ -26,24 +26,24 @@ public class DowntimeLogsSend {
     /** The object mapper. */
     @Autowired
     private ObjectMapper objectMapper;
-	
-	/** The mapper downtime logs mapper. */
-	@Autowired
-	DowntimeLogsMapper mapperDowntimeLogsMapper;
 
-	/**
-	 * Send a new message to the sqs queue which will be used for the legal fact generation.
-	 *
-	 * @param downtimeLogs the downtime logs which will be used for the creation of the message
-	 * @param url the url of the sqs queue
-	 * @throws JsonProcessingException the json processing exception
-	 */
-	public void sendMessage(DowntimeLogs downtimeLogs, String url) throws JsonProcessingException {
-		log.debug("Inserting data {} in SQS {}", downtimeLogs.toString(), StringUtils.substringAfterLast(url, "/"));
-		SendMessageRequest sendMessageRequest = null;
-            sendMessageRequest = new SendMessageRequest().withQueueUrl(url)
-                    .withMessageBody(objectMapper.writeValueAsString(downtimeLogs));
-            amazonSQS.sendMessage(sendMessageRequest);
-            log.info("Inserted data in SQS {}",  StringUtils.substringAfterLast(url, "/"));
-	}
+    /** The mapper downtime logs mapper. */
+    @Autowired
+    DowntimeLogsMapper mapperDowntimeLogsMapper;
+
+    /**
+     * Send a new message to the sqs queue which will be used for the legal fact generation.
+     *
+     * @param downtimeLogs the downtime logs which will be used for the creation of the message
+     * @param url the url of the sqs queue
+     * @throws JsonProcessingException the json processing exception
+     */
+    public void sendMessage(DowntimeLogs downtimeLogs, String url) throws JsonProcessingException {
+        log.debug("Inserting data {} in SQS {}", downtimeLogs.toString(), StringUtils.substringAfterLast(url, "/"));
+        SendMessageRequest sendMessageRequest = null;
+        sendMessageRequest = new SendMessageRequest().withQueueUrl(url)
+                .withMessageBody(objectMapper.writeValueAsString(downtimeLogs));
+        amazonSQS.sendMessage(sendMessageRequest);
+        log.info("Inserted data in SQS {}",  StringUtils.substringAfterLast(url, "/"));
+    }
 }

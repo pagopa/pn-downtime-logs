@@ -522,7 +522,7 @@ Resources:
             - !Ref DowntimeLogsAggregateAlarmQueueARN
         LogGroupsNames: !Join
           - ','
-          - - !Sub '/aws/ecs/${ProjectName}-downtime-logs'            
+          - - !Sub '/aws/ecs/${ProjectName}-downtime-logs'
   ## BACKOFFICE
   DowntimeBoApi:
     Type: AWS::CloudFormation::Stack
