@@ -1,5 +1,8 @@
 package it.pagopa.pn.downtime.controller;
 
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeBoApi;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.BoStatusUpdateEvent;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +46,12 @@ public class DowntimeBoApiController implements DowntimeBoApi {
 
     @Override
     public ResponseEntity<Void> addStatusChangeEventBo(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
-        log.info("Post events from backoffice: {}", boStatusUpdateEvent);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT,
+                        "addStatusChangeEvent from backoffice - xPagopaPnUid={}, boStatusUpdateEvent={}, Current date(GMT/UTC)={}", xPagopaPnUid, boStatusUpdateEvent, OffsetDateTime.now())
+                .mdcEntry("uid", xPagopaPnUid).build();
+
+        logEvent.log();
 
         try {
             PnStatusUpdateEvent pnStatusUpdateEvent = mapBoEventToPnEvent(xPagopaPnUid, boStatusUpdateEvent);
@@ -51,9 +60,12 @@ public class DowntimeBoApiController implements DowntimeBoApi {
             events.add(pnStatusUpdateEvent);
 
             eventService.addStatusChangeEvent(xPagopaPnUid, events);
+            logEvent.generateSuccess().log();
+
             return ResponseEntity.noContent().build();
 
         } catch (Exception e) {
+            logEvent.generateFailure("Exception on addStatusChangeEvent from backoffice: " + e.getMessage()).log();
             throw new RuntimeException(e);
         }
     }
