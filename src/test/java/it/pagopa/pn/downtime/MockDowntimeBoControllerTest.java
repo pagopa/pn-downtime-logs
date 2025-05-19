@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class MockDowntimeBoControllerTest extends AbstractMock {
 
     @MockBean
-    private EventService eventService;
+    private EventServiceImpl eventService;
 
     @Test
     public void getMalfunctionPreview() throws Exception {
