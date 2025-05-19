@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.api.DowntimeBoApi;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.BoStatusUpdateEvent;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.service.EventService;
 import org.slf4j.Logger;
@@ -56,6 +57,10 @@ public class DowntimeBoApiController implements DowntimeBoApi {
         logEvent.log();
 
         try {
+            if (boStatusUpdateEvent.getStatus() == PnFunctionalityStatus.OK && boStatusUpdateEvent.getHtmlDescription() == null || boStatusUpdateEvent.getHtmlDescription().isEmpty()) {
+                throw new IllegalArgumentException("HtmlDescription cannot be null or empty when status is OK");
+            }
+
             PnStatusUpdateEvent pnStatusUpdateEvent = mapBoEventToPnEvent(xPagopaPnUid, boStatusUpdateEvent);
 
             List<PnStatusUpdateEvent> events = new ArrayList<>();

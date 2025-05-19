@@ -526,11 +526,12 @@ public abstract class AbstractMock {
 	}
 
 	protected static String getBoStatusUpdateEvent(OffsetDateTime timestamp, PnFunctionality functionality,
-												   PnFunctionalityStatus status) throws JsonProcessingException {
+												   PnFunctionalityStatus status, String htmlDescription) throws JsonProcessingException {
 		BoStatusUpdateEvent event = new BoStatusUpdateEvent();
 		event.setTimestamp(timestamp);
 		event.setStatus(status);
 		event.setFunctionality(functionality);
+		event.setHtmlDescription(htmlDescription);
 
 		return mapper.registerModule(new JavaTimeModule()).writeValueAsString(event);
 	}
