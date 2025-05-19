@@ -11,7 +11,7 @@ import it.pagopa.pn.downtime.service.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +32,11 @@ public class DowntimeBoApiController implements DowntimeBoApi {
 
     @Override
     public ResponseEntity<Resource> getMalfunctionPreview(String xPagopaPnUid, BoStatusUpdateEvent boStatusUpdateEvent) {
-        log.info("Get malfunction preview for event: {}", boStatusUpdateEvent);
+        log.info("Get malfunction preview for xPagopaPnUid: {}, event: {}", xPagopaPnUid, boStatusUpdateEvent);
         try {
-            Resource resource = new FileSystemResource("src/main/resources/sample.pdf");
+            PnStatusUpdateEvent event = mapBoEventToPnEvent(xPagopaPnUid, boStatusUpdateEvent);
+            byte[] data = eventService.previewLegalFact(event);
+            ByteArrayResource resource = new ByteArrayResource(data);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
