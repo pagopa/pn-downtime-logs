@@ -5,7 +5,6 @@ import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStat
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.util.Constants;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,8 +51,7 @@ class EventServiceImplTest {
         try {
             PnStatusUpdateEvent event = getMockEvent();
 
-            DowntimeLogs d = null;
-            Mockito.doReturn(d).when(eventService).findDowntimeLogs(event.getTimestamp(), event.getFunctionality().get(0), event);
+            Mockito.doReturn(null).when(eventService).findDowntimeLogs(event.getTimestamp(), event.getFunctionality().get(0), event);
 
             eventService.previewLegalFact(event);
 
