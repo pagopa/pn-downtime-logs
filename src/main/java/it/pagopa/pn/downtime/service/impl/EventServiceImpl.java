@@ -79,7 +79,8 @@ public class EventServiceImpl implements EventService {
 
             PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
             PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT,
-                            "addStatusChangeEvent - xPagopaPnUid={}, timestamp={}, functionality={}, status={}, sourceType={}, value={}", xPagopaPnUid, date, event.getFunctionality(), event.getStatus().getValue(), event.getSourceType(), event.getSource())
+                            "addStatusChangeEvent - xPagopaPnUid={}, timestamp={}, functionality={}, status={}, sourceType={}, source={}, htmlDescription={}",
+                            xPagopaPnUid, date, event.getFunctionality(), event.getStatus().getValue(), event.getSourceType(), event.getSource(), event.getHtmlDescription())
                     .mdcEntry("uid", xPagopaPnUid).build();
 
             logEvent.log();
@@ -188,6 +189,7 @@ public class EventServiceImpl implements EventService {
             dt.setEndDate(newEndDate);
             dt.setEndEventUuid(eventId);
             dt.setStatus(event.getStatus());
+            dt.setHtmlDescription(event.getHtmlDescription());
             dynamoDBMapper.save(dt);
             producer.sendMessage(dt, url);
         }

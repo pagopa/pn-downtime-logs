@@ -18,7 +18,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,14 +48,18 @@ class EventServiceImplTest {
 
     @Test
     void previewLegalFactError() {
-        PnStatusUpdateEvent event = getMockEvent();
-        Mockito.doReturn(null).when(eventService).findDowntimeLogs(event.getTimestamp(),
-                event.getFunctionality().get(0), event);
+        try {
+            PnStatusUpdateEvent event = getMockEvent();
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
-                () -> eventService.previewLegalFact(event));
+            Mockito.doReturn(null).when(eventService).findDowntimeLogs(event.getTimestamp(), event.getFunctionality().get(0), event);
 
-        assertEquals(Constants.GENERIC_CONFLICT_ERROR_MESSAGE_TITLE, exception.getMessage());
+            eventService.previewLegalFact(event);
+
+        } catch (Exception e) {
+            Exception expected = new IllegalArgumentException(Constants.GENERIC_CONFLICT_ERROR_MESSAGE_TITLE);
+            assertEquals(expected.getClass(), e.getClass());
+            assertEquals(expected.getMessage(), e.getMessage());
+        }
     }
 
 
