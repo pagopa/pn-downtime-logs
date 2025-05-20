@@ -57,7 +57,8 @@ public class DowntimeBoApiController implements DowntimeBoApi {
         logEvent.log();
 
         try {
-            if (boStatusUpdateEvent.getStatus() == PnFunctionalityStatus.OK && boStatusUpdateEvent.getHtmlDescription() == null || boStatusUpdateEvent.getHtmlDescription().isEmpty()) {
+            if (boStatusUpdateEvent.getStatus() == PnFunctionalityStatus.OK &&
+                    (boStatusUpdateEvent.getHtmlDescription() == null || boStatusUpdateEvent.getHtmlDescription().isEmpty())) {
                 throw new IllegalArgumentException("HtmlDescription cannot be null or empty when status is OK");
             }
 

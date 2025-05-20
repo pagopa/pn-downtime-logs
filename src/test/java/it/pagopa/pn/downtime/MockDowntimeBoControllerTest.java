@@ -76,9 +76,27 @@ public class MockDowntimeBoControllerTest extends AbstractMock {
     }
 
     @Test
-    public void addStatusChangeEventBo() throws Exception {
+    public void addStatusChangeEventBoOK() throws Exception {
         String event = getBoStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
                 PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.OK, "some malfunction description");
+
+        Mockito.doNothing().when(eventService).addStatusChangeEvent(Mockito.anyString(), Mockito.anyList());
+
+        MockHttpServletResponse response = mvc
+                .perform(
+                        post("/downtime-bo/v1/events")
+                                .content(event)
+                                .header("x-pagopa-pn-uid", "PAGO-PA-OK")
+                                .contentType(APPLICATION_JSON_UTF8)
+                )
+                .andReturn().getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    public void addStatusChangeEventBoKO() throws Exception {
+        String event = getBoStatusUpdateEvent(OffsetDateTime.parse("2022-08-28T15:55:15.995Z"),
+                PnFunctionality.NOTIFICATION_CREATE, PnFunctionalityStatus.KO, null);
 
         Mockito.doNothing().when(eventService).addStatusChangeEvent(Mockito.anyString(), Mockito.anyList());
 
