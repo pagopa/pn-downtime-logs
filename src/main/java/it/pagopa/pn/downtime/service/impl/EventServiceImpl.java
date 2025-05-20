@@ -1,20 +1,7 @@
 package it.pagopa.pn.downtime.service.impl;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import freemarker.template.TemplateException;
-import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-
+import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -22,6 +9,7 @@ import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
+import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
@@ -32,6 +20,18 @@ import it.pagopa.pn.downtime.util.Constants;
 import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -189,7 +189,7 @@ public class EventServiceImpl implements EventService {
             dt.setEndDate(newEndDate);
             dt.setEndEventUuid(eventId);
             dt.setStatus(event.getStatus());
-            dt.setHtmlDescription(event.getHtmlDescription());
+            dt.setHtmlDescription(sanitizeHtmlDescription(event.getHtmlDescription()));
             dynamoDBMapper.save(dt);
             producer.sendMessage(dt, url);
         }
@@ -250,9 +250,9 @@ public class EventServiceImpl implements EventService {
         event.setSourceType(sourceType);
         event.setSource(source);
         event.setUuid(uuid);
-        log.debug("Inserting data {} in DynamoDB table {}", event.toString(),StringUtils.substringAfterLast(eventTableName, "/"));
+        log.debug("Inserting data {} in DynamoDB table {}", event.toString(), StringUtils.substringAfterLast(eventTableName, "/"));
         dynamoDBMapper.save(event);
-        log.info("Inserted data in DynamoDB table {}",StringUtils.substringAfterLast(eventTableName, "/"));
+        log.info("Inserted data in DynamoDB table {}", StringUtils.substringAfterLast(eventTableName, "/"));
         return event.getIdEvent();
     }
 
@@ -267,7 +267,7 @@ public class EventServiceImpl implements EventService {
         }
         OffsetDateTime endDate = DowntimeLogUtil.getGmtTimeFromOffsetDateTime(event.getTimestamp());
         dt.setEndDate(endDate);
-        dt.setHtmlDescription(event.getHtmlDescription());
+        dt.setHtmlDescription(sanitizeHtmlDescription(event.getHtmlDescription()));
 
         return legalFactGenerator.generateMalfunctionLegalFact(dt);
     }
@@ -279,4 +279,12 @@ public class EventServiceImpl implements EventService {
                         : null);
     }
 
+    protected String sanitizeHtmlDescription(String htmlDescription) {
+        if (htmlDescription == null) return null;
+
+        PolicyFactory CUSTOM_POLICY = new HtmlPolicyBuilder()
+                .allowElements("p", "b", "i", "ul", "ol", "li", "span")
+                .toFactory();
+        return CUSTOM_POLICY.sanitize(htmlDescription);
+    }
 }

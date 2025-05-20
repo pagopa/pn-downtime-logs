@@ -272,3 +272,4 @@ components:
           description: >-
             Descrizione dell'evento in formato HTML. <br/>
           type: string
+          maxLength: 3000
