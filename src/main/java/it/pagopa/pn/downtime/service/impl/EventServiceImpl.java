@@ -283,7 +283,7 @@ public class EventServiceImpl implements EventService {
         if (htmlDescription == null) return null;
 
         PolicyFactory CUSTOM_POLICY = new HtmlPolicyBuilder()
-                .allowElements("p", "b", "i", "ul", "ol", "li", "span")
+                .allowElements("p", "b", "i", "ul", "ol", "li", "span", "em", "strong", "u")
                 .toFactory();
         return CUSTOM_POLICY.sanitize(htmlDescription);
     }
