@@ -39,9 +39,10 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
      */
     @Override
     public byte[] generateMalfunctionLegalFact(DowntimeLogs downtimeLogs) throws IOException, TemplateException {
+        log.info("generateMalfunctionLegalFact");
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter fmtTime = DateTimeFormatter.ofPattern("HH:mm");
-        log.info("generateLegalFact");
+
         Map<String, Object> templateModel = new HashMap<>();
         OffsetDateTime newStartDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(downtimeLogs.getStartDate());
         OffsetDateTime newEndDate = DowntimeLogUtil.getOffsetDateTimeFromGmtTime(downtimeLogs.getEndDate());

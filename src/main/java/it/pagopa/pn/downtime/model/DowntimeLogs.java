@@ -27,157 +27,167 @@ import lombok.ToString;
 @JsonIgnoreProperties
 @ToString
 public class DowntimeLogs implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	private DowntimeLogsId downtimeLogsId;
-	@JsonSerialize(using = OffsetDateTimeSerializer.class)
-	private OffsetDateTime endDate;
-	private PnFunctionality functionality;
-	private PnFunctionalityStatus status;
-	private String startEventUuid;
-	private String endEventUuid;
-	private String legalFactId;
-	private String uuid;
-	private String history;
-	private Boolean fileAvailable;
-	@JsonSerialize(using = OffsetDateTimeSerializer.class)
-	private OffsetDateTime fileAvailableTimestamp;
-	@JsonSerialize(using = OffsetDateTimeSerializer.class)
-	private OffsetDateTime startDateAttribute;
-	
-	@DynamoDBHashKey
-	public String getFunctionalityStartYear() {
-		return downtimeLogsId != null ? downtimeLogsId.getFunctionalityStartYear() : null;
-	}
+    @Id
+    private DowntimeLogsId downtimeLogsId;
+    @JsonSerialize(using = OffsetDateTimeSerializer.class)
+    private OffsetDateTime endDate;
+    private PnFunctionality functionality;
+    private PnFunctionalityStatus status;
+    private String startEventUuid;
+    private String endEventUuid;
+    private String legalFactId;
+    private String uuid;
+    private String history;
+    private Boolean fileAvailable;
+    @JsonSerialize(using = OffsetDateTimeSerializer.class)
+    private OffsetDateTime fileAvailableTimestamp;
+    @JsonSerialize(using = OffsetDateTimeSerializer.class)
+    private OffsetDateTime startDateAttribute;
+    private String htmlDescription;
 
-	public void setFunctionalityStartYear(String functionalityStartYear) {
-		if (downtimeLogsId == null) {
-			downtimeLogsId = new DowntimeLogsId();
-		}
-		downtimeLogsId.setFunctionalityStartYear(functionalityStartYear);
-	}
+    @DynamoDBHashKey
+    public String getFunctionalityStartYear() {
+        return downtimeLogsId != null ? downtimeLogsId.getFunctionalityStartYear() : null;
+    }
 
-	public void setStartDate(OffsetDateTime startDate) {
-		if (downtimeLogsId == null) {
-			downtimeLogsId = new DowntimeLogsId();
-		}
-		downtimeLogsId.setStartDate(startDate);
-	}
+    public void setFunctionalityStartYear(String functionalityStartYear) {
+        if (downtimeLogsId == null) {
+            downtimeLogsId = new DowntimeLogsId();
+        }
+        downtimeLogsId.setFunctionalityStartYear(functionalityStartYear);
+    }
 
-	@DynamoDBRangeKey
-	@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
-	public OffsetDateTime getStartDate() {
-		return downtimeLogsId != null ? downtimeLogsId.getStartDate() : null;
-	}
+    public void setStartDate(OffsetDateTime startDate) {
+        if (downtimeLogsId == null) {
+            downtimeLogsId = new DowntimeLogsId();
+        }
+        downtimeLogsId.setStartDate(startDate);
+    }
 
-	@DynamoDBAttribute
-	@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
-	public OffsetDateTime getEndDate() {
-		return endDate;
-	}
+    @DynamoDBRangeKey
+    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    public OffsetDateTime getStartDate() {
+        return downtimeLogsId != null ? downtimeLogsId.getStartDate() : null;
+    }
 
-	@DynamoDBAttribute
-	@DynamoDBTypeConverted(converter = PnFunctionalityConverter.Converter.class)
-	public PnFunctionality getFunctionality() {
-		return functionality;
-	}
+    @DynamoDBAttribute
+    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    public OffsetDateTime getEndDate() {
+        return endDate;
+    }
 
-	@DynamoDBAttribute
-	@DynamoDBTypeConverted(converter = PnFunctionalityStatusConverter.Converter.class)
-	public PnFunctionalityStatus getStatus() {
-		return status;
-	}
+    @DynamoDBAttribute
+    @DynamoDBTypeConverted(converter = PnFunctionalityConverter.Converter.class)
+    public PnFunctionality getFunctionality() {
+        return functionality;
+    }
 
-	@DynamoDBAttribute
-	public String getStartEventUuid() {
-		return startEventUuid;
-	}
+    @DynamoDBAttribute
+    @DynamoDBTypeConverted(converter = PnFunctionalityStatusConverter.Converter.class)
+    public PnFunctionalityStatus getStatus() {
+        return status;
+    }
 
-	@DynamoDBAttribute
-	public String getEndEventUuid() {
-		return endEventUuid;
-	}
+    @DynamoDBAttribute
+    public String getStartEventUuid() {
+        return startEventUuid;
+    }
 
-	@DynamoDBAttribute
-	public String getLegalFactId() {
-		return legalFactId;
-	}
-	
-	@DynamoDBAttribute
-	public Boolean getFileAvailable() {
-		return fileAvailable;
-	}
+    @DynamoDBAttribute
+    public String getEndEventUuid() {
+        return endEventUuid;
+    }
 
-	@DynamoDBAttribute
-	@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
-	public OffsetDateTime getFileAvailableTimestamp() {
-		return fileAvailableTimestamp;
-	}
-	
-	@DynamoDBAttribute
-	public String getUuid() {
-		return uuid;
-	}
-	
-	@DynamoDBAttribute
-	public String getHistory() {
-		return history;
-	}
-	
-	@DynamoDBAttribute
-	@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
-	public OffsetDateTime getStartDateAttribute() {
-		return startDateAttribute;
-	}
-	
-	public void setEndDate(OffsetDateTime endDate) {
-		this.endDate = endDate;
-	}
+    @DynamoDBAttribute
+    public String getLegalFactId() {
+        return legalFactId;
+    }
 
-	public void setFunctionality(PnFunctionality functionality) {
-		this.functionality = functionality;
-	}
+    @DynamoDBAttribute
+    public Boolean getFileAvailable() {
+        return fileAvailable;
+    }
 
-	public void setStatus(PnFunctionalityStatus status) {
-		this.status = status;
-	}
+    @DynamoDBAttribute
+    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    public OffsetDateTime getFileAvailableTimestamp() {
+        return fileAvailableTimestamp;
+    }
 
-	public void setStartEventUuid(String startEventUuid) {
-		this.startEventUuid = startEventUuid;
-	}
+    @DynamoDBAttribute
+    public String getUuid() {
+        return uuid;
+    }
 
-	public void setEndEventUuid(String endEventUuid) {
-		this.endEventUuid = endEventUuid;
-	}
+    @DynamoDBAttribute
+    public String getHistory() {
+        return history;
+    }
 
-	public void setLegalFactId(String legalFactId) {
-		this.legalFactId = legalFactId;
-	}
+    @DynamoDBAttribute
+    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    public OffsetDateTime getStartDateAttribute() {
+        return startDateAttribute;
+    }
 
+    @DynamoDBAttribute
+    public String getHtmlDescription() {
+        return htmlDescription;
+    }
 
-	public void setFileAvailable(Boolean fileAvailable) {
-		this.fileAvailable = fileAvailable;
-	}
+    public void setHtmlDescription(String htmlDescription) {
+        this.htmlDescription = htmlDescription;
+    }
 
-	public void setFileAvailableTimestamp(OffsetDateTime fileAvailableTimestamp) {
-		this.fileAvailableTimestamp = fileAvailableTimestamp;
-	}
+    public void setEndDate(OffsetDateTime endDate) {
+        this.endDate = endDate;
+    }
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+    public void setFunctionality(PnFunctionality functionality) {
+        this.functionality = functionality;
+    }
 
-	public void setHistory(String history) {
-		this.history = history;
-	}
+    public void setStatus(PnFunctionalityStatus status) {
+        this.status = status;
+    }
 
-	public void setStartDateAttribute(OffsetDateTime startDateAttribute) {
-		this.startDateAttribute = startDateAttribute;
-	}
+    public void setStartEventUuid(String startEventUuid) {
+        this.startEventUuid = startEventUuid;
+    }
+
+    public void setEndEventUuid(String endEventUuid) {
+        this.endEventUuid = endEventUuid;
+    }
+
+    public void setLegalFactId(String legalFactId) {
+        this.legalFactId = legalFactId;
+    }
 
 
+    public void setFileAvailable(Boolean fileAvailable) {
+        this.fileAvailable = fileAvailable;
+    }
+
+    public void setFileAvailableTimestamp(OffsetDateTime fileAvailableTimestamp) {
+        this.fileAvailableTimestamp = fileAvailableTimestamp;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setHistory(String history) {
+        this.history = history;
+    }
+
+    public void setStartDateAttribute(OffsetDateTime startDateAttribute) {
+        this.startDateAttribute = startDateAttribute;
+    }
 
 
-	
+
+
+
 }

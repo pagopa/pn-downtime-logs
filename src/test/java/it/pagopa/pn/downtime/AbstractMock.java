@@ -13,6 +13,7 @@ import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileC
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileCreationResponse.UploadMethodEnum;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileDownloadInfo;
 import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileDownloadResponse;
+import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.BoStatusUpdateEvent;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
@@ -522,5 +523,16 @@ public abstract class AbstractMock {
 
 	protected void before() {
 		service = new DowntimeLogsServiceImpl();
+	}
+
+	protected static String getBoStatusUpdateEvent(OffsetDateTime timestamp, PnFunctionality functionality,
+												   PnFunctionalityStatus status, String htmlDescription) throws JsonProcessingException {
+		BoStatusUpdateEvent event = new BoStatusUpdateEvent();
+		event.setTimestamp(timestamp);
+		event.setStatus(status);
+		event.setFunctionality(functionality);
+		event.setHtmlDescription(htmlDescription);
+
+		return mapper.registerModule(new JavaTimeModule()).writeValueAsString(event);
 	}
 }

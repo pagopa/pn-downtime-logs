@@ -7,5 +7,5 @@ import it.pagopa.pn.downtime.model.DowntimeLogs;
 
 @Mapper(componentModel = "spring")
 public interface DowntimeLogsMapper {
-	PnDowntimeEntry downtimeLogsToPnDowntimeEntry(DowntimeLogs downtimeLogs);
+    PnDowntimeEntry downtimeLogsToPnDowntimeEntry(DowntimeLogs downtimeLogs);
 }
