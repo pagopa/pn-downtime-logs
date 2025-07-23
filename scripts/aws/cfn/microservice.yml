@@ -475,7 +475,7 @@ Resources:
       Parameters:
         WAFName: !Sub "${ProjectName}-delivery-public"
         IntendedUsage: PUBLIC
-        APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.APIGatewayARN
+        APIGatewayARNs: !Sub "arn:${AWS::Partition}:apigateway:${AWS::Region}::/restapis/${DowntimeLogsMicroservicePublicApi.Outputs.RestApiId}/stages/${PublicRestApiStage}"
         Limit: !Ref WebWafLimit
         EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
