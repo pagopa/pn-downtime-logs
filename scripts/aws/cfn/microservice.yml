@@ -473,9 +473,9 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
-        WAFName: !Sub "${ProjectName}-delivery-public"
+        WAFName: !Sub "${ProjectName}-downtime-public"
         IntendedUsage: PUBLIC
-        APIGatewayARNs: !GetAtt DowntimeLogsMicroservicePublicApi.Outputs.APIGatewayARN
+        APIGatewayARNs: !Sub "arn:${AWS::Partition}:apigateway:${AWS::Region}::/restapis/${DowntimeLogsMicroservicePublicApi.Outputs.RestApiId}/stages/${PublicRestApiStage}"
         Limit: !Ref WebWafLimit
         EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
