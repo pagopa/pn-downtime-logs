@@ -1,20 +1,19 @@
 package it.pagopa.pn.downtime.config;
 
+import java.net.URI;
+
 import org.apache.commons.lang3.StringUtils;
-import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
 
 @Configuration
-@EnableDynamoDBRepositories(basePackages = "it.pagopa.pn.downtime.repository")
 public class DynamoDBConfig {
 
 	public DynamoDBConfig(AwsConfigsActivation props) {
@@ -29,26 +28,16 @@ public class DynamoDBConfig {
 	@Value("${amazon.dynamodb.secretkey}")
 	private String amazonAWSSecretKey;
 
-
 	@Bean
-	public AmazonDynamoDB amazonDynamoDBLog() {
+	public DynamoDbClient dynamoDbClient() {
+		DynamoDbClientBuilder builder = DynamoDbClient.builder();
 		if (StringUtils.isNotBlank(props.getEndpointUrl()) && StringUtils.isNotBlank(props.getRegionCode())) {
-			return AmazonDynamoDBClientBuilder.standard()
-					.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl(), props.getRegionCode()))
-					.build();
+			builder.endpointOverride(URI.create(props.getEndpointUrl()))
+				   .region(Region.of(props.getRegionCode()));
 		} else if (StringUtils.isNotBlank(amazonAWSAccessKey) && StringUtils.isNotBlank(amazonAWSSecretKey)) {
-			return AmazonDynamoDBClientBuilder.standard()
-					.withCredentials(awsCredentialsProvider())
-					.withEndpointConfiguration(new EndpointConfiguration(props.getEndpointUrl(), props.getRegionCode()))
-					.build();
-		} else {
-			return AmazonDynamoDBClientBuilder.standard().build();
+			builder.credentialsProvider(StaticCredentialsProvider.create(
+					AwsBasicCredentials.create(amazonAWSAccessKey, amazonAWSSecretKey)));
 		}
+		return builder.build();
 	}
-
-	private AWSCredentialsProvider awsCredentialsProvider() {
-		return new AWSStaticCredentialsProvider(new BasicAWSCredentials(amazonAWSAccessKey, amazonAWSSecretKey));
-	}
-
-
 }

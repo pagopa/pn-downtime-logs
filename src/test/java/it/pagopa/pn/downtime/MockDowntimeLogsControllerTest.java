@@ -394,6 +394,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	@Test
 	public void test_CheckResolved() throws Exception {
 		mockResolved(client);
+		mockEmptyIndexQuery();
 
 		MockHttpServletResponse response = mvc
 				.perform(get(resolvedUrl)
@@ -407,6 +408,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	@Test
 	public void test_CheckResolvedNoParams() throws Exception {
 		mockResolved(client);
+		mockEmptyIndexQuery();
 
 		MockHttpServletResponse response = mvc
 				.perform(get(resolvedUrl))

@@ -5,29 +5,38 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
-
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
+import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter;
+import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType;
+import software.amazon.awssdk.enhanced.dynamodb.EnhancedType;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@DynamoDBTypeConverted(converter = PnFunctionalityConverter.Converter.class)
 public @interface PnFunctionalityConverter {
 
 	String separator() default " ";
 
-	public static class Converter implements DynamoDBTypeConverter<String, PnFunctionality> {
+	class Converter implements AttributeConverter<PnFunctionality> {
 		@Override
-		public String convert(final PnFunctionality o) {
-			return o.getValue();
+		public AttributeValue transformFrom(PnFunctionality input) {
+			return AttributeValue.builder().s(input.getValue()).build();
 		}
 
 		@Override
-		public PnFunctionality unconvert(final String o) {
-			return PnFunctionality.fromValue(o);
+		public PnFunctionality transformTo(AttributeValue input) {
+			return PnFunctionality.fromValue(input.s());
 		}
 
+		@Override
+		public EnhancedType<PnFunctionality> type() {
+			return EnhancedType.of(PnFunctionality.class);
+		}
+
+		@Override
+		public AttributeValueType attributeValueType() {
+			return AttributeValueType.S;
+		}
 	}
 }

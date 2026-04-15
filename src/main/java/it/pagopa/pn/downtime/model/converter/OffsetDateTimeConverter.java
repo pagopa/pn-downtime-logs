@@ -7,26 +7,37 @@ import java.lang.annotation.Target;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
+import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter;
+import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType;
+import software.amazon.awssdk.enhanced.dynamodb.EnhancedType;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
 public @interface OffsetDateTimeConverter {
 
 	String separator() default " ";
 
-	public static class Converter implements DynamoDBTypeConverter<String, OffsetDateTime> {
+	class Converter implements AttributeConverter<OffsetDateTime> {
 		@Override
-		public String convert(final OffsetDateTime o) {
-			return o != null ? o.toString() : "";
+		public AttributeValue transformFrom(OffsetDateTime input) {
+			return AttributeValue.builder().s(input != null ? input.toString() : "").build();
 		}
 
 		@Override
-		public OffsetDateTime unconvert(final String o) {
-			return o != null && !o.isEmpty() ? OffsetDateTime.parse(o,DateTimeFormatter.ISO_OFFSET_DATE_TIME) : null;
+		public OffsetDateTime transformTo(AttributeValue input) {
+			String s = input.s();
+			return (s != null && !s.isEmpty()) ? OffsetDateTime.parse(s, DateTimeFormatter.ISO_OFFSET_DATE_TIME) : null;
 		}
 
+		@Override
+		public EnhancedType<OffsetDateTime> type() {
+			return EnhancedType.of(OffsetDateTime.class);
+		}
+
+		@Override
+		public AttributeValueType attributeValueType() {
+			return AttributeValueType.S;
+		}
 	}
 }

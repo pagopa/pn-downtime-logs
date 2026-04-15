@@ -3,13 +3,6 @@ package it.pagopa.pn.downtime.model;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 
-import org.springframework.data.annotation.Id;
-
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -21,15 +14,19 @@ import it.pagopa.pn.downtime.model.converter.PnFunctionalityStatusConverter;
 import it.pagopa.pn.downtime.util.OffsetDateTimeSerializer;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 @NoArgsConstructor
-@DynamoDBTable(tableName = "Downtime-DowntimeLogs")
+@DynamoDbBean
 @JsonIgnoreProperties
 @ToString
 public class DowntimeLogs implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Id
     private DowntimeLogsId downtimeLogsId;
     @JsonSerialize(using = OffsetDateTimeSerializer.class)
     private OffsetDateTime endDate;
@@ -47,7 +44,7 @@ public class DowntimeLogs implements Serializable {
     private OffsetDateTime startDateAttribute;
     private String htmlDescription;
 
-    @DynamoDBHashKey
+    @DynamoDbPartitionKey
     public String getFunctionalityStartYear() {
         return downtimeLogsId != null ? downtimeLogsId.getFunctionalityStartYear() : null;
     }
@@ -66,73 +63,62 @@ public class DowntimeLogs implements Serializable {
         downtimeLogsId.setStartDate(startDate);
     }
 
-    @DynamoDBRangeKey
-    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    @DynamoDbSortKey
+    @DynamoDbConvertedBy(OffsetDateTimeConverter.Converter.class)
     public OffsetDateTime getStartDate() {
         return downtimeLogsId != null ? downtimeLogsId.getStartDate() : null;
     }
 
-    @DynamoDBAttribute
-    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    @DynamoDbConvertedBy(OffsetDateTimeConverter.Converter.class)
     public OffsetDateTime getEndDate() {
         return endDate;
     }
 
-    @DynamoDBAttribute
-    @DynamoDBTypeConverted(converter = PnFunctionalityConverter.Converter.class)
+    @DynamoDbConvertedBy(PnFunctionalityConverter.Converter.class)
     public PnFunctionality getFunctionality() {
         return functionality;
     }
 
-    @DynamoDBAttribute
-    @DynamoDBTypeConverted(converter = PnFunctionalityStatusConverter.Converter.class)
+    @DynamoDbConvertedBy(PnFunctionalityStatusConverter.Converter.class)
     public PnFunctionalityStatus getStatus() {
         return status;
     }
 
-    @DynamoDBAttribute
     public String getStartEventUuid() {
         return startEventUuid;
     }
 
-    @DynamoDBAttribute
     public String getEndEventUuid() {
         return endEventUuid;
     }
 
-    @DynamoDBAttribute
     public String getLegalFactId() {
         return legalFactId;
     }
 
-    @DynamoDBAttribute
     public Boolean getFileAvailable() {
         return fileAvailable;
     }
 
-    @DynamoDBAttribute
-    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    @DynamoDbConvertedBy(OffsetDateTimeConverter.Converter.class)
     public OffsetDateTime getFileAvailableTimestamp() {
         return fileAvailableTimestamp;
     }
 
-    @DynamoDBAttribute
     public String getUuid() {
         return uuid;
     }
 
-    @DynamoDBAttribute
+    @DynamoDbSecondaryPartitionKey(indexNames = {"invertedIndex"})
     public String getHistory() {
         return history;
     }
 
-    @DynamoDBAttribute
-    @DynamoDBTypeConverted(converter = OffsetDateTimeConverter.Converter.class)
+    @DynamoDbConvertedBy(OffsetDateTimeConverter.Converter.class)
     public OffsetDateTime getStartDateAttribute() {
         return startDateAttribute;
     }
 
-    @DynamoDBAttribute
     public String getHtmlDescription() {
         return htmlDescription;
     }
@@ -165,7 +151,6 @@ public class DowntimeLogs implements Serializable {
         this.legalFactId = legalFactId;
     }
 
-
     public void setFileAvailable(Boolean fileAvailable) {
         this.fileAvailable = fileAvailable;
     }
@@ -185,9 +170,4 @@ public class DowntimeLogs implements Serializable {
     public void setStartDateAttribute(OffsetDateTime startDateAttribute) {
         this.startDateAttribute = startDateAttribute;
     }
-
-
-
-
-
 }

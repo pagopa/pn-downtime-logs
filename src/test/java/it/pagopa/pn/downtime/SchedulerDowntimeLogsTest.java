@@ -18,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
@@ -41,8 +40,6 @@ public class SchedulerDowntimeLogsTest extends AbstractMock{
     private LegalFactIdJob job;  
     @Mock
     DowntimeLogsServiceImpl downtimeLogsService;
-    @Mock
-    AmazonSQS sqs;
     @Mock
 	DowntimeLogsSend producer;
 	

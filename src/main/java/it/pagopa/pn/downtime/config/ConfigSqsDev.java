@@ -1,5 +1,7 @@
 package it.pagopa.pn.downtime.config;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,10 @@ import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 
 import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 @Configuration
 @RequiredArgsConstructor
@@ -32,7 +38,9 @@ public class ConfigSqsDev {
     private String sqsUrlCloudwatch;
 	@Value("${amazon.sqs.end-point.legalfact-available}")
 	private String sqsUrlSafeStorage;
-	
+
+	// ── v1 beans: kept for @SqsListener consumer infrastructure ──────────────
+
 	@Bean(name = "acts")
     @Primary
     public AmazonSQSAsync amazonSQSAsync() {
@@ -41,12 +49,12 @@ public class ConfigSqsDev {
 				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
 				.build();
 	}
-	
+
 	@Bean
 	public QueueMessagingTemplate queueMessagingTemplate() {
 		return new QueueMessagingTemplate(amazonSQSAsync());
 	}
-	
+
 	@Bean(name = "cloudwatch")
     public AmazonSQSAsync amazonSQSCloudWatch() {
 		return AmazonSQSAsyncClientBuilder.standard()
@@ -54,12 +62,12 @@ public class ConfigSqsDev {
 				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
 				.build();
 	}
-	
+
 	@Bean
 	public QueueMessagingTemplate queueMessagingTemplateCloudWatch() {
 		return new QueueMessagingTemplate(amazonSQSCloudWatch());
 	}
-	
+
 	@Bean(name = "safestorage")
     public AmazonSQSAsync amazonSQSAsyncSafeStorage() {
 		return AmazonSQSAsyncClientBuilder.standard()
@@ -67,9 +75,21 @@ public class ConfigSqsDev {
 				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
 				.build();
 	}
-	
+
 	@Bean
 	public QueueMessagingTemplate queueMessagingTemplateSafeStorage() {
 		return new QueueMessagingTemplate(amazonSQSAsyncSafeStorage());
+	}
+
+	// ── v2 bean: used by DowntimeLogsSend producer ────────────────────────────
+
+	@Bean(name = "sqsClientProducer")
+	public SqsAsyncClient sqsAsyncClientProducer() {
+		return SqsAsyncClient.builder()
+				.endpointOverride(URI.create(sqsUrlActs))
+				.region(Region.of(region))
+				.credentialsProvider(StaticCredentialsProvider.create(
+						AwsBasicCredentials.create(accessKey, secretKey)))
+				.build();
 	}
 }

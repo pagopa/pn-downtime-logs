@@ -6,8 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 
 import freemarker.template.TemplateException;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
@@ -24,12 +24,12 @@ public class DowntimeLogsReceiver {
 
 	@Autowired
 	private ObjectMapper mapper;
-	
+
 	@Autowired
 	private LegalFactService legalFactService;
-	
+
 	@Autowired
-	private DynamoDBMapper dynamoDBMapper;
+	private DynamoDbTable<DowntimeLogs> downtimeLogsTable;
 	
 	/**
 	 * Receive string message from a sqs queue which will be used for the legal fact generation .
@@ -46,6 +46,6 @@ public class DowntimeLogsReceiver {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
 		log.info("message received in Acts queue {}", downtimeLog.toString());
 		downtimeLog = legalFactService.generateLegalFact(downtimeLog);
-		dynamoDBMapper.save(downtimeLog);
+		downtimeLogsTable.putItem(downtimeLog);
 		}
 	}

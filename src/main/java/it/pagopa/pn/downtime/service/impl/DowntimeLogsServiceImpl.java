@@ -15,11 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeEntry;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnDowntimeHistoryResponse;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
@@ -31,6 +26,14 @@ import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.util.DowntimeLogUtil;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
     @Autowired
-    private DynamoDBMapper dynamoDBMapper;
+    private DynamoDbTable<DowntimeLogs> downtimeLogsTable;
 
     @Autowired
     private DowntimeLogsMapper downtimeLogsMapper;
@@ -48,16 +51,7 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
     @Value("${amazon.dynamodb.log.endpoint}")
     private String downtimeLogsTableName;
-    /**
-     * Gets the status history.
-     *
-     * @param fromTime      starting timestamp of the research. Required
-     * @param toTime        ending timestamp of the research
-     * @param functionality functionalities for which the research has to be done
-     * @param page          the page of the research
-     * @param size          the size of the researcj
-     * @return all the downtimes present in the period of time specified
-     */
+
     @Override
     public PnDowntimeHistoryResponse getStatusHistory(OffsetDateTime fromTime, OffsetDateTime toTime,
                                                       List<PnFunctionality> functionality, String page, String size) {
@@ -83,19 +77,16 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
             }
 
             Pageable pageRequest = PageRequest.of(Integer.valueOf(page), Integer.valueOf(size));
-
             pageHistory = new PageImpl<>(listHistorySubList, pageRequest, listHistoryResults.size());
         }
 
         List<PnDowntimeEntry> listResponse = new ArrayList<>();
-
         for (DowntimeLogs downtimeLogs : pageHistory != null ? pageHistory.getContent() : listHistoryResults) {
             PnDowntimeEntry entry = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtimeLogs);
             listResponse.add(entry);
         }
 
         PnDowntimeHistoryResponse pn = new PnDowntimeHistoryResponse();
-
         pn.setNextPage(pageHistory != null && pageHistory.hasNext() ? Integer.valueOf(page) + 1 + "" : page);
         pn.setResult(listResponse);
 
@@ -103,14 +94,6 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
         return pn;
     }
 
-    /**
-     * Executes the queries for the getStatusHistory service
-     *
-     * @param fromTime      starting timestamp of the research. Required
-     * @param toTime        ending timestamp of the research
-     * @param functionality functionalities for which the research has to be done
-     * @return the combined results of the queries
-     */
     public List<DowntimeLogs> getStatusHistoryResults(OffsetDateTime fromTime, OffsetDateTime toTime,
                                                       List<PnFunctionality> functionality, boolean resolvedOnly) {
 
@@ -126,58 +109,61 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
 
         String expression = "";
         for (String s : values) {
-            attributes.put(":functionality" + (values.indexOf(s) + 1), new AttributeValue().withS(s));
+            attributes.put(":functionality" + (values.indexOf(s) + 1), AttributeValue.builder().s(s).build());
             expression = expression.concat(":functionality" + (values.indexOf(s) + 1) + ",");
         }
-        attributes.put(":history1", new AttributeValue().withS("downtimeHistory"));
-        attributes.put(":startDate1", new AttributeValue().withS(fromTime.toString()));
+        attributes.put(":history1", AttributeValue.builder().s("downtimeHistory").build());
+        attributes.put(":startDate1", AttributeValue.builder().s(fromTime.toString()).build());
         String filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ")";
         if (toTime != null) {
-            attributes.put(":endDate1", new AttributeValue().withS(toTime.toString()));
-            if(!resolvedOnly) {
+            attributes.put(":endDate1", AttributeValue.builder().s(toTime.toString()).build());
+            if (!resolvedOnly) {
                 filter = filter.concat(
                         " and  (startDateAttribute BETWEEN :startDate1 AND :endDate1 or endDate BETWEEN :startDate1 AND :endDate1 or (startDateAttribute < :startDate1 and (endDate > :endDate1 or attribute_not_exists(endDate))))");
             } else {
-                filter = filter.concat(
-                        " and (endDate BETWEEN :startDate1 AND :endDate1)"
-                );
+                filter = filter.concat(" and (endDate BETWEEN :startDate1 AND :endDate1)");
             }
-
         } else {
             filter = filter.concat(
                     " and  (startDateAttribute > :startDate1 or endDate > :startDate1 or (startDateAttribute < :startDate1 and attribute_not_exists(endDate)))");
-
         }
 
-        DynamoDBQueryExpression<DowntimeLogs> queryExpression = new DynamoDBQueryExpression<DowntimeLogs>()
-                .withIndexName(historyIndex).withKeyConditionExpression("history =:history1")
-                .withFilterExpression(filter).withScanIndexForward(false).withConsistentRead(false)
-                .withExpressionAttributeValues(attributes);
+        Expression filterExpression = Expression.builder()
+                .expression(filter)
+                .expressionValues(attributes)
+                .build();
+
+        QueryEnhancedRequest queryRequest = QueryEnhancedRequest.builder()
+                .queryConditional(QueryConditional.keyEqualTo(
+                        Key.builder().partitionValue("downtimeHistory").build()))
+                .filterExpression(filterExpression)
+                .scanIndexForward(false)
+                .build();
+
         log.info("Query expression filter={}", filter);
 
-        listHistory = dynamoDBMapper.query(DowntimeLogs.class, queryExpression);
+        DynamoDbIndex<DowntimeLogs> index = downtimeLogsTable.index(historyIndex);
+        index.query(queryRequest).forEach(page -> page.items().forEach(listHistory::add));
 
         return listHistory;
     }
 
-    /**
-     * Current status.
-     *
-     * @return all functionalities and the open downtimes
-     */
     @Override
     public PnStatusResponse currentStatus() {
         List<PnDowntimeEntry> openIncidents = new ArrayList<>();
         PnStatusResponse pnStatusResponseEntry = new PnStatusResponse();
         try {
             for (PnFunctionality pn : PnFunctionality.values()) {
-                Map<String, AttributeValue> eav1 = new HashMap<>();
-                eav1.put(":functionality1", new AttributeValue().withS(pn.getValue()));
-                DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-                        .withFilterExpression("functionality =:functionality1 and  attribute_not_exists(endDate) ")
-                        .withExpressionAttributeValues(eav1);
+                Expression scanFilter = Expression.builder()
+                        .expression("functionality =:functionality1 and attribute_not_exists(endDate)")
+                        .expressionValues(Map.of(":functionality1", AttributeValue.builder().s(pn.getValue()).build()))
+                        .build();
 
-                List<DowntimeLogs> logs = dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
+                ScanEnhancedRequest scanRequest = ScanEnhancedRequest.builder()
+                        .filterExpression(scanFilter)
+                        .build();
+
+                List<DowntimeLogs> logs = downtimeLogsTable.scan(scanRequest).items().stream().toList();
 
                 if (logs != null && !logs.isEmpty() && PnFunctionalityStatus.KO.equals(logs.get(0).getStatus())) {
                     PnDowntimeEntry incident = downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(logs.get(0));
@@ -199,17 +185,6 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
         return pnStatusResponseEntry;
     }
 
-    /**
-     * Save a new downtime logs.
-     *
-     * @param functionalityStartYear the functionality start year which is a
-     *                               comination of functionality and the yeat of the
-     *                               startDate
-     * @param startDate              the start date
-     * @param functionality          the functionality
-     * @param startEventUuid         the uuid of start event
-     * @param uuid                   the uuid
-     */
     @Override
     public void saveDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate, PnFunctionality functionality,
                                  String startEventUuid, String uuid) {
@@ -226,25 +201,23 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
         downtimeLogs.setFileAvailable(false);
         downtimeLogs.setHistory("downtimeHistory");
         log.debug("Inserting data {} in DynamoDB table {}", downtimeLogs.toString(), StringUtils.substringAfterLast(downtimeLogsTableName, "/"));
-        dynamoDBMapper.save(downtimeLogs);
+        downtimeLogsTable.putItem(downtimeLogs);
         log.info("Inserted data in DynamoDB table {}", StringUtils.substringAfterLast(downtimeLogsTableName, "/"));
     }
 
     @Override
     public List<DowntimeLogs> findAllByEndDateIsNotNullAndLegalFactIdIsNull() {
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-                .withFilterExpression("attribute_not_exists(legalFactId) and  attribute_exists(endDate) ");
+        Expression scanFilter = Expression.builder()
+                .expression("attribute_not_exists(legalFactId) and attribute_exists(endDate)")
+                .build();
 
-        return dynamoDBMapper.parallelScan(DowntimeLogs.class, scanExpression, 3);
+        ScanEnhancedRequest scanRequest = ScanEnhancedRequest.builder()
+                .filterExpression(scanFilter)
+                .build();
+
+        return downtimeLogsTable.scan(scanRequest).items().stream().toList();
     }
 
-    /**
-     * Gets the resolved history.
-     *
-     * @param year      year of the research.
-     * @param month        month of the research
-     * @return all the downtimes present in the period of time specified
-     */
     @Override
     public PnDowntimeHistoryResponse getResolved(Integer year, Integer month) {
         OffsetDateTime currentDate = OffsetDateTime.now(ZoneOffset.UTC);
@@ -264,9 +237,9 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
         List<DowntimeLogs> listHistoryResults = getStatusHistoryResults(fromTime, toTime, allFunctionalities, true);
         PnDowntimeHistoryResponse response = new PnDowntimeHistoryResponse();
 
-        response.setResult( listHistoryResults != null ? listHistoryResults.stream()
-                .filter( DowntimeLogs::getFileAvailable )
-                .map( downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime) )
+        response.setResult(listHistoryResults != null ? listHistoryResults.stream()
+                .filter(DowntimeLogs::getFileAvailable)
+                .map(downtime -> downtimeLogsMapper.downtimeLogsToPnDowntimeEntry(downtime))
                 .toList() : Collections.emptyList()
         );
         log.info("Resolved response={}", response);

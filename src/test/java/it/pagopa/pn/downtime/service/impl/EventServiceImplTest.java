@@ -1,11 +1,11 @@
 package it.pagopa.pn.downtime.service.impl;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
+import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.util.Constants;
 import org.junit.jupiter.api.Test;
@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -36,7 +37,10 @@ class EventServiceImplTest {
     private LegalFactGenerator legalFactGenerator;
 
     @Mock
-    private DynamoDBMapper dynamoDBMapper;
+    private DynamoDbTable<DowntimeLogs> downtimeLogsTable;
+
+    @Mock
+    private DynamoDbTable<Event> eventTable;
 
     @Mock
     private DowntimeLogsSend producer;
@@ -136,7 +140,7 @@ class EventServiceImplTest {
         eventService.checkUpdateDowntime(eventId, event, dt);
 
         verify(eventService).sanitizeHtmlDescription(event.getHtmlDescription());
-        verify(dynamoDBMapper).save(Mockito.any());
+        verify(downtimeLogsTable).putItem(Mockito.any(DowntimeLogs.class));
         verify(producer).sendMessage(Mockito.any(), Mockito.any());
     }
 }

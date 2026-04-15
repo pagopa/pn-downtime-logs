@@ -2,7 +2,6 @@ package it.pagopa.pn.downtime.consumer;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +9,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,13 +21,18 @@ import it.pagopa.pn.downtime.generated.openapi.msclient.safestorage.v1.dto.FileC
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.service.LegalFactService;
 import lombok.CustomLog;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
+import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 
 @Component
 @CustomLog
 public class LegalFactIdReceiver {
 
 	@Autowired
-	private DynamoDBMapper dynamoDBMapper;
+	private DynamoDbTable<DowntimeLogs> downtimeLogsTable;
 
 	@Autowired
 	ObjectMapper mapper;
@@ -40,12 +40,6 @@ public class LegalFactIdReceiver {
 	@Autowired
 	LegalFactService legalFactService;
 
-	/**
-	 * Receive legal fact.
-	 *
-	 * @param message the message
-	 * @throws JsonProcessingException the json processing exception
-	 */
 	@SqsListener(value = "${amazon.sqs.end-point.legalfact-available}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
 	public void receiveLegalFact(final String message) throws JsonProcessingException {
 		log.info("threadId : {}, currentTime : {}", Thread.currentThread().getId(), System.currentTimeMillis());
@@ -57,12 +51,16 @@ public class LegalFactIdReceiver {
 		try {
 			FileCreatedDto legalFact = mapper.readValue(message, FileCreatedDto.class);
 
-			Map<String, AttributeValue> eav1 = new HashMap<>();
-			eav1.put(":legalFact1", new AttributeValue().withS(legalFact.getKey()));
-			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-					.withFilterExpression("legalFactId =:legalFact1").withExpressionAttributeValues(eav1);
+			Expression scanFilter = Expression.builder()
+					.expression("legalFactId =:legalFact1")
+					.expressionValues(Map.of(":legalFact1", AttributeValue.builder().s(legalFact.getKey()).build()))
+					.build();
 
-			List<DowntimeLogs> logs = dynamoDBMapper.scanPage(DowntimeLogs.class, scanExpression).getResults();
+			ScanEnhancedRequest scanRequest = ScanEnhancedRequest.builder()
+					.filterExpression(scanFilter)
+					.build();
+
+			List<DowntimeLogs> logs = downtimeLogsTable.scan(scanRequest).items().stream().toList();
 
 			updateFileAvailable(logs, legalFact);
 			logEvent.generateSuccess().log();
@@ -71,13 +69,7 @@ public class LegalFactIdReceiver {
 			log.error("STACKTRACE: {}", ExceptionUtils.getStackTrace(exc));
 		}
 	}
-	
-	/**
-	 * Update file available.
-	 *
-	 * @param logs the logs
-	 * @param legalFact the legal fact
-	 */
+
 	private void updateFileAvailable(List<DowntimeLogs> logs, FileCreatedDto legalFact) {
 		if (logs != null && !logs.isEmpty()) {
 			DowntimeLogs downtimeLogs = logs.get(0);
@@ -85,9 +77,11 @@ public class LegalFactIdReceiver {
 			OffsetDateTime fileAvailableTimestamp = OffsetDateTime.now(ZoneOffset.UTC);
 			downtimeLogs.setFileAvailableTimestamp(fileAvailableTimestamp);
 			log.info("Save legalFactId {} with timestamp {}", legalFact.getKey(), fileAvailableTimestamp);
-			dynamoDBMapper.save(downtimeLogs);
+			downtimeLogsTable.putItem(downtimeLogs);
 		} else {
-			throw new ResourceNotFoundException("No Downtime Found for legalFactId {} = " + legalFact.getKey());
+			throw ResourceNotFoundException.builder()
+					.message("No Downtime Found for legalFactId {} = " + legalFact.getKey())
+					.build();
 		}
 	}
 }

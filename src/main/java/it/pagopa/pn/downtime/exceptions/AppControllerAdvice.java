@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
-import com.amazonaws.SdkClientException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
