@@ -478,6 +478,7 @@ Resources:
         APIGatewayARNs: !Sub "arn:${AWS::Partition}:apigateway:${AWS::Region}::/restapis/${DowntimeLogsMicroservicePublicApi.Outputs.RestApiId}/stages/${PublicRestApiStage}"
         Limit: !Ref WebWafLimit
         EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   # Expose API to custom domain
   PagoPaMapping:
