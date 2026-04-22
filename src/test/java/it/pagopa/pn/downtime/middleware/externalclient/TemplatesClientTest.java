@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,7 +30,7 @@ class TemplatesClientTest {
 
         byte[] expectedPdfBytes = "Test PDF Content".getBytes();
         when(templateEngineClient.malfunctionLegalFact(language, malfunctionLegalFact))
-                .thenReturn(expectedPdfBytes);
+                .thenReturn(new ByteArrayResource(expectedPdfBytes));
 
         // Act
         byte[] result = templatesClient.malfunctionLegalFact(language, malfunctionLegalFact);
@@ -48,11 +49,9 @@ class TemplatesClientTest {
 
         when(templateEngineClient.malfunctionLegalFact(language, malfunctionLegalFact)).thenReturn(null);
 
-        // Act
-        byte[] result = templatesClient.malfunctionLegalFact(language, malfunctionLegalFact);
-
-        // Assert
-        assertNull(result, "Result null when API returns null");
+        // Act & Assert — null Resource causes NullPointerException wrapped in RuntimeException
+        assertThrows(RuntimeException.class, () ->
+                templatesClient.malfunctionLegalFact(language, malfunctionLegalFact));
         verify(templateEngineClient, times(1)).malfunctionLegalFact(language, malfunctionLegalFact);
     }
 

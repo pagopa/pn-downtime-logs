@@ -1,6 +1,8 @@
 package it.pagopa.pn.downtime.mapper;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.mapstruct.Mapper;
@@ -45,5 +47,9 @@ public interface CloudwatchMapper {
 		}
 		return pnFunctionalityStatus;
 	}
-	
+
+	default Date map(OffsetDateTime value) {
+		return value == null ? null : Date.from(value.toInstant());
+	}
+
 }

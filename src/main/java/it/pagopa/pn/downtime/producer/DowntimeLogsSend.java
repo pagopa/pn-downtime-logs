@@ -2,7 +2,6 @@ package it.pagopa.pn.downtime.producer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,7 +18,6 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 public class DowntimeLogsSend {
 
     @Autowired
-    @Qualifier("sqsClientProducer")
     private SqsAsyncClient sqsClient;
 
     @Autowired

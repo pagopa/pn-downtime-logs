@@ -8,10 +8,9 @@ import it.pagopa.pn.downtime.model.Alarm;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.service.LegalFactService;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -35,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = PnDowntimeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource(properties = {"pn.downtime-logs.enable-templates-engine=false"})
@@ -51,8 +48,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	@Test
 	public void test_CheckCurretStatus() throws Exception {
-		mockCurrentStatus500(client);
-		mockFindByFunctionalityAndEndDateIsNull(
+		mockFindByFunctionalityAndEndDateIsNullCheck500(
 				getDowntimeLogs("NOTIFICATION_CREATE2022", OffsetDateTime.parse("2022-08-28T13:55:15.995Z"),
 						PnFunctionality.NOTIFICATION_CREATE, "EVENT_START", "akdoe-50403", null));
 		MockHttpServletResponse response = mvc.perform(get(currentStatusUrl)).andReturn().getResponse();
@@ -156,7 +152,6 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	 */
 	@Test
 	public void test_CheckHistoryErrorFromTime() throws Exception {
-		mockHistory_BADREQUEST(client);
 		mvc.perform(get(historyStatusUrl).params(
 				getMockHistoryStatus(null, OffsetDateTime.parse("2022-09-28T12:56:07.000+00:00"), null, "0", "5")))
 				.andExpect(status().isBadRequest());
@@ -380,9 +375,8 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	@Test
 	public void test_CheckStatusOK() throws Exception {
-		mockCurrentStatusOK(client);
 		DowntimeLogs dt = new DowntimeLogs();
-		mockFindByFunctionalityAndEndDateIsNull(dt);
+		mockFindByFunctionalityAndEndDateIsNullCheck500(dt);
         MockHttpServletResponse response = mvc.perform(get(statusUrl)).andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());

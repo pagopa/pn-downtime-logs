@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.awspring.cloud.messaging.listener.SimpleMessageListenerContainer;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
@@ -29,12 +28,9 @@ import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.impl.DowntimeLogsServiceImpl;
-import org.junit.Rule;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,9 +55,6 @@ import static org.mockito.Mockito.withSettings;
 
 public abstract class AbstractMock {
 
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule();
-
 	@Autowired
 	MockMvc mvc;
 
@@ -80,9 +73,6 @@ public abstract class AbstractMock {
 
 	@MockBean
 	protected DowntimeLogsRepository mockDowntimeLogsRepository;
-
-	@MockBean
-	SimpleMessageListenerContainer simpleMessageListenerContainer;
 
 	@Autowired
 	protected DowntimeLogsServiceImpl service;
@@ -452,7 +442,7 @@ public abstract class AbstractMock {
 
 		response.setDownload(downloadLegalFactDto);
 		response.setDocumentStatus("PRELOADED");
-		response.setRetentionUntil(OffsetDateTime.parse("2033-07-27T00:00:00.000Z"));
+		response.setRetentionUntil(java.util.Date.from(OffsetDateTime.parse("2033-07-27T00:00:00.000Z").toInstant()));
 
 		Mockito.when(fileDownloadApi.getFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
 				.thenReturn(response);

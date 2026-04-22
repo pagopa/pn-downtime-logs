@@ -1,11 +1,15 @@
 package it.pagopa.pn.downtime.middleware.externalclient;
 
+import java.io.IOException;
+
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+
 import it.pagopa.pn.downtime.generated.openapi.msclient.templatesengine.api.TemplateApi;
 import it.pagopa.pn.downtime.generated.openapi.msclient.templatesengine.model.LanguageEnum;
 import it.pagopa.pn.downtime.generated.openapi.msclient.templatesengine.model.MalfunctionLegalFact;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 
 @Component
@@ -26,6 +30,11 @@ public class TemplatesClient {
      * @return the byte array of the pdf generated.
      */
     public byte[] malfunctionLegalFact(LanguageEnum language, MalfunctionLegalFact malfunctionLegalFact) {
-        return templateEngineClient.malfunctionLegalFact(language, malfunctionLegalFact);
+        Resource resource = templateEngineClient.malfunctionLegalFact(language, malfunctionLegalFact);
+        try {
+            return resource.getInputStream().readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read malfunctionLegalFact response", e);
+        }
     }
 }
