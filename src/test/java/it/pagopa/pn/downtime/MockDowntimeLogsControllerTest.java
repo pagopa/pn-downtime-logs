@@ -15,11 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class MockDowntimeLogsControllerTest extends AbstractMock {
 	@Autowired
 	LegalFactService legalFactService;
 
-	@MockBean
+	@MockitoBean
 	protected DowntimeLogsSend producer;
 
 	/** jUnit test for the /curretStatus service */

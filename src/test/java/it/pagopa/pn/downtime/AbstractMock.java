@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
@@ -30,11 +31,9 @@ import it.pagopa.pn.downtime.service.DowntimeLogsService;
 import it.pagopa.pn.downtime.service.impl.DowntimeLogsServiceImpl;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,7 +50,6 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.withSettings;
 
 public abstract class AbstractMock {
 
@@ -61,29 +59,29 @@ public abstract class AbstractMock {
 	@Autowired
 	CloudwatchMapper cloudwatchMapper;
 
-	@MockBean
+	@MockitoBean
 	@Qualifier("restTemplate")
 	RestTemplate client;
 
-	@MockBean
+	@MockitoBean
 	protected DynamoDbTable<DowntimeLogs> mockDowntimeLogsTable;
 
-	@MockBean
+	@MockitoBean
 	protected DynamoDbTable<Event> mockEventTable;
 
-	@MockBean
+	@MockitoBean
 	protected DowntimeLogsRepository mockDowntimeLogsRepository;
 
 	@Autowired
 	protected DowntimeLogsServiceImpl service;
 
-	@MockBean
+	@MockitoBean
 	private FileDownloadApi fileDownloadApi;
 
-	@MockBean
+	@MockitoBean
 	private FileUploadApi fileUploadApi;
 
-	@MockBean
+	@MockitoBean
 	private TemplatesClient mockTemplatesClient;
 
 	@Value("classpath:data/current_status.json")

@@ -4,17 +4,18 @@ import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStatus;
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent;
 import it.pagopa.pn.downtime.service.impl.EventServiceImpl;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.OffsetDateTime;
 
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @TestPropertySource(properties = {"pn.downtime-logs.enable-templates-engine=true"})
 public class MockDowntimeBoControllerTest extends AbstractMock {
 
-    @MockBean
+    @MockitoBean
     private EventServiceImpl eventService;
 
     @Test

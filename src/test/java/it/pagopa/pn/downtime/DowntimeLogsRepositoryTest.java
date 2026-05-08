@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionality;
@@ -27,6 +26,7 @@ import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnFunctionalityStat
 import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
@@ -38,10 +38,10 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 @ExtendWith(MockitoExtension.class)
 class DowntimeLogsRepositoryTest {
 
-	@MockBean
+	@MockitoBean
 	private DynamoDbTable<DowntimeLogs> downtimeLogsTable;
 
-	@MockBean
+	@MockitoBean
 	private DynamoDbTable<Event> eventTable;
 
 	@Autowired
