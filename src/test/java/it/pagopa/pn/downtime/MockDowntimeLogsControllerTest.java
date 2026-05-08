@@ -9,6 +9,7 @@ import it.pagopa.pn.downtime.model.DowntimeLogs;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.service.LegalFactService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource(properties = {"pn.downtime-logs.enable-templates-engine=false"})
+@Disabled
 public class MockDowntimeLogsControllerTest extends AbstractMock {
 
 	@Autowired

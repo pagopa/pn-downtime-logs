@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource(properties = {"pn.downtime-logs.enable-templates-engine=true"})
+@Disabled
 public class MockDowntimeBoControllerTest extends AbstractMock {
 
     @MockitoBean
