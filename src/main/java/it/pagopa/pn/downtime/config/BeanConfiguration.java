@@ -22,7 +22,6 @@ import it.pagopa.pn.downtime.model.Event;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 @Configuration
 @Import(SharedAutoConfiguration.class)
@@ -31,12 +30,6 @@ public class BeanConfiguration {
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 	   return new RestTemplate();
-	}
-
-	@Bean
-	@Primary
-	public DynamoDbEnhancedClient dynamoDbEnhancedClient(@Autowired DynamoDbClient dynamoDbClient) {
-		return DynamoDbEnhancedClient.builder().dynamoDbClient(dynamoDbClient).build();
 	}
 
 	@Bean
