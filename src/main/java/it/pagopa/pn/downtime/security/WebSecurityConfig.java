@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,15 +27,14 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-			.csrf(AbstractHttpConfigurer::disable)
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.headers(headers -> headers
 				.contentSecurityPolicy(csp -> csp.policyDirectives(
 					"default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; frame-ancestors 'none'; form-action 'self'"))
 				.httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(10886400))
 				.contentTypeOptions(cto -> {})
-				.xssProtection(xss -> xss.disable())
-				.frameOptions(fo -> fo.deny()))
+				.xssProtection(HeadersConfigurer.XXssConfig::disable)
+				.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth.requestMatchers("/").permitAll().anyRequest().permitAll());
 		return http.build();
