@@ -1,13 +1,9 @@
 package it.pagopa.pn.downtime.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -51,13 +47,4 @@ public class BeanConfiguration {
 		mapper.registerModule(new JavaTimeModule());
 		return mapper;
 	}
-
-	@Bean
-    protected MessageConverter messageConverter(ObjectMapper objectMapper) {
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setObjectMapper(objectMapper);
-        converter.setSerializedPayloadClass(String.class);
-        converter.setStrictContentTypeMatch(false);
-        return converter;
-    }
 }
