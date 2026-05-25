@@ -1,6 +1,9 @@
 package it.pagopa.pn.downtime.service.impl;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import java.util.UUID;
+
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import it.pagopa.pn.downtime.model.Event;
 import freemarker.template.TemplateException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -11,7 +14,6 @@ import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
 import it.pagopa.pn.downtime.middleware.legalfactgenerator.LegalFactGenerator;
 import it.pagopa.pn.downtime.model.DowntimeLogs;
-import it.pagopa.pn.downtime.model.Event;
 import it.pagopa.pn.downtime.producer.DowntimeLogsSend;
 import it.pagopa.pn.downtime.repository.DowntimeLogsRepository;
 import it.pagopa.pn.downtime.service.DowntimeLogsService;
@@ -51,7 +53,10 @@ public class EventServiceImpl implements EventService {
     private String url;
 
     @Autowired
-    private DynamoDBMapper dynamoDBMapper;
+    private DynamoDbTable<DowntimeLogs> downtimeLogsTable;
+
+    @Autowired
+    private DynamoDbTable<Event> eventTable;
 
     @Autowired
     private DowntimeLogsRepository repository;
@@ -190,7 +195,7 @@ public class EventServiceImpl implements EventService {
             dt.setEndEventUuid(eventId);
             dt.setStatus(event.getStatus());
             dt.setHtmlDescription(sanitizeHtmlDescription(event.getHtmlDescription()));
-            dynamoDBMapper.save(dt);
+            downtimeLogsTable.putItem(dt);
             producer.sendMessage(dt, url);
         }
 
@@ -250,8 +255,11 @@ public class EventServiceImpl implements EventService {
         event.setSourceType(sourceType);
         event.setSource(source);
         event.setUuid(uuid);
+        if (event.getIdEvent() == null) {
+            event.setIdEvent(UUID.randomUUID().toString());
+        }
         log.debug("Inserting data {} in DynamoDB table {}", event.toString(), StringUtils.substringAfterLast(eventTableName, "/"));
-        dynamoDBMapper.save(event);
+        eventTable.putItem(event);
         log.info("Inserted data in DynamoDB table {}", StringUtils.substringAfterLast(eventTableName, "/"));
         return event.getIdEvent();
     }

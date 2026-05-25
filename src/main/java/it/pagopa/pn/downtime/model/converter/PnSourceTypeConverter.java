@@ -5,29 +5,38 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
-
 import it.pagopa.pn.downtime.generated.openapi.server.v1.dto.PnStatusUpdateEvent.SourceTypeEnum;
+import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter;
+import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType;
+import software.amazon.awssdk.enhanced.dynamodb.EnhancedType;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@DynamoDBTypeConverted(converter = PnSourceTypeConverter.Converter.class)
 public @interface PnSourceTypeConverter {
 
 	String separator() default " ";
 
-	public static class Converter implements DynamoDBTypeConverter<String, SourceTypeEnum> {
+	class Converter implements AttributeConverter<SourceTypeEnum> {
 		@Override
-		public String convert(final SourceTypeEnum o) {
-			return o.getValue();
+		public AttributeValue transformFrom(SourceTypeEnum input) {
+			return AttributeValue.builder().s(input.getValue()).build();
 		}
 
 		@Override
-		public SourceTypeEnum unconvert(final String o) {
-			return SourceTypeEnum.fromValue(o);
+		public SourceTypeEnum transformTo(AttributeValue input) {
+			return SourceTypeEnum.fromValue(input.s());
 		}
 
+		@Override
+		public EnhancedType<SourceTypeEnum> type() {
+			return EnhancedType.of(SourceTypeEnum.class);
+		}
+
+		@Override
+		public AttributeValueType attributeValueType() {
+			return AttributeValueType.S;
+		}
 	}
 }

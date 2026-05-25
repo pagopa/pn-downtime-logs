@@ -1,17 +1,11 @@
 package it.pagopa.pn.downtime.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -19,24 +13,31 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
+import it.pagopa.pn.downtime.model.DowntimeLogs;
+import it.pagopa.pn.downtime.model.Event;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 @Configuration
 @Import(SharedAutoConfiguration.class)
 public class BeanConfiguration {
-	
+
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 	   return new RestTemplate();
 	}
-	
 
 	@Bean
-	@Primary
-	public DynamoDBMapper amazonDBMapperLogs(@Autowired AmazonDynamoDB amazonDynamoDB) {
-		return new DynamoDBMapper(amazonDynamoDB);
+	public DynamoDbTable<DowntimeLogs> downtimeLogsTable(DynamoDbEnhancedClient enhancedClient) {
+		return enhancedClient.table("Downtime-DowntimeLogs", TableSchema.fromBean(DowntimeLogs.class));
 	}
 
-	
+	@Bean
+	public DynamoDbTable<Event> eventTable(DynamoDbEnhancedClient enhancedClient) {
+		return enhancedClient.table("Downtime-Event", TableSchema.fromBean(Event.class));
+	}
+
 	@Bean
 	public ObjectMapper getObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
@@ -46,14 +47,4 @@ public class BeanConfiguration {
 		mapper.registerModule(new JavaTimeModule());
 		return mapper;
 	}
-	
-	@Bean
-    protected MessageConverter messageConverter(ObjectMapper objectMapper) {
-
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setObjectMapper(objectMapper);
-        converter.setSerializedPayloadClass(String.class);
-        converter.setStrictContentTypeMatch(false);
-        return converter;
-    }
 }

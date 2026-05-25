@@ -30,6 +30,11 @@ public class SafeStorageApiConfigurator {
 		return new FileMetadataUpdateApi(getNewApiClient());
 	}
 
+	@Bean
+	public ApiClient apiClient() {
+		return new ApiClient();
+	}
+
 	@NotNull
 	private ApiClient getNewApiClient() {
 		return new ApiClient();
