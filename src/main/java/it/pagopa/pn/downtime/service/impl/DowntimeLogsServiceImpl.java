@@ -112,7 +112,6 @@ public class DowntimeLogsServiceImpl implements DowntimeLogsService {
             attributes.put(":functionality" + (values.indexOf(s) + 1), AttributeValue.builder().s(s).build());
             expression = expression.concat(":functionality" + (values.indexOf(s) + 1) + ",");
         }
-        attributes.put(":history1", AttributeValue.builder().s("downtimeHistory").build());
         attributes.put(":startDate1", AttributeValue.builder().s(fromTime.toString()).build());
         String filter = "functionality in (" + expression.substring(0, expression.length() - 1) + ")";
         if (toTime != null) {
