@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.time.OffsetDateTime;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -190,6 +192,94 @@ class DowntimeLogsRepositoryTest {
 		Optional<DowntimeLogs> resultQuery = downtimeLogsRepository.findNextDowntimeLogs(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
 
 		assertTrue(resultQuery.isEmpty());
+	}
+
+	// ── Captured QueryEnhancedRequest assertions ─────────────────────────────
+
+	private QueryEnhancedRequest captureQueryRequest() {
+		ArgumentCaptor<QueryEnhancedRequest> captor = ArgumentCaptor.forClass(QueryEnhancedRequest.class);
+		verify(downtimeLogsTable).query(captor.capture());
+		return captor.getValue();
+	}
+
+	@Test
+	void findOpenDowntimeLogsFuture_buildsExpectedFilterAndValues() {
+		PageIterable<DowntimeLogs> pi = stubPageIterable(List.of());
+		Mockito.when(downtimeLogsTable.query(any(QueryEnhancedRequest.class))).thenReturn(pi);
+
+		downtimeLogsRepository.findOpenDowntimeLogsFuture(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
+
+		QueryEnhancedRequest req = captureQueryRequest();
+		assertThat(req.filterExpression().expression())
+				.isEqualTo("functionality = :functionalityInput and attribute_not_exists(endDate)");
+		assertThat(req.filterExpression().expressionValues())
+				.containsOnlyKeys(":functionalityInput")
+				.containsEntry(":functionalityInput", AttributeValue.builder().s("NOTIFICATION_CREATE").build());
+	}
+
+	@Test
+	void findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists_buildsExpectedFilterAndValues() {
+		PageIterable<DowntimeLogs> pi = stubPageIterable(List.of());
+		Mockito.when(downtimeLogsTable.query(any(QueryEnhancedRequest.class))).thenReturn(pi);
+
+		downtimeLogsRepository.findDowntimeLogsBetweenStartDateAndEndDateAndEndDateExists(
+				searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
+
+		QueryEnhancedRequest req = captureQueryRequest();
+		assertThat(req.filterExpression().expression())
+				.isEqualTo("functionality = :functionalityInput and endDate > :startDateInput and attribute_exists(endDate)");
+		assertThat(req.filterExpression().expressionValues())
+				.containsOnlyKeys(":functionalityInput", ":startDateInput")
+				.containsEntry(":functionalityInput", AttributeValue.builder().s("NOTIFICATION_CREATE").build())
+				.containsEntry(":startDateInput", AttributeValue.builder().s(searchParameter.toString()).build());
+	}
+
+	@Test
+	void findLastDowntimeLogsWithoutEndDate_buildsExpectedFilterAndValues() {
+		PageIterable<DowntimeLogs> pi = stubPageIterable(List.of(getDowntimeLogs(
+				"NOTIFICATION_WORKFLOW2022",
+				OffsetDateTime.parse("2022-09-26T13:55:15.995Z"),
+				PnFunctionality.NOTIFICATION_WORKFLOW, "EVENT_START", "akdoe-50403", null)));
+		Mockito.when(downtimeLogsTable.query(any(QueryEnhancedRequest.class))).thenReturn(pi);
+
+		downtimeLogsRepository.findLastDowntimeLogsWithoutEndDate(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
+
+		QueryEnhancedRequest req = captureQueryRequest();
+		assertThat(req.filterExpression().expression())
+				.isEqualTo("functionality =:functionalityInput and attribute_not_exists(endDate)");
+		assertThat(req.filterExpression().expressionValues())
+				.containsOnlyKeys(":functionalityInput")
+				.containsEntry(":functionalityInput", AttributeValue.builder().s("NOTIFICATION_CREATE").build());
+	}
+
+	@Test
+	void findLastDowntimeLogs_buildsExpectedFilterAndValues() {
+		PageIterable<DowntimeLogs> pi = stubPageIterable(List.of());
+		Mockito.when(downtimeLogsTable.query(any(QueryEnhancedRequest.class))).thenReturn(pi);
+
+		downtimeLogsRepository.findLastDowntimeLogs(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
+
+		QueryEnhancedRequest req = captureQueryRequest();
+		assertThat(req.filterExpression().expression())
+				.isEqualTo("functionality =:functionalityInput");
+		assertThat(req.filterExpression().expressionValues())
+				.containsOnlyKeys(":functionalityInput")
+				.containsEntry(":functionalityInput", AttributeValue.builder().s("NOTIFICATION_CREATE").build());
+	}
+
+	@Test
+	void findNextDowntimeLogs_buildsExpectedFilterAndValues() {
+		PageIterable<DowntimeLogs> pi = stubPageIterable(List.of());
+		Mockito.when(downtimeLogsTable.query(any(QueryEnhancedRequest.class))).thenReturn(pi);
+
+		downtimeLogsRepository.findNextDowntimeLogs(searchParameter, PnFunctionality.NOTIFICATION_CREATE, searchParameter);
+
+		QueryEnhancedRequest req = captureQueryRequest();
+		assertThat(req.filterExpression().expression())
+				.isEqualTo("functionality = :functionalityInput");
+		assertThat(req.filterExpression().expressionValues())
+				.containsOnlyKeys(":functionalityInput")
+				.containsEntry(":functionalityInput", AttributeValue.builder().s("NOTIFICATION_CREATE").build());
 	}
 
 	protected static DowntimeLogs getDowntimeLogs(String functionalityStartYear, OffsetDateTime startDate,

@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -89,11 +90,15 @@ public class DowntimeLogsRepository {
 		String skValue = eventTimestamp.toString();
 		String funcValue = functionality.getValue();
 
-		Map<String, AttributeValue> exprValues = Map.of(
+		Map<String, AttributeValue> allValues = Map.of(
 				":functionalityStartYearInput", AttributeValue.builder().s(pkValue).build(),
 				":startDateInput", AttributeValue.builder().s(skValue).build(),
 				":functionalityInput", AttributeValue.builder().s(funcValue).build()
 		);
+
+		Map<String, AttributeValue> exprValues = allValues.entrySet().stream()
+				.filter(e -> filterExpr.contains(e.getKey()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		// Parse the key condition to build the appropriate QueryConditional
 		QueryConditional keyConditional;
