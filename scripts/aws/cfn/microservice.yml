@@ -312,6 +312,11 @@ Parameters:
     Default: ""
     Description: "Base key of the microservice in the s3 bucket"
 
+  JavaToolOptions:
+    Type: String
+    Default: ""
+    Description: "Java tool options for the microservice"
+
 Resources:
 
   DowntimeLogsMicroservice:
@@ -369,6 +374,7 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DowntimeLogsMicroserviceTaskManagedPolicy
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
+        JavaToolOptions: !Ref JavaToolOptions
 
   # Grant operational rights to PN-Downtime-Logs microservice
   DowntimeLogsMicroserviceTaskManagedPolicy:
