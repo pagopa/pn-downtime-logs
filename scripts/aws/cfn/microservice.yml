@@ -312,6 +312,19 @@ Parameters:
     Default: ""
     Description: "Base key of the microservice in the s3 bucket"
 
+  JavaToolOptions:
+    Type: String
+    Default: ""
+    Description: "Java tool options for the microservice"
+
+  CpuArchitecture:
+    Type: String
+    Default: 'ARM'
+    Description: CPU architecture for the Fargate tasks
+    AllowedValues:
+      - 'ARM'
+      - 'AMD'
+      
 Resources:
 
   DowntimeLogsMicroservice:
@@ -369,6 +382,8 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DowntimeLogsMicroserviceTaskManagedPolicy
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
+        JavaToolOptions: !Ref JavaToolOptions
+        CpuArchitecture: !Ref CpuArchitecture
 
   # Grant operational rights to PN-Downtime-Logs microservice
   DowntimeLogsMicroserviceTaskManagedPolicy:
